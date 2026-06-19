@@ -1,4 +1,5 @@
 """
+
 SmartTrade Server - Railway.app
 Recebe dados do Excel via POST e distribui para clientes via WebSocket
 """
