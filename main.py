@@ -1,10 +1,9 @@
 import os
 import time
-import json
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import logging
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # ============================================
-# CORS - PERMITIR TUDO
+# CORS - PERMITIR TUDO (essencial para o Railway)
 # ============================================
 app.add_middleware(
     CORSMiddleware,
@@ -29,6 +28,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # ============================================
@@ -122,9 +122,10 @@ DADOS_PADRAO = {
     ]
 }
 
-# Estado em memória
+# Estado em memória (inicia com dados padrão)
 latest_data: Dict[str, Any] = DADOS_PADRAO.copy()
 latest_data["timestamp"] = time.time()
+latest_data["ultima_atualizacao"] = time.strftime("%d/%m/%Y %H:%M:%S")
 
 # ============================================
 # MODELOS
@@ -134,79 +135,97 @@ class DadosRequest(BaseModel):
     dados: Dict[str, Any]
 
 # ============================================
-# ENDPOINTS
+# ENDPOINTS DA API
 # ============================================
 
 @app.get("/")
-@app.get("/index.html")
 async def root():
-    """Rota principal"""
-    # Verifica se existe o frontend
+    """Rota principal - serve o frontend se existir"""
+    # Tenta servir o index.html da pasta client
     if os.path.exists("client/index.html"):
-        # O StaticFiles vai servir
-        return {"message": "Smart Trade API", "status": "online"}
+        return FileResponse("client/index.html")
     else:
-        # Fallback
+        # Fallback: mostra status da API
         return HTMLResponse("""
+            <!DOCTYPE html>
             <html>
-                <head><title>Smart Trade</title></head>
-                <body style="background:#0A0E17;color:#E8EDF5;font-family:monospace;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;">
-                    <div style="text-align:center;">
-                        <h1>📊 Smart Trade</h1>
-                        <p style="color:#1DB954;">✅ API online!</p>
-                        <p style="color:#5E7390;">Aguardando frontend...</p>
-                        <br>
-                        <a href="/api/status" style="color:#1DB954;">▶ Status</a>
-                        <a href="/api/dados" style="color:#5E7390;margin-left:15px;">📊 Dados</a>
+            <head>
+                <title>Smart Trade API</title>
+                <style>
+                    body { background: #0A0E17; color: #E8EDF5; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+                    .container { text-align: center; max-width: 600px; padding: 40px; }
+                    h1 { color: #1DB954; font-size: 32px; }
+                    .status { color: #5E7390; font-size: 14px; margin: 20px 0; }
+                    .endpoints { text-align: left; background: #111827; padding: 20px; border-radius: 8px; border: 1px solid #1E2A3A; }
+                    .endpoints code { color: #1DB954; }
+                    .missing { color: #F4A020; font-size: 12px; margin-top: 20px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>📊 Smart Trade</h1>
+                    <div class="status">✅ API está online!</div>
+                    <div class="endpoints">
+                        <div><code>GET /api/dados</code> - Ver todos os dados</div>
+                        <div><code>GET /api/status</code> - Status do servidor</div>
+                        <div><code>GET /api/health</code> - Health check</div>
+                        <div><code>POST /api/dados</code> - Enviar dados (requer API Key)</div>
                     </div>
-                </body>
+                    <div class="missing">
+                        ⚠️ Frontend não encontrado. Crie uma pasta <code>client/</code> com <code>index.html</code>
+                    </div>
+                </div>
+            </body>
             </html>
         """)
 
 @app.post("/api/dados")
 async def receber_dados(request: DadosRequest):
-    """Recebe dados do Excel"""
+    """Recebe dados do Excel/planilha"""
     global latest_data
     
     # Verifica API key
     if request.api_key != EXCEL_API_KEY:
-        logger.warning(f"API key inválida: {request.api_key[:10]}...")
+        logger.warning(f"❌ API key inválida: {request.api_key[:10]}...")
         raise HTTPException(status_code=403, detail="API key inválida")
     
     try:
         novos_dados = request.dados
         
-        # Atualiza os dados
+        # Atualiza os dados (merge profundo)
         for chave, valor in novos_dados.items():
             if chave in latest_data and isinstance(latest_data[chave], dict) and isinstance(valor, dict):
                 latest_data[chave].update(valor)
             else:
                 latest_data[chave] = valor
         
+        # Atualiza timestamp
         latest_data["timestamp"] = time.time()
+        latest_data["ultima_atualizacao"] = time.strftime("%d/%m/%Y %H:%M:%S")
         
         logger.info(f"✅ Dados atualizados! Timestamp: {latest_data['timestamp']}")
         
         return {
             "ok": True,
             "timestamp": latest_data["timestamp"],
+            "ultima_atualizacao": latest_data["ultima_atualizacao"],
             "mensagem": "Dados recebidos com sucesso"
         }
     
     except Exception as e:
-        logger.error(f"❌ Erro: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"❌ Erro ao processar dados: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao processar dados: {str(e)}")
 
 @app.get("/api/dados")
 async def get_dados():
-    """Retorna todos os dados"""
+    """Retorna todos os dados atuais"""
     return {"dados": latest_data}
 
 @app.get("/api/dados/{categoria}")
 async def get_categoria(categoria: str):
-    """Retorna uma categoria específica"""
+    """Retorna uma categoria específica dos dados"""
     if categoria not in latest_data:
-        raise HTTPException(status_code=404, detail="Categoria não encontrada")
+        raise HTTPException(status_code=404, detail=f"Categoria '{categoria}' não encontrada")
     return {categoria: latest_data[categoria]}
 
 @app.get("/api/status")
@@ -215,20 +234,112 @@ async def status():
     return {
         "online": True,
         "ultimo_dado": latest_data.get("timestamp"),
-        "ultima_atualizacao": time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(latest_data.get("timestamp", 0))),
-        "categorias": list(latest_data.keys())
+        "ultima_atualizacao": latest_data.get("ultima_atualizacao", "Nunca"),
+        "total_categorias": len([k for k in latest_data.keys() if k not in ["timestamp", "ultima_atualizacao"]]),
+        "categorias": [k for k in latest_data.keys() if k not in ["timestamp", "ultima_atualizacao"]]
     }
 
 @app.get("/api/health")
 async def health():
-    """Health check"""
-    return {"status": "healthy"}
+    """Health check para monitoramento"""
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "timestamp": time.time(),
+        "uptime": time.strftime("%d/%m/%Y %H:%M:%S")
+    }
 
 # ============================================
-# SERVE ARQUIVOS ESTÁTICOS
+# SERVE ARQUIVOS ESTÁTICOS (CSS, JS, imagens)
 # ============================================
+
+# Verifica se existe a pasta 'client'
 if os.path.exists("client"):
-    logger.info("📁 Servindo arquivos da pasta 'client'")
-    app.mount("/", StaticFiles(directory="client", html=True), name="static")
+    logger.info("📁 Servindo arquivos estáticos da pasta 'client'")
+    
+    # Monta a pasta client para arquivos estáticos (CSS, JS, imagens)
+    app.mount("/static", StaticFiles(directory="client"), name="static")
+    
+    # Rota para servir o index.html diretamente
+    @app.get("/index.html")
+    async def serve_index_html():
+        if os.path.exists("client/index.html"):
+            return FileResponse("client/index.html")
+        return HTMLResponse("<h1>index.html não encontrado</h1>", status_code=404)
+    
+    # Rota para servir qualquer arquivo da pasta client
+    @app.get("/{path:path}")
+    async def serve_static(path: str):
+        file_path = os.path.join("client", path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # Se não encontrar o arquivo, tenta servir o index.html (SPA fallback)
+        if os.path.exists("client/index.html"):
+            return FileResponse("client/index.html")
+        return HTMLResponse(f"Arquivo não encontrado: {path}", status_code=404)
+
 else:
     logger.warning("⚠️ Pasta 'client' não encontrada")
+    
+    @app.get("/{path:path}")
+    async def serve_not_found(path: str):
+        return HTMLResponse(f"""
+            <html>
+                <head><title>Smart Trade</title></head>
+                <body style="background:#0A0E17;color:#E8EDF5;font-family:monospace;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;">
+                    <div style="text-align:center;">
+                        <h1>📊 Smart Trade</h1>
+                        <p style="color:#1DB954;">✅ API online!</p>
+                        <p style="color:#5E7390;">Pasta <code>client/</code> não encontrada.</p>
+                        <br>
+                        <a href="/api/status" style="color:#1DB954;">▶ Status</a>
+                        <a href="/api/dados" style="color:#5E7390;margin-left:15px;">📊 Dados</a>
+                    </div>
+                </body>
+            </html>
+        """)
+
+# ============================================
+# HANDLER DE ERROS
+# ============================================
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"erro": exc.detail, "status_code": exc.status_code}
+    )
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    logger.error(f"❌ Erro não tratado: {str(exc)}")
+    return JSONResponse(
+        status_code=500,
+        content={"erro": "Erro interno do servidor"}
+    )
+
+# ============================================
+# INICIALIZAÇÃO
+# ============================================
+if __name__ == "__main__":
+    import uvicorn
+    
+    print("\n" + "="*60)
+    print("🚀 SMART TRADE API")
+    print("="*60)
+    print(f"📊 API Key: {EXCEL_API_KEY}")
+    print(f"📁 Pasta client: {'✅ Existe' if os.path.exists('client') else '❌ Não existe'}")
+    print(f"📄 index.html: {'✅ Encontrado' if os.path.exists('client/index.html') else '❌ Não encontrado'}")
+    print("="*60)
+    print("🌐 Acesse: http://localhost:8000")
+    print("📡 API Docs: http://localhost:8000/docs")
+    print("📊 Status: http://localhost:8000/api/status")
+    print("="*60 + "\n")
+    
+    # Porta padrão para Railway é 8000
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=port,
+        log_level="info"
+    )
