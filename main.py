@@ -1,6 +1,3 @@
-"""
-SmartTrade Server - Railway.app
-"""
 import hashlib, os, time
 from typing import Dict, Optional
 from fastapi import FastAPI, HTTPException
@@ -24,24 +21,19 @@ USERS = {
 latest_data: dict = {}
 active_sessions: Dict[str, str] = {}
 
-def create_token(email: str) -> str:
-    payload = {"email": email, "exp": datetime.utcnow() + timedelta(hours=12)}
-    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+def create_token(email):
+    return jwt.encode({"email": email, "exp": datetime.utcnow() + timedelta(hours=12)}, SECRET_KEY, algorithm="HS256")
 
-def verify_token(token: str) -> Optional[str]:
+def verify_token(token):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        return payload.get("email")
-    except:
-        return None
+        return jwt.decode(token, SECRET_KEY, algorithms=["HS256"]).get("email")
+    except: return None
 
 @app.post("/api/login")
 async def login(body: dict):
-    email = body.get("email", "").lower().strip()
-    senha = body.get("senha", "")
-    if email not in USERS:
-        raise HTTPException(status_code=401, detail="Email ou senha inválidos")
-    if USERS[email] != hashlib.sha256(senha.encode()).hexdigest():
+    email = body.get("email","").lower().strip()
+    senha = body.get("senha","")
+    if email not in USERS or USERS[email] != hashlib.sha256(senha.encode()).hexdigest():
         raise HTTPException(status_code=401, detail="Email ou senha inválidos")
     token = create_token(email)
     active_sessions[email] = token
@@ -59,10 +51,8 @@ async def receber_dados(body: dict):
 @app.get("/api/poll")
 async def poll(token: str = ""):
     email = verify_token(token)
-    if not email:
-        raise HTTPException(status_code=401, detail="Token inválido")
-    if active_sessions.get(email) != token:
-        raise HTTPException(status_code=401, detail="Sessão encerrada")
+    if not email: raise HTTPException(status_code=401, detail="Token inválido")
+    if active_sessions.get(email) != token: raise HTTPException(status_code=401, detail="Sessão encerrada")
     return {"dados": latest_data}
 
 @app.get("/api/status")
