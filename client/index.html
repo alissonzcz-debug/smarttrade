@@ -3,120 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartTrade — Dashboard</title>
+<title>Smart Trade — Mini Índice</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0A0E17;--card:#111827;--row:#1A2235;--accent:#1E2A3A;
-  --border:#253045;--hdr:#1A3A5C;--blue:#1F6FEB;
-  --white:#E8EDF5;--muted:#5E7390;--green:#1DB954;--red:#E63946;--yellow:#F4A020;
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-serif;font-size:11px;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px;}
+
+/* ============================================
+   CONTAINER PRINCIPAL
+   ============================================ */
+.container{background:#0F1521;border-radius:8px;border:1px solid #1E2A3A;max-width:1200px;width:100%;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.6);}
+
+/* ============================================
+   TOPBAR
+   ============================================ */
+.topbar{background:#111827;padding:4px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1E2A3A;height:28px;}
+.topbar span{font-size:9px;color:#5E7390;letter-spacing:.1em;text-transform:uppercase;}
+.dot{width:6px;height:6px;border-radius:50%;background:#1DB954;display:inline-block;margin-right:4px;}
+
+/* ============================================
+   GRID PRINCIPAL - 3 COLUNAS
+   ============================================ */
+.grid{display:grid;grid-template-columns:185px 1fr 240px;grid-template-rows:auto auto;gap:4px;padding:4px;}
+
+.col{display:flex;flex-direction:column;gap:4px;}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card{background:#111827;border:1px solid #1E2A3A;border-radius:4px;padding:4px 6px;}
+.ct{font-size:7px;font-weight:700;color:#5E7390;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid #1A2538;padding-bottom:2px;margin-bottom:3px;}
+.ct.green{color:#1DB954;}
+.ct.red{color:#E63946;}
+
+/* ============================================
+   LINHAS DE MÉTRICAS
+   ============================================ */
+.mr{display:flex;justify-content:space-between;padding:1.5px 0;border-bottom:1px solid #1A2538;}
+.mr:last-child{border-bottom:none;}
+.ml{font-size:9px;color:#5E7390;}
+.mv{font-size:9px;font-weight:700;}
+.pos{color:#1DB954;}
+.neg{color:#E63946;}
+.warn{color:#F4A020;}
+.neu{color:#5E7390;}
+
+/* ============================================
+   BARRAS DE SALDO
+   ============================================ */
+.sbar-wrap{padding:2px 0;}
+.sbar-lbl{display:flex;justify-content:space-between;font-size:8px;color:#5E7390;margin-bottom:1px;}
+.sbar-track{background:#1A2538;border-radius:2px;height:9px;position:relative;overflow:hidden;}
+.sbar-fill{position:absolute;top:0;height:100%;border-radius:2px;}
+.sbar-track::after{content:'';position:absolute;left:50%;top:0;width:1px;height:100%;background:#253045;z-index:2;}
+
+/* ============================================
+   TABELAS (Top Vendidos/Comprados)
+   ============================================ */
+.tt{width:100%;border-collapse:collapse;}
+.tt th{font-size:7px;color:#5E7390;padding:1px 2px;border-bottom:1px solid #1A2538;font-weight:400;text-transform:uppercase;}
+.tt td{font-size:9px;padding:1.5px 2px;border-bottom:1px solid #1A2538;}
+.tt tr:last-child td{border-bottom:none;}
+.tt td:last-child{text-align:right;font-weight:700;width:36px;}
+
+/* ============================================
+   DUO (2 colunas lado a lado)
+   ============================================ */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+
+/* ============================================
+   BARRAS DE PROGRESSO (Top 10 Ações / Setor Financeiro)
+   ============================================ */
+.br{display:flex;align-items:center;gap:3px;padding:1.5px 0;border-bottom:1px solid #1A2538;}
+.br:last-child{border-bottom:none;}
+.bl{font-size:8px;color:#5E7390;width:34px;flex-shrink:0;white-space:nowrap;overflow:hidden;}
+.bt{flex:1;background:#1A2538;border-radius:1px;height:5px;overflow:hidden;position:relative;}
+.bf{height:100%;border-radius:1px;position:absolute;left:0;}
+.bp{font-size:8px;font-weight:700;width:34px;text-align:right;flex-shrink:0;}
+
+/* ============================================
+   PETR & VALE
+   ============================================ */
+.pv{display:flex;gap:4px;padding:2px 0;}
+.pvi{flex:1;text-align:center;background:#1A2538;border-radius:3px;padding:3px 2px;}
+.pvt{font-size:7px;color:#5E7390;}
+.pvv{font-size:11px;font-weight:700;}
+
+/* ============================================
+   AÇÕES IBOV (gráfico)
+   ============================================ */
+.ibov-outer{width:100%;overflow:hidden;padding:2px 0;}
+.ibov-wrap{display:flex;align-items:flex-end;width:100%;height:55px;}
+.ibov-col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
+.ibov-ticker{font-size:5px;color:#5E7390;transform:rotate(-90deg);white-space:nowrap;width:26px;text-align:right;margin-top:1px;}
+
+/* ============================================
+   LAYOUT ESPECÍFICO
+   ============================================ */
+.col-left{grid-column:1;grid-row:1/3;}
+.col-center{grid-column:2;grid-row:1;}
+.col-right{grid-column:3;grid-row:1;}
+.row-ibov{grid-column:2/4;grid-row:2;}
+
+/* ============================================
+   LOGO
+   ============================================ */
+.logo-box{display:flex;align-items:center;justify-content:center;padding:3px;height:50px;flex-shrink:0;background:#111827;border:1px solid #1E2A3A;border-radius:4px;}
+.logo-box h2{font-size:13px;font-weight:800;color:#E8EDF5;letter-spacing:.1em;}
+.logo-box p{font-size:7px;color:#5E7390;}
+
+/* ============================================
+   LOGIN SCREEN
+   ============================================ */
+#login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#0A0E17;display:flex;justify-content:center;align-items:center;z-index:1000;}
+#login-screen .box{background:#111827;padding:40px;border-radius:12px;border:1px solid #1E2A3A;width:320px;text-align:center;}
+#login-screen h1{color:#E8EDF5;font-size:22px;margin-bottom:8px;}
+#login-screen p{color:#5E7390;font-size:13px;margin-bottom:20px;}
+#login-screen input{width:100%;padding:10px 14px;margin-bottom:12px;background:#0A0E17;border:1px solid #1E2A3A;border-radius:6px;color:#E8EDF5;font-size:14px;}
+#login-screen input:focus{outline:none;border-color:#1DB954;}
+#login-screen button{width:100%;padding:10px;background:#1DB954;border:none;border-radius:6px;color:#0A0E17;font-weight:700;font-size:14px;cursor:pointer;}
+#login-screen button:hover{opacity:0.8;}
+#login-screen .error{color:#E63946;font-size:12px;margin-top:8px;display:none;}
+#login-screen .error.show{display:block;}
+
+/* ============================================
+   RESPONSIVO
+   ============================================ */
+@media (max-width:1024px){
+  .grid{grid-template-columns:1fr;grid-template-rows:auto;}
+  .col-left,.col-center,.col-right,.row-ibov{grid-column:1;grid-row:auto;}
+  .duo{grid-template-columns:1fr;}
 }
-html,body{height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--white);font-family:'Calibri','Segoe UI',sans-serif;font-size:11px;}
-
-/* LOGIN SCREEN */
-#login-screen {
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:var(--bg);display:flex;justify-content:center;align-items:center;
-  z-index:1000;
+@media (max-width:640px){
+  .topbar{flex-direction:column;gap:4px;text-align:center;height:auto;padding:6px;}
+  .pv{flex-direction:column;}
+  .duo{grid-template-columns:1fr;}
 }
-#login-screen .box {
-  background:var(--card);padding:40px;border-radius:12px;
-  border:1px solid var(--border);width:320px;
-}
-#login-screen h1 {color:var(--white);font-size:22px;margin-bottom:8px;}
-#login-screen p {color:var(--muted);font-size:13px;margin-bottom:20px;}
-#login-screen input {
-  width:100%;padding:10px 14px;margin-bottom:12px;
-  background:var(--bg);border:1px solid var(--border);border-radius:6px;
-  color:var(--white);font-size:14px;
-}
-#login-screen input:focus {outline:none;border-color:var(--green);}
-#login-screen button {
-  width:100%;padding:10px;background:var(--green);border:none;
-  border-radius:6px;color:#0A0E17;font-weight:700;font-size:14px;cursor:pointer;
-}
-#login-screen button:hover {opacity:0.8;}
-#login-screen .error {color:var(--red);font-size:12px;margin-top:8px;display:none;}
-#login-screen .error.show {display:block;}
-
-/* DASHBOARD */
-#dashboard{display:none;height:100vh;flex-direction:column;}
-
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 12px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0;height:28px;}
-.topbar-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
-.topbar-right{display:flex;align-items:center;gap:14px;font-size:10px;color:var(--muted);}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
-.live-dot.off{background:var(--red);animation:none;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.btn-logout{background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:10px;}
-.btn-logout:hover{border-color:var(--red);color:var(--red);}
-
-.main-grid{
-  display:grid;
-  grid-template-columns: 172px 1fr 310px;
-  grid-template-rows: 1fr auto;
-  gap:5px;
-  padding:5px;
-  flex:1;
-  min-height:0;
-  height: calc(100vh - 28px);
-}
-
-.col-left{grid-column:1;grid-row:1/3;display:flex;flex-direction:column;gap:4px;min-height:0;}
-.col-center{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:4px;min-height:0;}
-.col-right{grid-column:3;grid-row:1;display:flex;flex-direction:column;gap:4px;min-height:0;}
-.row-ibov{grid-column:2/4;grid-row:2;min-height:0;}
-
-.card{background:var(--card);border-radius:5px;padding:5px 8px;border:1px solid var(--border);overflow:hidden;}
-.card-title{font-size:8.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--accent);}
-
-.logo-box{background:var(--card);border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:5px 8px;flex-shrink:0;height:58px;}
-.logo-fallback{text-align:center;}
-.logo-fallback h2{font-size:14px;font-weight:800;color:var(--white);letter-spacing:.1em;}
-.logo-fallback p{font-size:8px;color:var(--muted);}
-
-.metric-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid var(--accent);}
-.metric-row:last-child{border-bottom:none;}
-.metric-label{color:var(--muted);font-size:10px;}
-.metric-val{font-size:10px;font-weight:700;}
-.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--muted)}.warn{color:var(--yellow)}
-
-.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:2px 0 0;}
-
-.hbar-wrap{padding:2px 0;}
-.hbar-label{font-size:9px;color:var(--muted);margin-bottom:2px;display:flex;justify-content:space-between;}
-.hbar-track{background:var(--accent);border-radius:3px;height:11px;position:relative;overflow:hidden;}
-.hbar-fill{height:100%;border-radius:3px;position:absolute;transition:width .4s,left .4s;}
-
-.top-table{width:100%;border-collapse:collapse;}
-.top-table th{font-size:8px;color:var(--muted);padding:1px 3px;border-bottom:1px solid var(--accent);font-weight:400;text-transform:uppercase;}
-.top-table td{font-size:10px;padding:2px 3px;border-bottom:1px solid var(--accent);white-space:nowrap;}
-.top-table tr:last-child td{border-bottom:none;}
-.top-table td:last-child{text-align:right;font-weight:700;width:52px;}
-.top-table td:first-child{overflow:hidden;text-overflow:ellipsis;max-width:88px;}
-
-.top-duo{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
-
-.bar-row{display:flex;align-items:center;gap:4px;padding:2px 0;border-bottom:1px solid var(--accent);}
-.bar-row:last-child{border-bottom:none;}
-.bar-label{font-size:9px;color:var(--muted);width:46px;flex-shrink:0;white-space:nowrap;overflow:hidden;}
-.bar-track{flex:1;background:var(--accent);border-radius:2px;height:6px;overflow:hidden;position:relative;}
-.bar-fill{height:100%;border-radius:2px;position:absolute;left:0;}
-.bar-pct{font-size:9px;font-weight:700;width:40px;text-align:right;flex-shrink:0;}
-
-.pv-grid{display:flex;gap:5px;padding:2px 0;}
-.pv-item{flex:1;text-align:center;background:var(--accent);border-radius:4px;padding:4px 2px;}
-.pv-ticker{font-size:8px;color:var(--muted);margin-bottom:1px;}
-.pv-val{font-size:13px;font-weight:700;}
-
-.ibov-outer{overflow-x:auto;padding:2px 0 1px;}
-.ibov-wrap{display:flex;align-items:flex-end;gap:2px;height:72px;min-width:max-content;}
-.ibov-col{display:flex;flex-direction:column;align-items:center;width:15px;}
-.ibov-bar-pos,.ibov-bar-neg{width:11px;border-radius:1px;min-height:1px;}
-.ibov-ticker{font-size:6.5px;color:var(--muted);transform:rotate(-90deg);white-space:nowrap;width:32px;text-align:right;margin-top:1px;}
-
-.grow{flex:1;min-height:0;}
 </style>
 </head>
 <body>
@@ -140,156 +161,188 @@ body{background:var(--bg);color:var(--white);font-family:'Calibri','Segoe UI',sa
 <!-- ============================================ -->
 <!-- DASHBOARD -->
 <!-- ============================================ -->
-<div id="dashboard">
+<div class="container" id="dashboard" style="display:none;">
+
+  <!-- TOPBAR -->
   <div class="topbar">
-    <span class="topbar-title"><span class="live-dot" id="live-dot"></span>Smart Trade — Mini Índice</span>
-    <div class="topbar-right">
-      <span id="hora">--:--:--</span>
-      <span id="conn-status">Conectando...</span>
-      <button class="btn-logout" onclick="fazerLogout()">Sair</button>
-    </div>
+    <span><span class="dot" id="live-dot"></span>Smart Trade — Mini Índice</span>
+    <span id="hora">--:--:-- · Ao vivo</span>
   </div>
 
-  <div class="main-grid">
+  <!-- GRID -->
+  <div class="grid">
 
-    <!-- COL ESQUERDA -->
-    <div class="col-left">
+    <!-- ========================================== -->
+    <!-- COLUNA ESQUERDA -->
+    <!-- ========================================== -->
+    <div class="col col-left">
+
+      <!-- LOGO -->
       <div class="logo-box">
-        <div class="logo-fallback">
+        <div>
           <h2>SMART TRADE</h2>
-          <p>Decisões mais precisas para seu trade</p>
+          <p>Decisões mais precisas</p>
         </div>
       </div>
 
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Cotações Atuais</div>
-        <div class="metric-row"><span class="metric-label">Índice Futuro</span><span class="metric-val" id="c-indice">--</span></div>
-        <div class="metric-row"><span class="metric-label">Dólar Futuro</span><span class="metric-val" id="c-dolar">--</span></div>
-        <div class="metric-row"><span class="metric-label">Bancos</span><span class="metric-val" id="c-bancos">--</span></div>
-        <div class="metric-row"><span class="metric-label">Ações IBOV</span><span class="metric-val" id="c-acoes">--</span></div>
+      <!-- COTAÇÕES ATUAIS -->
+      <div class="card">
+        <div class="ct">Cotações Atuais</div>
+        <div class="mr"><span class="ml">Índice Futuro</span><span class="mv" id="c-indice">--</span></div>
+        <div class="mr"><span class="ml">Dólar Futuro</span><span class="mv" id="c-dolar">--</span></div>
+        <div class="mr"><span class="ml">Bancos</span><span class="mv" id="c-bancos">--</span></div>
+        <div class="mr"><span class="ml">Ações IBOV</span><span class="mv" id="c-acoes">--</span></div>
       </div>
 
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Informações Índice</div>
-        <div class="metric-row"><span class="metric-label">Direção</span><span class="metric-val" id="i-direcao">--</span></div>
-        <div class="metric-row"><span class="metric-label">Exaustão</span><span class="metric-val" id="i-exaustao">--</span></div>
-        <div class="metric-row"><span class="metric-label">Correção</span><span class="metric-val" id="i-correcao">--</span></div>
-        <div class="metric-row"><span class="metric-label">Tend. Primária</span><span class="metric-val" id="i-tp">--</span></div>
-        <div class="metric-row"><span class="metric-label">Tend. Secundária</span><span class="metric-val" id="i-ts">--</span></div>
+      <!-- INFORMAÇÕES ÍNDICE -->
+      <div class="card">
+        <div class="ct">Informações Índice</div>
+        <div class="mr"><span class="ml">Direção</span><span class="mv" id="i-direcao">--</span></div>
+        <div class="mr"><span class="ml">Exaustão</span><span class="mv" id="i-exaustao">--</span></div>
+        <div class="mr"><span class="ml">Correção</span><span class="mv" id="i-correcao">--</span></div>
+        <div class="mr"><span class="ml">Tend. Primária</span><span class="mv" id="i-tp">--</span></div>
+        <div class="mr"><span class="ml">Tend. Secund.</span><span class="mv" id="i-ts">--</span></div>
       </div>
 
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Movimento do Mercado</div>
-        <div class="metric-row"><span class="metric-label">Saldo Total</span><span class="metric-val" id="m-saldo">--</span></div>
-        <div class="metric-row"><span class="metric-label">Volume</span><span class="metric-val" id="m-volume">--</span></div>
+      <!-- MOVIMENTO DO MERCADO -->
+      <div class="card">
+        <div class="ct">Movimento do Mercado</div>
+        <div class="mr"><span class="ml">Saldo Total</span><span class="mv" id="m-saldo">--</span></div>
+        <div class="mr"><span class="ml">Volume</span><span class="mv" id="m-volume">--</span></div>
       </div>
 
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Saldo Dólar — Diário</div>
-        <div class="hbar-wrap">
-          <div class="hbar-label"><span>Institucional</span><span id="dol-inst">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-dol-inst"></div></div>
+      <!-- SALDO DÓLAR — DIÁRIO -->
+      <div class="card">
+        <div class="ct">Saldo Dólar — Diário</div>
+        <div class="sbar-wrap">
+          <div class="sbar-lbl"><span>Institucional</span><span id="dol-inst">--</span></div>
+          <div class="sbar-track"><div class="sbar-fill" id="bfill-dol-inst" style="width:0%;"></div></div>
         </div>
-        <div class="hbar-wrap" style="margin-top:5px">
-          <div class="hbar-label"><span>Varejo</span><span id="dol-pf">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-dol-pf"></div></div>
-        </div>
-      </div>
-
-      <div class="card grow">
-        <div class="card-title">Termômetro da Força</div>
-        <div class="gauge-wrap">
-          <canvas id="gauge" width="154" height="85"></canvas>
+        <div class="sbar-wrap" style="margin-top:4px;">
+          <div class="sbar-lbl"><span>Varejo</span><span id="dol-pf">--</span></div>
+          <div class="sbar-track"><div class="sbar-fill" id="bfill-dol-pf" style="width:0%;"></div></div>
         </div>
       </div>
+
+      <!-- TERMÔMETRO DA FORÇA -->
+      <div class="card" style="flex:1;min-height:0;">
+        <div class="ct">Termômetro da Força</div>
+        <div style="display:flex;justify-content:center;padding:2px 0;">
+          <canvas id="gauge" width="130" height="72"></canvas>
+        </div>
+      </div>
+
     </div>
 
-    <!-- COL CENTRO -->
-    <div class="col-center">
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Saldo Diário — Mini Índice</div>
-        <div class="hbar-wrap">
-          <div class="hbar-label"><span>Institucional</span><span id="sd-inst">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-sd-inst"></div></div>
+    <!-- ========================================== -->
+    <!-- COLUNA CENTRO -->
+    <!-- ========================================== -->
+    <div class="col col-center">
+
+      <!-- SALDO DIÁRIO — MINI ÍNDICE -->
+      <div class="card">
+        <div class="ct">Saldo Diário — Mini Índice</div>
+        <div class="sbar-wrap">
+          <div class="sbar-lbl"><span>Institucional</span><span id="sd-inst">--</span></div>
+          <div class="sbar-track"><div class="sbar-fill" id="bfill-sd-inst" style="width:0%;"></div></div>
         </div>
-        <div class="hbar-wrap" style="margin-top:5px">
-          <div class="hbar-label"><span>Varejo</span><span id="sd-pf">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-sd-pf"></div></div>
+        <div class="sbar-wrap" style="margin-top:4px;">
+          <div class="sbar-lbl"><span>Varejo</span><span id="sd-pf">--</span></div>
+          <div class="sbar-track"><div class="sbar-fill" id="bfill-sd-pf" style="width:0%;"></div></div>
         </div>
       </div>
 
-      <div class="top-duo" style="flex-shrink:0;">
+      <!-- TOP VENDIDOS / TOP COMPRADOS -->
+      <div class="duo">
         <div class="card">
-          <div class="card-title" style="color:var(--red)">▼ Top Vendidos</div>
-          <table class="top-table"><thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead><tbody id="tv-diario"></tbody></table>
+          <div class="ct red">▼ Top Vendidos</div>
+          <table class="tt">
+            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
+            <tbody id="tv-diario"></tbody>
+          </table>
         </div>
         <div class="card">
-          <div class="card-title" style="color:var(--green)">▲ Top Comprados</div>
-          <table class="top-table"><thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead><tbody id="tc-diario"></tbody></table>
+          <div class="ct green">▲ Top Comprados</div>
+          <table class="tt">
+            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
+            <tbody id="tc-diario"></tbody>
+          </table>
         </div>
       </div>
 
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Saldo 5 Min — Mini Índice</div>
-        <div class="hbar-wrap">
-          <div class="hbar-label"><span>Institucional</span><span id="s5-inst">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-s5-inst"></div></div>
+      <!-- SALDO 5 MIN — MINI ÍNDICE -->
+      <div class="card">
+        <div class="ct">Saldo 5 Min — Mini Índice</div>
+        <div class="sbar-wrap">
+          <div class="sbar-lbl"><span>Institucional</span><span id="s5-inst">--</span></div>
+          <div class="sbar-track"><div class="sbar-fill" id="bfill-s5-inst" style="width:0%;"></div></div>
         </div>
-        <div class="hbar-wrap" style="margin-top:5px">
-          <div class="hbar-label"><span>Varejo</span><span id="s5-pf">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-s5-pf"></div></div>
+        <div class="sbar-wrap" style="margin-top:4px;">
+          <div class="sbar-lbl"><span>Varejo</span><span id="s5-pf">--</span></div>
+          <div class="sbar-track"><div class="sbar-fill" id="bfill-s5-pf" style="width:0%;"></div></div>
         </div>
       </div>
 
-      <div class="top-duo grow" style="min-height:0;">
+      <!-- VENDIDOS 5 MIN / COMPRADOS 5 MIN -->
+      <div class="duo" style="flex:1;min-height:0;">
         <div class="card">
-          <div class="card-title" style="color:var(--red)">▼ Top Vendidos 5 Min</div>
-          <table class="top-table"><thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead><tbody id="tv-5min"></tbody></table>
+          <div class="ct red">▼ Vendidos 5 Min</div>
+          <table class="tt"><tbody id="tv-5min"><tr><td style="color:#5E7390;font-size:8px;" colspan="2">Sem dados</td></tr></tbody></table>
         </div>
         <div class="card">
-          <div class="card-title" style="color:var(--green)">▲ Top Comprados 5 Min</div>
-          <table class="top-table"><thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead><tbody id="tc-5min"></tbody></table>
+          <div class="ct green">▲ Comprados 5 Min</div>
+          <table class="tt"><tbody id="tc-5min"><tr><td style="color:#5E7390;font-size:8px;" colspan="2">Sem dados</td></tr></tbody></table>
         </div>
       </div>
+
     </div>
 
-    <!-- COL DIREITA -->
-    <div class="col-right">
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Petr &amp; Vale</div>
-        <div class="pv-grid" id="petr-vale"></div>
+    <!-- ========================================== -->
+    <!-- COLUNA DIREITA -->
+    <!-- ========================================== -->
+    <div class="col col-right">
+
+      <!-- PETR & VALE -->
+      <div class="card">
+        <div class="ct">Petr &amp; Vale</div>
+        <div class="pv" id="petr-vale"></div>
       </div>
 
-      <div class="card grow" style="min-height:0;overflow:hidden;">
-        <div class="card-title">Top 10 Ações</div>
+      <!-- TOP 10 AÇÕES -->
+      <div class="card" style="flex:1;min-height:0;">
+        <div class="ct">Top 10 Ações</div>
         <div id="top10-container"></div>
       </div>
 
-      <div class="card grow" style="min-height:0;overflow:hidden;">
-        <div class="card-title">Setor Financeiro</div>
+      <!-- SETOR FINANCEIRO -->
+      <div class="card" style="flex:1;min-height:0;">
+        <div class="ct">Setor Financeiro</div>
         <div id="setor-fin"></div>
       </div>
+
     </div>
 
-    <!-- IBOV -->
+    <!-- ========================================== -->
+    <!-- RODAPÉ — AÇÕES IBOV -->
+    <!-- ========================================== -->
     <div class="row-ibov">
-      <div class="card" style="height:100%;">
-        <div class="card-title">Ações IBOV</div>
+      <div class="card">
+        <div class="ct">Ações IBOV</div>
         <div class="ibov-outer">
           <div class="ibov-wrap" id="ibov-chart"></div>
         </div>
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /grid -->
+</div><!-- /container -->
 
 <!-- ============================================ -->
 <!-- JAVASCRIPT -->
 <!-- ============================================ -->
 <script>
 // ==========================================
-// VARIÁVEIS GLOBAIS
+// VARIÁVEIS
 // ==========================================
 let token = localStorage.getItem('smarttrade_token') || '';
 let pollInterval = null;
@@ -316,7 +369,7 @@ function fazerLogin(e) {
       token = data.token;
       localStorage.setItem('smarttrade_token', token);
       document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'block';
       iniciarPolling();
     } else {
       errorEl.textContent = data.detail || 'Erro ao fazer login';
@@ -332,22 +385,7 @@ function fazerLogin(e) {
 }
 
 // ==========================================
-// LOGOUT
-// ==========================================
-function fazerLogout() {
-  if (token) {
-    fetch('/api/logout?token=' + encodeURIComponent(token))
-      .catch(() => {});
-  }
-  token = '';
-  localStorage.removeItem('smarttrade_token');
-  if (pollInterval) clearInterval(pollInterval);
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-}
-
-// ==========================================
-// POLLING - BUSCAR DADOS
+// POLLING
 // ==========================================
 function buscarDados() {
   if (!token) return;
@@ -375,35 +413,48 @@ function iniciarPolling() {
   pollInterval = setInterval(buscarDados, 2000);
 }
 
-// ==========================================
-// STATUS
-// ==========================================
+function fazerLogout() {
+  if (token) {
+    fetch('/api/logout?token=' + encodeURIComponent(token)).catch(() => {});
+  }
+  token = '';
+  localStorage.removeItem('smarttrade_token');
+  if (pollInterval) clearInterval(pollInterval);
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
 function setStatus(online) {
-  document.getElementById('live-dot').className = 'live-dot' + (online ? '' : ' off');
-  document.getElementById('conn-status').textContent = online ? 'Ao vivo' : 'Sem dados';
+  const dot = document.getElementById('live-dot');
+  dot.style.background = online ? '#1DB954' : '#E63946';
 }
 
 // ==========================================
 // FORMATADORES
 // ==========================================
-function fmt(val, tipo) {
+function fmtPct(val) {
   if (val === null || val === undefined) return '--';
-  if (tipo === 'pct') {
-    const n = parseFloat(val) * 100;
-    return `<span class="${n >= 0 ? 'pos' : 'neg'}">${n >= 0 ? '+' : ''}${n.toFixed(2)}%</span>`;
-  }
-  if (tipo === 'num') {
-    const n = parseInt(val);
-    return `<span class="${n >= 0 ? 'pos' : 'neg'}">${n >= 0 ? '+' : ''}${n.toLocaleString('pt-BR')}</span>`;
-  }
-  if (tipo === 'status') {
-    const pos = ['Alta', 'Em Tendência', 'Continuidade'];
-    const neg = ['Baixa'];
-    const warn = ['Baixo', 'Zona de equilíbrio'];
-    const c = pos.includes(val) ? 'pos' : neg.includes(val) ? 'neg' : warn.includes(val) ? 'warn' : 'neu';
-    return `<span class="${c}">${val}</span>`;
-  }
-  return val;
+  const n = typeof val === 'number' ? val : parseFloat(val);
+  if (isNaN(n)) return '--';
+  const cls = n >= 0 ? 'pos' : 'neg';
+  return `<span class="${cls}">${n >= 0 ? '+' : ''}${n.toFixed(2)}%</span>`;
+}
+
+function fmtNum(val) {
+  if (val === null || val === undefined) return '--';
+  const n = typeof val === 'number' ? val : parseInt(val);
+  if (isNaN(n)) return '--';
+  const cls = n >= 0 ? 'pos' : 'neg';
+  return `<span class="${cls}">${n >= 0 ? '+' : ''}${n.toLocaleString('pt-BR')}</span>`;
+}
+
+function fmtStatus(val) {
+  if (!val) return '<span class="neu">--</span>';
+  const pos = ['Alta', 'Em Tendência', 'Continuidade', 'Continu.'];
+  const neg = ['Baixa'];
+  const warn = ['Baixo', 'Zona equil.', 'Sem Tend.'];
+  const cls = pos.includes(val) ? 'pos' : neg.includes(val) ? 'neg' : warn.includes(val) ? 'warn' : 'neu';
+  return `<span class="${cls}">${val}</span>`;
 }
 
 function setBar(id, value, maxAbs) {
@@ -413,156 +464,204 @@ function setBar(id, value, maxAbs) {
   const pos = value >= 0;
   el.style.width = pct + '%';
   el.style.left = pos ? '50%' : (50 - pct) + '%';
-  el.style.background = pos ? 'var(--green)' : 'var(--red)';
+  el.style.background = pos ? '#1DB954' : '#E63946';
 }
 
 // ==========================================
 // GAUGE
 // ==========================================
-function desenharGauge(id, value, max) {
-  const c = document.getElementById(id);
-  if (!c) return;
-  const ctx = c.getContext('2d'), cx = 77, cy = 77, r = 60;
-  ctx.clearRect(0, 0, 154, 85);
-  ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
-  ctx.lineWidth = 13; ctx.strokeStyle = '#1E2A3A'; ctx.stroke();
-  const segs = [
-    { color: '#E63946', from: Math.PI, to: Math.PI * 1.4 },
-    { color: '#F4A020', from: Math.PI * 1.4, to: Math.PI * 1.6 },
-    { color: '#1DB954', from: Math.PI * 1.6, to: Math.PI * 2 },
+function drawGauge(value, max) {
+  const canvas = document.getElementById('gauge');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 65, cy = 65, r = 52;
+
+  ctx.clearRect(0, 0, 130, 72);
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
+  ctx.lineWidth = 11;
+  ctx.strokeStyle = '#1A2538';
+  ctx.stroke();
+
+  const segments = [
+    { color: '#E63946', start: Math.PI, end: Math.PI * 1.4 },
+    { color: '#F4A020', start: Math.PI * 1.4, end: Math.PI * 1.6 },
+    { color: '#1DB954', start: Math.PI * 1.6, end: Math.PI * 2 }
   ];
-  segs.forEach(s => {
-    ctx.beginPath(); ctx.arc(cx, cy, r, s.from, s.to);
-    ctx.lineWidth = 13; ctx.strokeStyle = s.color; ctx.stroke();
+
+  segments.forEach(seg => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, seg.start, seg.end);
+    ctx.lineWidth = 11;
+    ctx.strokeStyle = seg.color;
+    ctx.stroke();
   });
-  const ratio = Math.min(Math.max(value / max, 0), 1);
+
+  const ratio = Math.min(Math.max((value || 0) / (max || 24), 0), 1);
   const angle = Math.PI + ratio * Math.PI;
-  ctx.beginPath(); ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + Math.cos(angle) * 44, cy + Math.sin(angle) * 44);
-  ctx.lineWidth = 2; ctx.strokeStyle = '#E8EDF5'; ctx.lineCap = 'round'; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 2 * Math.PI); ctx.fillStyle = '#E8EDF5'; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + Math.cos(angle) * 38, cy + Math.sin(angle) * 38);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#E8EDF5';
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3.5, 0, 2 * Math.PI);
+  ctx.fillStyle = '#E8EDF5';
+  ctx.fill();
 }
 
 // ==========================================
 // RELÓGIO
 // ==========================================
 setInterval(() => {
-  document.getElementById('hora').textContent = new Date().toLocaleTimeString('pt-BR', { hour12: false });
+  const now = new Date();
+  document.getElementById('hora').textContent = now.toLocaleTimeString('pt-BR', {hour12: false}) + ' · Ao vivo';
 }, 1000);
 
 // ==========================================
-// ATUALIZAR DASHBOARD
+// DASHBOARD
 // ==========================================
 function atualizarDashboard(d) {
-  if (d.hora) document.getElementById('hora').textContent = d.hora;
-
+  // COTAÇÕES
   if (d.cotacoes) {
-    document.getElementById('c-indice').innerHTML = fmt(d.cotacoes.indice, 'pct');
-    document.getElementById('c-dolar').innerHTML = fmt(d.cotacoes.dolar, 'pct');
-    document.getElementById('c-bancos').innerHTML = fmt(d.cotacoes.bancos, 'pct');
-    document.getElementById('c-acoes').innerHTML = fmt(d.cotacoes.acoes, 'pct');
+    document.getElementById('c-indice').innerHTML = fmtPct(d.cotacoes.indice);
+    document.getElementById('c-dolar').innerHTML = fmtPct(d.cotacoes.dolar);
+    document.getElementById('c-bancos').innerHTML = fmtPct(d.cotacoes.bancos);
+    document.getElementById('c-acoes').innerHTML = fmtPct(d.cotacoes.acoes);
   }
-  if (d.info_indice) {
-    document.getElementById('i-direcao').innerHTML = fmt(d.info_indice.direcao, 'status');
-    document.getElementById('i-exaustao').innerHTML = fmt(d.info_indice.exaustao, 'status');
-    document.getElementById('i-correcao').innerHTML = fmt(d.info_indice.correcao, 'status');
-    document.getElementById('i-tp').innerHTML = fmt(d.info_indice.tendencia_primaria, 'status');
-    document.getElementById('i-ts').innerHTML = fmt(d.info_indice.tendencia_secundaria, 'status');
-  }
-  if (d.mercado) {
-    document.getElementById('m-saldo').innerHTML = fmt(d.mercado.saldo_total, 'status');
-    document.getElementById('m-volume').innerHTML = fmt(d.mercado.volume, 'status');
-  }
-  if (d.termometro) desenharGauge('gauge', d.termometro.pontos || 0, d.termometro.maximo || 24);
 
+  // INFORMAÇÕES ÍNDICE
+  if (d.info_indice) {
+    document.getElementById('i-direcao').innerHTML = fmtStatus(d.info_indice.direcao);
+    document.getElementById('i-exaustao').innerHTML = fmtStatus(d.info_indice.exaustao);
+    document.getElementById('i-correcao').innerHTML = fmtStatus(d.info_indice.correcao);
+    document.getElementById('i-tp').innerHTML = fmtStatus(d.info_indice.tendencia_primaria);
+    document.getElementById('i-ts').innerHTML = fmtStatus(d.info_indice.tendencia_secundaria);
+  }
+
+  // MERCADO
+  if (d.mercado) {
+    document.getElementById('m-saldo').innerHTML = fmtStatus(d.mercado.saldo_total);
+    document.getElementById('m-volume').innerHTML = fmtStatus(d.mercado.volume);
+  }
+
+  // TERMÔMETRO
+  if (d.termometro) {
+    drawGauge(d.termometro.pontos, d.termometro.maximo || 24);
+  }
+
+  // SALDO DIÁRIO
   if (d.saldo_diario) {
     const mx = Math.max(Math.abs(d.saldo_diario.inst || 0), Math.abs(d.saldo_diario.pf || 0), 1);
-    document.getElementById('sd-inst').innerHTML = fmt(d.saldo_diario.inst, 'num');
-    document.getElementById('sd-pf').innerHTML = fmt(d.saldo_diario.pf, 'num');
+    document.getElementById('sd-inst').innerHTML = fmtNum(d.saldo_diario.inst);
+    document.getElementById('sd-pf').innerHTML = fmtNum(d.saldo_diario.pf);
     setBar('bfill-sd-inst', d.saldo_diario.inst, mx);
     setBar('bfill-sd-pf', d.saldo_diario.pf, mx);
   }
+
+  // SALDO 5 MIN
   if (d.saldo_5min) {
     const mx = Math.max(Math.abs(d.saldo_5min.inst || 0), Math.abs(d.saldo_5min.pf || 0), 1);
-    document.getElementById('s5-inst').innerHTML = fmt(d.saldo_5min.inst, 'num');
-    document.getElementById('s5-pf').innerHTML = fmt(d.saldo_5min.pf, 'num');
+    document.getElementById('s5-inst').innerHTML = fmtNum(d.saldo_5min.inst);
+    document.getElementById('s5-pf').innerHTML = fmtNum(d.saldo_5min.pf);
     setBar('bfill-s5-inst', d.saldo_5min.inst, mx);
     setBar('bfill-s5-pf', d.saldo_5min.pf, mx);
   }
+
+  // SALDO DÓLAR
   if (d.saldo_dolar) {
     const mx = Math.max(Math.abs(d.saldo_dolar.inst || 0), Math.abs(d.saldo_dolar.pf || 0), 1);
-    document.getElementById('dol-inst').innerHTML = fmt(d.saldo_dolar.inst, 'num');
-    document.getElementById('dol-pf').innerHTML = fmt(d.saldo_dolar.pf, 'num');
+    document.getElementById('dol-inst').innerHTML = fmtNum(d.saldo_dolar.inst);
+    document.getElementById('dol-pf').innerHTML = fmtNum(d.saldo_dolar.pf);
     setBar('bfill-dol-inst', d.saldo_dolar.inst, mx);
     setBar('bfill-dol-pf', d.saldo_dolar.pf, mx);
   }
 
-  function renderTop(id, items, cls) {
+  // TOP VENDIDOS / COMPRADOS
+  function renderTop(id, items) {
     const tb = document.getElementById(id);
-    if (!tb || !items) return;
-    tb.innerHTML = items.map(i => `<tr>
-      <td>${i.nome}</td>
-      <td class="${cls}">${i.valor > 0 ? '+' : ''}${parseInt(i.valor).toLocaleString('pt-BR')}</td>
-    </tr>`).join('');
+    if (!tb) return;
+    if (!items || items.length === 0) {
+      tb.innerHTML = '<tr><td colspan="2" style="color:#5E7390;font-size:8px;text-align:center;">Sem dados</td></tr>';
+      return;
+    }
+    tb.innerHTML = items.map(i => `
+      <tr>
+        <td>${i.nome}</td>
+        <td class="${i.valor >= 0 ? 'pos' : 'neg'}">${i.valor >= 0 ? '+' : ''}${parseInt(i.valor).toLocaleString('pt-BR')}</td>
+      </tr>
+    `).join('');
   }
-  renderTop('tv-diario', d.top_vendidos, 'neg');
-  renderTop('tc-diario', d.top_comprados, 'pos');
-  renderTop('tv-5min', d.top_vendidos_5min, 'neg');
-  renderTop('tc-5min', d.top_comprados_5min, 'pos');
+  renderTop('tv-diario', d.top_vendidos);
+  renderTop('tc-diario', d.top_comprados);
+  renderTop('tv-5min', d.top_vendidos_5min);
+  renderTop('tc-5min', d.top_comprados_5min);
 
+  // PETR & VALE
   if (d.petr_vale) {
-    const items = [['PETR3', d.petr_vale.PETR3], ['PETR4', d.petr_vale.PETR4], ['VALE3', d.petr_vale.VALE3]];
+    const items = [
+      ['PETR3', d.petr_vale.PETR3],
+      ['PETR4', d.petr_vale.PETR4],
+      ['VALE3', d.petr_vale.VALE3]
+    ];
     document.getElementById('petr-vale').innerHTML = items.map(([t, v]) => {
-      if (v === null || v === undefined) return '';
-      const pos = v >= 0, cls = pos ? 'pos' : 'neg';
-      return `<div class="pv-item">
-        <div class="pv-ticker">${t}</div>
-        <div class="pv-val ${cls}">${pos ? '+' : ''}${v.toFixed(2)}%</div>
-      </div>`;
+      if (v === null || v === undefined) return `<div class="pvi"><div class="pvt">${t}</div><div class="pvv">--</div></div>`;
+      const cls = v >= 0 ? 'pos' : 'neg';
+      return `<div class="pvi"><div class="pvt">${t}</div><div class="pvv ${cls}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</div></div>`;
     }).join('');
   }
 
+  // TOP 10 AÇÕES
   if (d.top10_acoes && d.top10_acoes.length) {
     const mx = Math.max(...d.top10_acoes.map(x => Math.abs(x.var)), 0.01);
     document.getElementById('top10-container').innerHTML = d.top10_acoes.map(x => {
-      const pos = x.var >= 0, pct = Math.min(Math.abs(x.var) / mx * 100, 100);
-      const cor = pos ? 'var(--green)' : 'var(--red)';
-      const pctStr = (pos ? '+' : '') + x.var.toFixed(2) + '%';
-      return `<div class="bar-row">
-        <span class="bar-label">${x.ticker}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cor}"></div></div>
-        <span class="bar-pct ${pos ? 'pos' : 'neg'}">${pctStr}</span>
+      const pos = x.var >= 0;
+      const pct = Math.min(Math.abs(x.var) / mx * 100, 100);
+      const cor = pos ? '#1DB954' : '#E63946';
+      const cls = pos ? 'pos' : 'neg';
+      return `<div class="br">
+        <span class="bl">${x.ticker}</span>
+        <div class="bt"><div class="bf" style="width:${pct}%;background:${cor};"></div></div>
+        <span class="bp ${cls}">${pos ? '+' : ''}${x.var.toFixed(2)}%</span>
       </div>`;
     }).join('');
   }
 
+  // SETOR FINANCEIRO
   if (d.setor_financeiro) {
-    const vals = Object.values(d.setor_financeiro).filter(v => v !== null);
-    const mx = Math.max(...vals.map(Math.abs), 0.001);
-    document.getElementById('setor-fin').innerHTML = Object.entries(d.setor_financeiro).map(([t, val]) => {
-      if (val === null) return '';
-      const pos = val >= 0, pct = Math.min(Math.abs(val) / mx * 100, 100);
-      const cor = pos ? 'var(--green)' : 'var(--red)';
-      const pctStr = (pos ? '+' : '') + (val * 100).toFixed(2) + '%';
-      return `<div class="bar-row">
-        <span class="bar-label">${t}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cor}"></div></div>
-        <span class="bar-pct ${pos ? 'pos' : 'neg'}">${pctStr}</span>
+    const entries = Object.entries(d.setor_financeiro).filter(([_, v]) => v !== null);
+    const vals = entries.map(([_, v]) => Math.abs(v));
+    const mx = Math.max(...vals, 0.001);
+    document.getElementById('setor-fin').innerHTML = entries.map(([ticker, val]) => {
+      const pos = val >= 0;
+      const pct = Math.min(Math.abs(val) / mx * 100, 100);
+      const cor = pos ? '#1DB954' : '#E63946';
+      const cls = pos ? 'pos' : 'neg';
+      return `<div class="br">
+        <span class="bl">${ticker}</span>
+        <div class="bt"><div class="bf" style="width:${pct}%;background:${cor};"></div></div>
+        <span class="bp ${cls}">${pos ? '+' : ''}${val.toFixed(2)}%</span>
       </div>`;
     }).join('');
   }
 
+  // AÇÕES IBOV
   if (d.acoes_ibov && d.acoes_ibov.length) {
-    const H = 56;
+    const H = 44;
     const mx = Math.max(...d.acoes_ibov.map(x => Math.abs(x.var)), 0.01);
     document.getElementById('ibov-chart').innerHTML = d.acoes_ibov.map(x => {
-      const pos = x.var >= 0, cor = pos ? 'var(--green)' : 'var(--red)';
+      const pos = x.var >= 0;
+      const cor = pos ? '#1DB954' : '#E63946';
       const h = Math.max(Math.min(Math.abs(x.var) / mx * H, H), 2);
       return `<div class="ibov-col" title="${x.ticker}: ${x.var > 0 ? '+' : ''}${x.var.toFixed(2)}%">
         <div style="height:${H}px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-          <div style="height:${pos ? H / 2 - h / 2 : H / 2}px;"></div>
-          <div class="${pos ? 'ibov-bar-pos' : 'ibov-bar-neg'}" style="height:${h}px;background:${cor};width:11px;border-radius:1px;"></div>
-          <div style="height:${pos ? H / 2 : H / 2 - h / 2}px;"></div>
+          <div style="height:${pos ? H/2 - h/2 : H/2}px;"></div>
+          <div style="height:${h}px;background:${cor};width:100%;border-radius:1px;"></div>
+          <div style="height:${pos ? H/2 : H/2 - h/2}px;"></div>
         </div>
         <div class="ibov-ticker">${x.ticker}</div>
       </div>`;
@@ -574,13 +673,10 @@ function atualizarDashboard(d) {
 // INICIALIZAÇÃO
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
-  // Verifica se já tem token salvo
   if (token) {
-    // Tenta usar o token salvo
     fetch('/api/poll?token=' + encodeURIComponent(token))
       .then(res => {
         if (res.status === 401) {
-          // Token expirado
           token = '';
           localStorage.removeItem('smarttrade_token');
           document.getElementById('login-screen').style.display = 'flex';
@@ -592,12 +688,11 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(data => {
         if (data && data.dados) {
           document.getElementById('login-screen').style.display = 'none';
-          document.getElementById('dashboard').style.display = 'flex';
+          document.getElementById('dashboard').style.display = 'block';
           iniciarPolling();
         }
       })
       .catch(() => {
-        // Erro de rede - mantém login screen
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('dashboard').style.display = 'none';
       });
@@ -607,5 +702,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+
 </body>
 </html>
