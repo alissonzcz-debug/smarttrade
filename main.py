@@ -1,22 +1,18 @@
 import os
 import time
 import json
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 
-# ============================================
-# CONFIGURAÇÃO
-# ============================================
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -113,9 +109,9 @@ DADOS_PADRAO = {
     ]
 }
 
-# Estado em memória
 latest_data: Dict[str, Any] = DADOS_PADRAO.copy()
 latest_data["timestamp"] = time.time()
+latest_data["ultima_atualizacao"] = time.strftime("%d/%m/%Y %H:%M:%S")
 
 # ============================================
 # MODELOS
@@ -142,6 +138,7 @@ async def receber_dados(request: DadosRequest):
                 latest_data[chave] = valor
         
         latest_data["timestamp"] = time.time()
+        latest_data["ultima_atualizacao"] = time.strftime("%d/%m/%Y %H:%M:%S")
         logger.info(f"✅ Dados atualizados! Timestamp: {latest_data['timestamp']}")
         return {"ok": True, "timestamp": latest_data["timestamp"]}
     except Exception as e:
@@ -157,7 +154,7 @@ async def status():
     return {
         "online": True,
         "ultimo_dado": latest_data.get("timestamp"),
-        "ultima_atualizacao": time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(latest_data.get("timestamp", 0)))
+        "ultima_atualizacao": latest_data.get("ultima_atualizacao", "Nunca")
     }
 
 @app.get("/api/health")
@@ -165,10 +162,10 @@ async def health():
     return {"status": "healthy"}
 
 # ============================================
-# HTML COMPLETO (gerado pelo servidor)
+# HTML COMPLETO (GERADO PELO SERVIDOR)
 # ============================================
 
-HTML_TEMPLATE = """
+HTML_DASHBOARD = """
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -177,16 +174,17 @@ HTML_TEMPLATE = """
     <title>Smart Trade — Mini Índice</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0A0E17; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', 'Calibri', sans-serif; padding: 20px; }
+        body { background: #0A0E17; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; }
         .container { background: #0F1521; border-radius: 12px; border: 1px solid #1E2A3A; max-width: 1200px; width: 100%; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
-        .topbar { background: #111827; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E2A3A; flex-wrap: wrap; gap: 8px; }
+        .topbar { background: #111827; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E2A3A; flex-wrap: wrap; gap: 8px; }
         .topbar-left { display: flex; align-items: center; gap: 10px; }
         .live-dot { width: 8px; height: 8px; background: #1DB954; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .topbar-title { color: #E8EDF5; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; }
+        .topbar-title { color: #E8EDF5; font-size: 14px; font-weight: 700; }
         .topbar-title span { color: #5E7390; font-weight: 400; }
         .topbar-right { display: flex; align-items: center; gap: 12px; }
-        .topbar-status { font-size: 10px; padding: 2px 10px; border-radius: 10px; background: #1A2538; color: #1DB954; }
+        .topbar-status { font-size: 10px; padding: 2px 12px; border-radius: 10px; background: #1A2538; color: #1DB954; }
+        .topbar-status.offline { color: #E63946; }
         .topbar-time { color: #5E7390; font-size: 11px; }
 
         .main-grid { display: grid; grid-template-columns: 220px 1fr 280px; gap: 6px; padding: 6px; }
@@ -253,15 +251,13 @@ HTML_TEMPLATE = """
         .col-center { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 6px; }
         .col-right { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; gap: 6px; }
         .row-ibov { grid-column: 2 / 4; grid-row: 2; }
-        .flex-1 { flex: 1; }
-        .min-h-0 { min-height: 0; }
 
         .ibov-container::-webkit-scrollbar { height: 3px; }
         .ibov-container::-webkit-scrollbar-track { background: #1A2538; }
         .ibov-container::-webkit-scrollbar-thumb { background: #5E7390; border-radius: 3px; }
 
         @media (max-width: 1024px) {
-            .main-grid { grid-template-columns: 1fr; gap: 6px; }
+            .main-grid { grid-template-columns: 1fr; }
             .col-left, .col-center, .col-right, .row-ibov { grid-column: 1; grid-row: auto; }
             .duo-grid { grid-template-columns: 1fr; }
         }
@@ -277,57 +273,55 @@ HTML_TEMPLATE = """
 <body>
 
 <div class="container">
-    <!-- TOP BAR -->
     <div class="topbar">
         <div class="topbar-left">
             <span class="live-dot"></span>
             <span class="topbar-title">SMART TRADE <span>— Mini Índice</span></span>
         </div>
         <div class="topbar-right">
-            <span class="topbar-status" id="statusBadge">● Online</span>
+            <span class="topbar-status" id="statusBadge">🟢 Online</span>
             <span class="topbar-time" id="clock">--:--:-- · Ao vivo</span>
         </div>
     </div>
 
-    <!-- CONTEÚDO -->
     <div id="content">
-        <!-- O conteúdo será injetado pelo JavaScript com os dados do servidor -->
+        <!-- O JavaScript vai preencher aqui -->
     </div>
 </div>
 
 <script>
 // ============================================
-// DADOS RECEBIDOS DO SERVIDOR
+// DADOS RECEBIDOS DO SERVIDOR (embutidos)
 // ============================================
-const DADOS_SERVIDOR = {DADOS_JSON};
+const DADOS_INICIAIS = {DADOS_JSON};
 
 // ============================================
 // FUNÇÕES DE FORMATAÇÃO
 // ============================================
-function fmtNum(valor) {
-    if (typeof valor === 'number') {
-        return valor > 0 ? '+' + valor.toFixed(0).replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.') : valor.toFixed(0).replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.');
+function fmtNum(v) {
+    if (typeof v === 'number') {
+        return v > 0 ? '+' + v.toFixed(0).replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.') : v.toFixed(0).replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.');
     }
-    return valor;
+    return v;
 }
 
-function fmtPct(valor) {
-    if (typeof valor === 'number') {
-        return (valor > 0 ? '+' : '') + valor.toFixed(2) + '%';
+function fmtPct(v) {
+    if (typeof v === 'number') {
+        return (v > 0 ? '+' : '') + v.toFixed(2) + '%';
     }
-    return valor;
+    return v;
 }
 
-function clsValor(valor) {
-    if (typeof valor === 'number') {
-        return valor > 0 ? 'pos' : valor < 0 ? 'neg' : 'gray';
+function cls(v) {
+    if (typeof v === 'number') {
+        return v > 0 ? 'pos' : v < 0 ? 'neg' : 'gray';
     }
     return 'gray';
 }
 
-function clsValorBar(valor) {
-    if (typeof valor === 'number') {
-        return valor >= 0 ? 'green' : 'red';
+function clsBar(v) {
+    if (typeof v === 'number') {
+        return v >= 0 ? 'green' : 'red';
     }
     return 'gray';
 }
@@ -335,30 +329,30 @@ function clsValorBar(valor) {
 // ============================================
 // RENDERIZAÇÃO
 // ============================================
-function renderizarCard(titulo, itens, classe = '') {
+function renderCard(titulo, itens, classe = '') {
     if (!itens || Object.keys(itens).length === 0) return '';
     let html = `<div class="card"><div class="card-title ${classe}">${titulo}</div>`;
     for (const [label, valor] of Object.entries(itens)) {
-        const classeValor = clsValor(valor);
+        const c = cls(valor);
         const texto = typeof valor === 'number' ? fmtPct(valor) : valor;
-        html += `<div class="row-item"><span class="row-label">${label}</span><span class="row-value ${classeValor}">${texto}</span></div>`;
+        html += `<div class="row-item"><span class="row-label">${label}</span><span class="row-value ${c}">${texto}</span></div>`;
     }
     html += '</div>';
     return html;
 }
 
-function renderizarBarras(titulo, itens) {
+function renderBarras(titulo, itens) {
     if (!itens || Object.keys(itens).length === 0) return '';
     let html = `<div class="card"><div class="card-title">${titulo}</div>`;
     for (const [label, valor] of Object.entries(itens)) {
-        const classe = clsValorBar(valor);
+        const c = clsBar(valor);
         const pct = Math.min(Math.abs(valor) / 20000 * 100, 90);
         const lado = valor >= 0 ? 'left:50%;' : 'right:50%;';
-        const clsText = valor >= 0 ? 'pos' : 'neg';
+        const ct = valor >= 0 ? 'pos' : 'neg';
         html += `
             <div class="bar-wrap">
-                <div class="bar-label"><span>${label}</span><span class="val ${clsText}">${fmtNum(valor)}</span></div>
-                <div class="bar-track"><div class="bar-fill ${classe}" style="width:${pct}%;${lado}"></div></div>
+                <div class="bar-label"><span>${label}</span><span class="val ${ct}">${fmtNum(valor)}</span></div>
+                <div class="bar-track"><div class="bar-fill ${c}" style="width:${pct}%;${lado}"></div></div>
             </div>
         `;
     }
@@ -366,30 +360,30 @@ function renderizarBarras(titulo, itens) {
     return html;
 }
 
-function renderizarTabela(titulo, dados, classe) {
+function renderTabela(titulo, dados, classe) {
     if (!dados || dados.length === 0) return '';
     let html = `<div class="card"><div class="card-title ${classe}">${titulo}</div><table class="table-mini"><thead><tr><th>Corretora</th><th>Qtd</th></tr></thead><tbody>`;
     for (const item of dados) {
-        const cls = item.qtd >= 0 ? 'pos' : 'neg';
-        html += `<tr><td>${item.corretora}</td><td class="${cls}">${fmtNum(item.qtd)}</td></tr>`;
+        const c = item.qtd >= 0 ? 'pos' : 'neg';
+        html += `<tr><td>${item.corretora}</td><td class="${c}">${fmtNum(item.qtd)}</td></tr>`;
     }
     html += '</tbody></table></div>';
     return html;
 }
 
-function renderizarProgresso(titulo, dados) {
+function renderProgresso(titulo, dados) {
     if (!dados || dados.length === 0) return '';
     let html = `<div class="card" style="flex:1;min-height:0;"><div class="card-title">${titulo}</div>`;
     const maxAbs = Math.max(...dados.map(d => Math.abs(d.variacao)), 0.01);
     for (const item of dados) {
-        const cls = item.variacao >= 0 ? 'green' : 'red';
+        const c = item.variacao >= 0 ? 'green' : 'red';
         const pct = Math.abs(item.variacao) / maxAbs * 100;
-        const pctCls = item.variacao >= 0 ? 'pos' : 'neg';
+        const pc = item.variacao >= 0 ? 'pos' : 'neg';
         html += `
             <div class="progress-item">
                 <span class="progress-label">${item.ticker}</span>
-                <div class="progress-track"><div class="progress-fill ${cls}" style="width:${Math.max(pct, 2)}%;"></div></div>
-                <span class="progress-pct ${pctCls}">${fmtPct(item.variacao)}</span>
+                <div class="progress-track"><div class="progress-fill ${c}" style="width:${Math.max(pct, 2)}%;"></div></div>
+                <span class="progress-pct ${pc}">${fmtPct(item.variacao)}</span>
             </div>
         `;
     }
@@ -397,18 +391,18 @@ function renderizarProgresso(titulo, dados) {
     return html;
 }
 
-function renderizarPetrVale(dados) {
+function renderPetrVale(dados) {
     if (!dados || Object.keys(dados).length === 0) return '';
     let html = `<div class="card"><div class="card-title">Petr &amp; Vale</div><div class="pv-grid">`;
     for (const [ticker, valor] of Object.entries(dados)) {
-        const cls = valor >= 0 ? 'pos' : 'neg';
-        html += `<div class="pv-item"><div class="ticker">${ticker}</div><div class="change ${cls}">${fmtPct(valor)}</div></div>`;
+        const c = valor >= 0 ? 'pos' : 'neg';
+        html += `<div class="pv-item"><div class="ticker">${ticker}</div><div class="change ${c}">${fmtPct(valor)}</div></div>`;
     }
     html += '</div></div>';
     return html;
 }
 
-function renderizarIbov(acoes) {
+function renderIbov(acoes) {
     if (!acoes || acoes.length === 0) return '';
     const maxHeight = 50;
     const valores = acoes.map(() => (Math.random() - 0.48) * 5);
@@ -417,15 +411,15 @@ function renderizarIbov(acoes) {
     let html = `<div class="card"><div class="card-title">Ações IBOV</div><div class="ibov-container"><div class="ibov-wrap">`;
     for (let i = 0; i < acoes.length; i++) {
         const v = valores[i];
-        const isPositive = v >= 0;
-        const color = isPositive ? '#1DB954' : '#E63946';
+        const pos = v >= 0;
+        const color = pos ? '#1DB954' : '#E63946';
         const height = Math.max(Math.min(Math.abs(v) / maxAbs * maxHeight, maxHeight), 1);
         html += `
             <div class="ibov-col" title="${acoes[i]}: ${v > 0 ? '+' : ''}${v.toFixed(2)}%">
                 <div style="height:${maxHeight}px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                    <div style="height:${isPositive ? (maxHeight/2 - height/2) : (maxHeight/2)}px;"></div>
+                    <div style="height:${pos ? (maxHeight/2 - height/2) : (maxHeight/2)}px;"></div>
                     <div class="ibov-bar" style="height:${height}px;background:${color};"></div>
-                    <div style="height:${isPositive ? (maxHeight/2) : (maxHeight/2 - height/2)}px;"></div>
+                    <div style="height:${pos ? (maxHeight/2) : (maxHeight/2 - height/2)}px;"></div>
                 </div>
                 <div class="ibov-label">${acoes[i]}</div>
             </div>
@@ -450,10 +444,10 @@ function renderizarDashboard(dados) {
                         <div style="font-size:8px;color:#5E7390;">Decisões mais precisas</div>
                     </div>
                 </div>
-                ${renderizarCard('Cotações Atuais', dados.cotacoes)}
-                ${renderizarCard('Informações Índice', dados.informacoes_indice)}
-                ${renderizarCard('Movimento do Mercado', dados.movimento_mercado)}
-                ${renderizarBarras('Saldo Dólar — Diário', dados.saldo_dolar)}
+                ${renderCard('Cotações Atuais', dados.cotacoes)}
+                ${renderCard('Informações Índice', dados.informacoes_indice)}
+                ${renderCard('Movimento do Mercado', dados.movimento_mercado)}
+                ${renderBarras('Saldo Dólar — Diário', dados.saldo_dolar)}
                 <div class="card" style="flex:1;min-height:0;">
                     <div class="card-title">Termômetro da Força</div>
                     <div class="thermo-wrap">
@@ -463,12 +457,12 @@ function renderizarDashboard(dados) {
             </div>
 
             <div class="col-center">
-                ${renderizarBarras('Saldo Diário — Mini Índice', dados.saldo_diario)}
+                ${renderBarras('Saldo Diário — Mini Índice', dados.saldo_diario)}
                 <div class="duo-grid">
-                    ${renderizarTabela('▼ Top Vendidos', dados.top_vendidos, 'red')}
-                    ${renderizarTabela('▲ Top Comprados', dados.top_comprados, 'green')}
+                    ${renderTabela('▼ Top Vendidos', dados.top_vendidos, 'red')}
+                    ${renderTabela('▲ Top Comprados', dados.top_comprados, 'green')}
                 </div>
-                ${renderizarBarras('Saldo 5 Min — Mini Índice', dados.saldo_5min)}
+                ${renderBarras('Saldo 5 Min — Mini Índice', dados.saldo_5min)}
                 <div class="duo-grid" style="flex:1;min-height:0;">
                     <div class="card"><div class="card-title red">▼ Vendidos 5 Min</div><div style="color:#5E7390;font-size:9px;text-align:center;padding:8px 0;">Sem dados</div></div>
                     <div class="card"><div class="card-title green">▲ Comprados 5 Min</div><div style="color:#5E7390;font-size:9px;text-align:center;padding:8px 0;">Sem dados</div></div>
@@ -476,13 +470,13 @@ function renderizarDashboard(dados) {
             </div>
 
             <div class="col-right">
-                ${renderizarPetrVale(dados.petr_vale)}
-                ${renderizarProgresso('Top 10 Ações', dados.top_10_acoes)}
-                ${renderizarProgresso('Setor Financeiro', dados.setor_financeiro)}
+                ${renderPetrVale(dados.petr_vale)}
+                ${renderProgresso('Top 10 Ações', dados.top_10_acoes)}
+                ${renderProgresso('Setor Financeiro', dados.setor_financeiro)}
             </div>
 
             <div class="row-ibov">
-                ${renderizarIbov(dados.acoes_ibov)}
+                ${renderIbov(dados.acoes_ibov)}
             </div>
         </div>
     `;
@@ -542,42 +536,42 @@ function drawGauge() {
 // ============================================
 function updateClock() {
     const now = new Date();
-    const time = now.toLocaleTimeString('pt-BR', { hour12: false });
-    document.getElementById('clock').textContent = time + ' · Ao vivo';
+    document.getElementById('clock').textContent = now.toLocaleTimeString('pt-BR', { hour12: false }) + ' · Ao vivo';
 }
 updateClock();
 setInterval(updateClock, 1000);
 
 // ============================================
-// CARREGAR DADOS ATUALIZADOS DA API
+// ATUALIZAR DA API
 // ============================================
+let dadosAtuais = DADOS_INICIAIS;
+
 async function atualizarDados() {
-    const statusBadge = document.getElementById('statusBadge');
-    
+    const badge = document.getElementById('statusBadge');
     try {
-        const response = await fetch('/api/dados');
-        if (response.ok) {
-            const data = await response.json();
+        const resp = await fetch('/api/dados');
+        if (resp.ok) {
+            const data = await resp.json();
             if (data.dados && Object.keys(data.dados).length > 0) {
-                // Mescla os dados novos com os existentes
+                // Mescla os dados
                 for (const [chave, valor] of Object.entries(data.dados)) {
-                    if (chave in DADOS_SERVIDOR && typeof DADOS_SERVIDOR[chave] === 'object' && typeof valor === 'object') {
-                        Object.assign(DADOS_SERVIDOR[chave], valor);
+                    if (chave in dadosAtuais && typeof dadosAtuais[chave] === 'object' && typeof valor === 'object') {
+                        Object.assign(dadosAtuais[chave], valor);
                     } else {
-                        DADOS_SERVIDOR[chave] = valor;
+                        dadosAtuais[chave] = valor;
                     }
                 }
-                renderizarDashboard(DADOS_SERVIDOR);
-                statusBadge.textContent = '● Online';
-                statusBadge.style.color = '#1DB954';
+                renderizarDashboard(dadosAtuais);
+                badge.textContent = '🟢 Online';
+                badge.className = 'topbar-status';
                 return;
             }
         }
-        statusBadge.textContent = '● Offline';
-        statusBadge.style.color = '#E63946';
+        badge.textContent = '🔴 Offline';
+        badge.className = 'topbar-status offline';
     } catch (e) {
-        statusBadge.textContent = '● Offline';
-        statusBadge.style.color = '#E63946';
+        badge.textContent = '🔴 Offline';
+        badge.className = 'topbar-status offline';
     }
 }
 
@@ -585,10 +579,7 @@ async function atualizarDados() {
 // INICIALIZAÇÃO
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Renderiza com os dados do servidor
-    renderizarDashboard(DADOS_SERVIDOR);
-    
-    // Tenta atualizar da API em segundo plano
+    renderizarDashboard(DADOS_INICIAIS);
     setTimeout(atualizarDados, 2000);
     setInterval(atualizarDados, 30000);
 });
@@ -599,17 +590,12 @@ document.addEventListener('DOMContentLoaded', () => {
 """
 
 @app.get("/")
-async def index():
-    """Página principal com dados embutidos"""
-    # Converte os dados para JSON para injetar no HTML
-    dados_json = json.dumps(latest_data, ensure_ascii=False)
-    html = HTML_TEMPLATE.replace("{DADOS_JSON}", dados_json)
-    return HTMLResponse(html)
-
 @app.get("/index.html")
-async def index_html():
-    """Redireciona /index.html para /"""
-    return await index()
+async def pagina_principal():
+    """Página principal com HTML direto no código"""
+    dados_json = json.dumps(latest_data, ensure_ascii=False)
+    html = HTML_DASHBOARD.replace("{DADOS_JSON}", dados_json)
+    return HTMLResponse(html)
 
 # ============================================
 # INICIALIZAÇÃO
@@ -617,4 +603,10 @@ async def index_html():
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
+    print("\n" + "="*60)
+    print("🚀 SMART TRADE - VERSÃO FINAL")
+    print("="*60)
+    print(f"🌐 Acesse: https://web-production-6f1d9.up.railway.app")
+    print(f"📊 Status: https://web-production-6f1d9.up.railway.app/api/status")
+    print("="*60 + "\n")
     uvicorn.run(app, host="0.0.0.0", port=port)
