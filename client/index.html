@@ -8,6 +8,21 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-serif;font-size:11px;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px;}
 
+/* ===== TESTE VISÍVEL ===== */
+.teste-version {
+  position: fixed;
+  top: 5px;
+  right: 5px;
+  background: #E63946;
+  color: #FFF;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 9999;
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.5);
+}
+
 /* CONTAINER */
 .container{background:#0F1521;border-radius:8px;border:1px solid #1E2A3A;max-width:1200px;width:100%;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.6);}
 
@@ -111,6 +126,9 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
 </style>
 </head>
 <body>
+
+<!-- ===== TESTE VISÍVEL ===== -->
+<div class="teste-version">🧪 TESTE 1</div>
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -281,6 +299,8 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
 </div>
 
 <script>
+console.log('🚀 TESTE 1 - Carregado em:', new Date().toLocaleString());
+
 // ==========================================
 // VARIÁVEIS
 // ==========================================
@@ -468,7 +488,6 @@ setInterval(() => {
 function atualizarDashboard(d) {
   console.log('📊 Atualizando dashboard com:', d);
 
-  // COTAÇÕES
   if (d.cotacoes) {
     document.getElementById('c-indice').innerHTML = fmtPct(d.cotacoes.indice);
     document.getElementById('c-dolar').innerHTML = fmtPct(d.cotacoes.dolar);
@@ -476,7 +495,6 @@ function atualizarDashboard(d) {
     document.getElementById('c-acoes').innerHTML = fmtPct(d.cotacoes.acoes);
   }
 
-  // INFORMAÇÕES ÍNDICE
   if (d.info_indice) {
     document.getElementById('i-direcao').innerHTML = fmtStatus(d.info_indice.direcao);
     document.getElementById('i-exaustao').innerHTML = fmtStatus(d.info_indice.exaustao);
@@ -485,18 +503,15 @@ function atualizarDashboard(d) {
     document.getElementById('i-ts').innerHTML = fmtStatus(d.info_indice.tendencia_secundaria);
   }
 
-  // MERCADO
   if (d.mercado) {
     document.getElementById('m-saldo').innerHTML = fmtStatus(d.mercado.saldo_total);
     document.getElementById('m-volume').innerHTML = fmtStatus(d.mercado.volume);
   }
 
-  // TERMÔMETRO
   if (d.termometro) {
     drawGauge(d.termometro.pontos, d.termometro.maximo || 24);
   }
 
-  // SALDO DIÁRIO
   if (d.saldo_diario) {
     const mx = Math.max(Math.abs(d.saldo_diario.inst || 0), Math.abs(d.saldo_diario.pf || 0), 1);
     document.getElementById('sd-inst').innerHTML = fmtNum(d.saldo_diario.inst);
@@ -505,7 +520,6 @@ function atualizarDashboard(d) {
     setBar('bfill-sd-pf', d.saldo_diario.pf, mx);
   }
 
-  // SALDO 5 MIN
   if (d.saldo_5min) {
     const mx = Math.max(Math.abs(d.saldo_5min.inst || 0), Math.abs(d.saldo_5min.pf || 0), 1);
     document.getElementById('s5-inst').innerHTML = fmtNum(d.saldo_5min.inst);
@@ -514,7 +528,6 @@ function atualizarDashboard(d) {
     setBar('bfill-s5-pf', d.saldo_5min.pf, mx);
   }
 
-  // SALDO DÓLAR
   if (d.saldo_dolar) {
     const mx = Math.max(Math.abs(d.saldo_dolar.inst || 0), Math.abs(d.saldo_dolar.pf || 0), 1);
     document.getElementById('dol-inst').innerHTML = fmtNum(d.saldo_dolar.inst);
@@ -523,7 +536,6 @@ function atualizarDashboard(d) {
     setBar('bfill-dol-pf', d.saldo_dolar.pf, mx);
   }
 
-  // TOP VENDIDOS / COMPRADOS
   function renderTop(id, items) {
     const tb = document.getElementById(id);
     if (!tb) return;
@@ -543,7 +555,6 @@ function atualizarDashboard(d) {
   renderTop('tv-5min', d.top_vendidos_5min);
   renderTop('tc-5min', d.top_comprados_5min);
 
-  // PETR & VALE
   if (d.petr_vale) {
     const items = [
       ['PETR3', d.petr_vale.PETR3],
@@ -557,7 +568,6 @@ function atualizarDashboard(d) {
     }).join('');
   }
 
-  // TOP 10 AÇÕES
   if (d.top10_acoes && d.top10_acoes.length) {
     const mx = Math.max(...d.top10_acoes.map(x => Math.abs(x.var)), 0.01);
     document.getElementById('top10-container').innerHTML = d.top10_acoes.map(x => {
@@ -573,7 +583,6 @@ function atualizarDashboard(d) {
     }).join('');
   }
 
-  // SETOR FINANCEIRO
   if (d.setor_financeiro) {
     const entries = Object.entries(d.setor_financeiro).filter(([_, v]) => v !== null);
     const vals = entries.map(([_, v]) => Math.abs(v));
@@ -591,7 +600,6 @@ function atualizarDashboard(d) {
     }).join('');
   }
 
-  // AÇÕES IBOV
   if (d.acoes_ibov && d.acoes_ibov.length) {
     const H = 44;
     const mx = Math.max(...d.acoes_ibov.map(x => Math.abs(x.var)), 0.01);
@@ -615,6 +623,8 @@ function atualizarDashboard(d) {
 // INICIALIZAÇÃO
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('✅ DOM carregado - TESTE 1');
+
   if (token) {
     fetch('/api/poll?token=' + encodeURIComponent(token))
       .then(res => {
