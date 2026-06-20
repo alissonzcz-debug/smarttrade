@@ -134,6 +134,11 @@
 
 <script>
 // ============================================
+// CONFIGURAÇÃO - USA A URL ATUAL
+// ============================================
+const API_URL = window.location.origin + '/api/dados';
+
+// ============================================
 // DADOS DE EXEMPLO (FALLBACK)
 // ============================================
 const DADOS_PADRAO = {
@@ -359,7 +364,6 @@ function renderizarIbov(acoes) {
 function renderizarDashboard(dados) {
     const container = document.getElementById('content');
     
-    // Verifica se dados é válido
     if (!dados || Object.keys(dados).length === 0) {
         container.innerHTML = `
             <div style="text-align:center;padding:40px;color:#5E7390;">
@@ -372,7 +376,6 @@ function renderizarDashboard(dados) {
     
     const html = `
         <div class="main-grid">
-            <!-- ESQUERDA -->
             <div class="col-left">
                 <div class="card" style="display:flex;align-items:center;justify-content:center;padding:12px;min-height:60px;">
                     <div style="text-align:center;">
@@ -392,7 +395,6 @@ function renderizarDashboard(dados) {
                 </div>
             </div>
 
-            <!-- CENTRO -->
             <div class="col-center">
                 ${renderizarBarras('Saldo Diário — Mini Índice', dados.saldo_diario)}
                 <div class="duo-grid">
@@ -406,14 +408,12 @@ function renderizarDashboard(dados) {
                 </div>
             </div>
 
-            <!-- DIREITA -->
             <div class="col-right">
                 ${renderizarPetrVale(dados.petr_vale)}
                 ${renderizarProgresso('Top 10 Ações', dados.top_10_acoes)}
                 ${renderizarProgresso('Setor Financeiro', dados.setor_financeiro)}
             </div>
 
-            <!-- IBOV -->
             <div class="row-ibov">
                 ${renderizarIbov(dados.acoes_ibov)}
             </div>
@@ -482,7 +482,7 @@ updateClock();
 setInterval(updateClock, 1000);
 
 // ============================================
-// BUSCAR DADOS DA API
+// BUSCAR DADOS DA API - VERSÃO CORRIGIDA
 // ============================================
 async function buscarDados() {
     const statusBadge = document.getElementById('statusBadge');
@@ -490,28 +490,35 @@ async function buscarDados() {
     statusBadge.className = 'topbar-status loading';
 
     try {
+        // USA A URL ABSOLUTA DO SERVIDOR
         const response = await fetch('/api/dados', {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
         });
+
+        console.log('📡 Resposta da API:', response.status);
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
 
         const data = await response.json();
-        
+        console.log('📊 Dados recebidos:', data);
+
         if (data.dados && Object.keys(data.dados).length > 0) {
             renderizarDashboard(data.dados);
             statusBadge.textContent = '● Online';
             statusBadge.className = 'topbar-status online';
-            console.log('✅ Dados carregados da API:', data.dados);
         } else {
             throw new Error('Dados vazios');
         }
 
     } catch (error) {
-        console.warn('⚠️ API offline, usando dados locais:', error.message);
+        console.warn('⚠️ Erro ao buscar dados da API:', error.message);
+        console.log('📋 Usando dados locais (fallback)');
         renderizarDashboard(DADOS_PADRAO);
         statusBadge.textContent = '● Offline (local)';
         statusBadge.className = 'topbar-status offline';
@@ -522,6 +529,9 @@ async function buscarDados() {
 // INICIALIZAÇÃO
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Smart Trade iniciado!');
+    console.log('🌐 URL da API:', API_URL);
+    
     // Mostra dados padrão imediatamente
     renderizarDashboard(DADOS_PADRAO);
     
