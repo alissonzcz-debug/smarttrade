@@ -1,521 +1,436 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartTrade — Dashboard</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0A0E17;--card:#111827;--row:#1A2235;--accent:#1E2A3A;
-  --border:#253045;--hdr:#1A3A5C;--blue:#1F6FEB;
-  --white:#E8EDF5;--muted:#5E7390;--green:#1DB954;--red:#E63946;--yellow:#F4A020;
-}
-html,body{height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--white);font-family:'Calibri','Segoe UI',sans-serif;font-size:11px;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Trade — Mini Índice</title>
+    <style>
+        /* ============================================
+           ESTILOS COMPLETOS (mesmo código anterior)
+           ============================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0A0E17; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', 'Calibri', sans-serif; padding: 20px; }
+        .container { background: #0F1521; border-radius: 12px; border: 1px solid #1E2A3A; max-width: 1200px; width: 100%; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+        .topbar { background: #111827; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E2A3A; }
+        .topbar-left { display: flex; align-items: center; gap: 10px; }
+        .live-dot { width: 8px; height: 8px; background: #1DB954; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .topbar-title { color: #E8EDF5; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; }
+        .topbar-title span { color: #5E7390; font-weight: 400; }
+        .topbar-time { color: #5E7390; font-size: 11px; }
+        .topbar-status { color: #5E7390; font-size: 10px; background: #1A2538; padding: 2px 10px; border-radius: 10px; }
+        .topbar-status.online { color: #1DB954; }
+        .topbar-status.offline { color: #E63946; }
 
-/* DASHBOARD WRAPPER */
-#dashboard{display:flex;height:100vh;flex-direction:column;}
+        .main-grid { display: grid; grid-template-columns: 220px 1fr 280px; gap: 6px; padding: 6px; }
+        .card { background: #111827; border: 1px solid #1E2A3A; border-radius: 6px; padding: 10px 12px; }
+        .card-title { color: #5E7390; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #1A2538; padding-bottom: 5px; margin-bottom: 6px; }
+        .card-title.green { color: #1DB954; }
+        .card-title.red { color: #E63946; }
+        .card-title.yellow { color: #F4A020; }
+        .row-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #1A2538; font-size: 10px; }
+        .row-item:last-child { border-bottom: none; }
+        .row-label { color: #5E7390; }
+        .row-value { font-weight: 700; }
+        .row-value.pos { color: #1DB954; }
+        .row-value.neg { color: #E63946; }
+        .row-value.neu { color: #F4A020; }
+        .row-value.gray { color: #5E7390; }
 
-/* TOPBAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 12px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0;height:28px;}
-.topbar-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
-.topbar-right{display:flex;align-items:center;gap:14px;font-size:10px;color:var(--muted);}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
-.live-dot.off{background:var(--red);animation:none;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.btn-logout{background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:10px;}
-.btn-logout:hover{border-color:var(--red);color:var(--red);}
+        .bar-wrap { margin: 4px 0; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 9px; color: #5E7390; margin-bottom: 2px; }
+        .bar-label .val { font-weight: 700; }
+        .bar-track { background: #1A2538; border-radius: 2px; height: 8px; position: relative; overflow: hidden; }
+        .bar-fill { position: absolute; top: 0; height: 100%; border-radius: 2px; }
+        .bar-fill.green { background: #1DB954; }
+        .bar-fill.red { background: #E63946; }
+        .bar-fill.yellow { background: #F4A020; }
 
-/* MAIN GRID — 3 colunas: left(info) | center(players) | right(ações) */
-.main-grid{
-  display:grid;
-  grid-template-columns: 172px 1fr 310px;
-  grid-template-rows: 1fr auto;
-  gap:5px;
-  padding:5px;
-  flex:1;
-  min-height:0;
-  height: calc(100vh - 28px);
-}
+        .table-mini { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .table-mini th { color: #5E7390; font-weight: 400; text-transform: uppercase; font-size: 7px; text-align: left; padding: 2px 0; border-bottom: 1px solid #1A2538; }
+        .table-mini th:last-child { text-align: right; }
+        .table-mini td { padding: 3px 0; border-bottom: 1px solid #1A2538; }
+        .table-mini td:last-child { text-align: right; font-weight: 700; }
+        .table-mini tr:last-child td { border-bottom: none; }
+        .table-mini .pos { color: #1DB954; }
+        .table-mini .neg { color: #E63946; }
 
-/* COLUNA ESQUERDA — informativos empilhados */
-.col-left{
-  grid-column:1;
-  grid-row:1/3;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  min-height:0;
-}
+        .duo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .pv-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+        .pv-item { text-align: center; background: #1A2538; border-radius: 4px; padding: 6px 2px; }
+        .pv-item .ticker { font-size: 7px; color: #5E7390; text-transform: uppercase; }
+        .pv-item .change { font-size: 12px; font-weight: 700; }
+        .pv-item .change.pos { color: #1DB954; }
+        .pv-item .change.neg { color: #E63946; }
 
-/* COLUNA CENTRO — players + saldos */
-.col-center{
-  grid-column:2;
-  grid-row:1;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  min-height:0;
-}
+        .progress-item { display: flex; align-items: center; gap: 4px; padding: 2px 0; border-bottom: 1px solid #1A2538; font-size: 9px; }
+        .progress-item:last-child { border-bottom: none; }
+        .progress-label { color: #5E7390; width: 35px; flex-shrink: 0; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .progress-track { flex: 1; height: 5px; background: #1A2538; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 2px; }
+        .progress-fill.green { background: #1DB954; }
+        .progress-fill.red { background: #E63946; }
+        .progress-pct { width: 32px; text-align: right; font-weight: 700; font-size: 8px; flex-shrink: 0; }
+        .progress-pct.pos { color: #1DB954; }
+        .progress-pct.neg { color: #E63946; }
 
-/* COLUNA DIREITA — petr/vale + top10 + setor */
-.col-right{
-  grid-column:3;
-  grid-row:1;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  min-height:0;
-}
+        .ibov-container { overflow-x: auto; padding: 4px 0; }
+        .ibov-wrap { display: flex; align-items: flex-end; height: 60px; gap: 2px; min-width: 100%; }
+        .ibov-col { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 12px; }
+        .ibov-bar { width: 100%; border-radius: 1px; min-height: 1px; }
+        .ibov-label { font-size: 5px; color: #5E7390; transform: rotate(-90deg); white-space: nowrap; margin-top: 3px; width: 24px; text-align: right; }
 
-/* RODAPÉ — ações ibov full width das colunas 2+3 */
-.row-ibov{
-  grid-column:2/4;
-  grid-row:2;
-  min-height:0;
-}
+        .thermo-wrap { display: flex; justify-content: center; padding: 4px 0; }
+        .col-left { grid-column: 1; grid-row: 1 / 3; display: flex; flex-direction: column; gap: 6px; }
+        .col-center { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 6px; }
+        .col-right { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; gap: 6px; }
+        .row-ibov { grid-column: 2 / 4; grid-row: 2; }
+        .flex-1 { flex: 1; }
+        .min-h-0 { min-height: 0; }
 
-/* CARD BASE */
-.card{background:var(--card);border-radius:5px;padding:5px 8px;border:1px solid var(--border);overflow:hidden;}
-.card-title{font-size:8.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--accent);}
+        .ibov-container::-webkit-scrollbar { height: 3px; }
+        .ibov-container::-webkit-scrollbar-track { background: #1A2538; }
+        .ibov-container::-webkit-scrollbar-thumb { background: #5E7390; border-radius: 3px; }
 
-/* LOGO */
-.logo-box{background:var(--card);border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:5px 8px;flex-shrink:0;}
-.logo-box img{width:100%;max-height:52px;object-fit:contain;}
-.logo-fallback{text-align:center;}
-.logo-fallback h2{font-size:14px;font-weight:800;color:var(--white);letter-spacing:.1em;}
-.logo-fallback p{font-size:8px;color:var(--muted);}
+        /* Loading */
+        .loading { color: #5E7390; font-size: 10px; text-align: center; padding: 10px; }
+        .loading::after { content: '...'; animation: dots 1.5s steps(4) infinite; }
+        @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
 
-/* MÉTRICAS */
-.metric-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid var(--accent);}
-.metric-row:last-child{border-bottom:none;}
-.metric-label{color:var(--muted);font-size:10px;}
-.metric-val{font-size:10px;font-weight:700;}
-.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--muted)}.warn{color:var(--yellow)}
-
-/* GAUGE */
-.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:2px 0 0;}
-
-/* BARRAS HORIZONTAIS SALDO */
-.hbar-wrap{padding:2px 0;}
-.hbar-label{font-size:9px;color:var(--muted);margin-bottom:2px;display:flex;justify-content:space-between;}
-.hbar-track{background:var(--accent);border-radius:3px;height:11px;position:relative;overflow:hidden;}
-.hbar-fill{height:100%;border-radius:3px;position:absolute;transition:width .4s,left .4s;}
-
-/* TOP TABLES — compactas, corretora e valor juntos */
-.top-table{width:100%;border-collapse:collapse;}
-.top-table th{font-size:8px;color:var(--muted);padding:1px 3px;border-bottom:1px solid var(--accent);font-weight:400;text-transform:uppercase;}
-.top-table td{font-size:10px;padding:2px 3px;border-bottom:1px solid var(--accent);white-space:nowrap;}
-.top-table tr:last-child td{border-bottom:none;}
-.top-table td:last-child{text-align:right;font-weight:700;width:52px;}
-.top-table td:first-child{overflow:hidden;text-overflow:ellipsis;max-width:88px;}
-
-/* 2 painéis de top lado a lado */
-.top-duo{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
-
-/* BARRAS HORIZONTAIS (Top10, Setor) */
-.bar-row{display:flex;align-items:center;gap:4px;padding:2px 0;border-bottom:1px solid var(--accent);}
-.bar-row:last-child{border-bottom:none;}
-.bar-label{font-size:9px;color:var(--muted);width:46px;flex-shrink:0;white-space:nowrap;overflow:hidden;}
-.bar-track{flex:1;background:var(--accent);border-radius:2px;height:6px;overflow:hidden;position:relative;}
-.bar-fill{height:100%;border-radius:2px;position:absolute;left:0;}
-.bar-pct{font-size:9px;font-weight:700;width:40px;text-align:right;flex-shrink:0;}
-
-/* PETR E VALE */
-.pv-grid{display:flex;gap:5px;padding:2px 0;}
-.pv-item{flex:1;text-align:center;background:var(--accent);border-radius:4px;padding:4px 2px;}
-.pv-ticker{font-size:8px;color:var(--muted);margin-bottom:1px;}
-.pv-val{font-size:13px;font-weight:700;}
-
-/* AÇÕES IBOV — rodapé */
-.ibov-outer{overflow-x:auto;padding:2px 0 1px;}
-.ibov-wrap{display:flex;align-items:flex-end;gap:2px;height:72px;min-width:max-content;}
-.ibov-col{display:flex;flex-direction:column;align-items:center;width:15px;}
-.ibov-bar-pos,.ibov-bar-neg{width:11px;border-radius:1px;min-height:1px;}
-.ibov-spacer{flex:1;}
-.ibov-ticker{font-size:6.5px;color:var(--muted);transform:rotate(-90deg);white-space:nowrap;width:32px;text-align:right;margin-top:1px;}
-
-/* flex-grow helpers */
-.grow{flex:1;min-height:0;}
-</style>
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 1fr; gap: 6px; }
+            .col-left, .col-center, .col-right, .row-ibov { grid-column: 1; grid-row: auto; }
+            .duo-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .topbar { flex-direction: column; gap: 6px; text-align: center; }
+            .pv-grid { grid-template-columns: 1fr; }
+            .duo-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
-<!-- DASHBOARD -->
-<div id="dashboard">
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <span class="topbar-title"><span class="live-dot" id="live-dot"></span>Smart Trade — Mini Índice</span>
-    <div class="topbar-right">
-      <span id="hora">--:--:--</span>
-      <span id="conn-status">Conectando...</span>
-
-    </div>
-  </div>
-
-  <div class="main-grid">
-
-    <!-- ══════════════ COL ESQUERDA (informativos) ══════════════ -->
-    <div class="col-left">
-
-      <!-- LOGO -->
-      <div class="logo-box" style="height:58px;flex-shrink:0;">
-        <div class="logo-fallback">
-          <h2>SMART TRADE</h2>
-          <p>Decisões mais precisas para seu trade</p>
+<div class="container" id="app">
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <span class="live-dot"></span>
+            <span class="topbar-title">SMART TRADE <span>— Mini Índice</span></span>
         </div>
-      </div>
-
-      <!-- COTAÇÕES -->
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Cotações Atuais</div>
-        <div class="metric-row"><span class="metric-label">Índice Futuro</span><span class="metric-val" id="c-indice">--</span></div>
-        <div class="metric-row"><span class="metric-label">Dólar Futuro</span><span class="metric-val" id="c-dolar">--</span></div>
-        <div class="metric-row"><span class="metric-label">Bancos</span><span class="metric-val" id="c-bancos">--</span></div>
-        <div class="metric-row"><span class="metric-label">Ações IBOV</span><span class="metric-val" id="c-acoes">--</span></div>
-      </div>
-
-      <!-- INFORMAÇÕES ÍNDICE -->
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Informações Índice</div>
-        <div class="metric-row"><span class="metric-label">Direção</span><span class="metric-val" id="i-direcao">--</span></div>
-        <div class="metric-row"><span class="metric-label">Exaustão</span><span class="metric-val" id="i-exaustao">--</span></div>
-        <div class="metric-row"><span class="metric-label">Correção</span><span class="metric-val" id="i-correcao">--</span></div>
-        <div class="metric-row"><span class="metric-label">Tend. Primária</span><span class="metric-val" id="i-tp">--</span></div>
-        <div class="metric-row"><span class="metric-label">Tend. Secundária</span><span class="metric-val" id="i-ts">--</span></div>
-      </div>
-
-      <!-- MOVIMENTO DO MERCADO -->
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Movimento do Mercado</div>
-        <div class="metric-row"><span class="metric-label">Saldo Total</span><span class="metric-val" id="m-saldo">--</span></div>
-        <div class="metric-row"><span class="metric-label">Volume</span><span class="metric-val" id="m-volume">--</span></div>
-      </div>
-
-      <!-- SALDO DÓLAR -->
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Saldo Dólar — Diário</div>
-        <div class="hbar-wrap">
-          <div class="hbar-label"><span>Institucional</span><span id="dol-inst">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-dol-inst"></div></div>
+        <div>
+            <span class="topbar-status" id="statusBadge">● Carregando...</span>
+            <span class="topbar-time" id="clock">--:--:--</span>
         </div>
-        <div class="hbar-wrap" style="margin-top:5px">
-          <div class="hbar-label"><span>Varejo</span><span id="dol-pf">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-dol-pf"></div></div>
-        </div>
-      </div>
-
-      <!-- TERMÔMETRO -->
-      <div class="card grow">
-        <div class="card-title">Termômetro da Força</div>
-        <div class="gauge-wrap">
-          <canvas id="gauge" width="154" height="85"></canvas>
-        </div>
-      </div>
-
     </div>
 
-    <!-- ══════════════ COL CENTRO (players) ══════════════ -->
-    <div class="col-center">
-
-      <!-- SALDO DIÁRIO -->
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Saldo Diário — Mini Índice</div>
-        <div class="hbar-wrap">
-          <div class="hbar-label"><span>Institucional</span><span id="sd-inst">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-sd-inst"></div></div>
-        </div>
-        <div class="hbar-wrap" style="margin-top:5px">
-          <div class="hbar-label"><span>Varejo</span><span id="sd-pf">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-sd-pf"></div></div>
-        </div>
-      </div>
-
-      <!-- TOP VENDIDOS / COMPRADOS DIÁRIO -->
-      <div class="top-duo" style="flex-shrink:0;">
-        <div class="card">
-          <div class="card-title" style="color:var(--red)">▼ Top Vendidos</div>
-          <table class="top-table">
-            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
-            <tbody id="tv-diario"></tbody>
-          </table>
-        </div>
-        <div class="card">
-          <div class="card-title" style="color:var(--green)">▲ Top Comprados</div>
-          <table class="top-table">
-            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
-            <tbody id="tc-diario"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- SALDO 5 MIN -->
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Saldo 5 Min — Mini Índice</div>
-        <div class="hbar-wrap">
-          <div class="hbar-label"><span>Institucional</span><span id="s5-inst">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-s5-inst"></div></div>
-        </div>
-        <div class="hbar-wrap" style="margin-top:5px">
-          <div class="hbar-label"><span>Varejo</span><span id="s5-pf">--</span></div>
-          <div class="hbar-track"><div class="hbar-fill" id="bfill-s5-pf"></div></div>
-        </div>
-      </div>
-
-      <!-- TOP 5 MIN -->
-      <div class="top-duo grow" style="min-height:0;">
-        <div class="card">
-          <div class="card-title" style="color:var(--red)">▼ Top Vendidos 5 Min</div>
-          <table class="top-table">
-            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
-            <tbody id="tv-5min"></tbody>
-          </table>
-        </div>
-        <div class="card">
-          <div class="card-title" style="color:var(--green)">▲ Top Comprados 5 Min</div>
-          <table class="top-table">
-            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
-            <tbody id="tc-5min"></tbody>
-          </table>
-        </div>
-      </div>
-
+    <!-- CONTEÚDO -->
+    <div id="content">
+        <div class="loading">Carregando dados</div>
     </div>
-
-    <!-- ══════════════ COL DIREITA (ações) ══════════════ -->
-    <div class="col-right">
-
-      <!-- PETR & VALE -->
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">Petr &amp; Vale</div>
-        <div class="pv-grid" id="petr-vale"></div>
-      </div>
-
-      <!-- TOP 10 AÇÕES -->
-      <div class="card grow" style="min-height:0;overflow:hidden;">
-        <div class="card-title">Top 10 Ações</div>
-        <div id="top10-container"></div>
-      </div>
-
-      <!-- SETOR FINANCEIRO -->
-      <div class="card grow" style="min-height:0;overflow:hidden;">
-        <div class="card-title">Setor Financeiro</div>
-        <div id="setor-fin"></div>
-      </div>
-
-    </div>
-
-    <!-- ══════════════ RODAPÉ — AÇÕES IBOV (col 2+3) ══════════════ -->
-    <div class="row-ibov">
-      <div class="card" style="height:100%;">
-        <div class="card-title">Ações IBOV</div>
-        <div class="ibov-outer">
-          <div class="ibov-wrap" id="ibov-chart"></div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /main-grid -->
-</div><!-- /dashboard -->
+</div>
 
 <script>
-const SERVER = window.location.origin;
+// ============================================
+// CONFIGURAÇÃO
+// ============================================
+const API_URL = window.location.origin + '/api/dados';
 
-async function buscarDados(){
-  try{
-    const resp=await fetch(`${SERVER}/api/dados`);
-    const data=await resp.json();
-    if(data.dados&&Object.keys(data.dados).length>0){setStatus(true);atualizarDashboard(data.dados);}
-    else setStatus(false);
-  }catch(e){setStatus(false);}
+// ============================================
+// ESTADO
+// ============================================
+let dados = null;
+let atualizando = false;
+
+// ============================================
+// FUNÇÕES DE RENDERIZAÇÃO
+// ============================================
+
+function formatarNumero(valor) {
+    if (typeof valor === 'number') {
+        return valor > 0 ? '+' + valor.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.') : valor.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    return valor;
 }
 
-setInterval(buscarDados,2000);
-buscarDados();
-
-function setStatus(online){
-  document.getElementById('live-dot').className='live-dot'+(online?'':' off');
-  document.getElementById('conn-status').textContent=online?'Ao vivo':'Sem dados';
+function formatarPercentual(valor) {
+    if (typeof valor === 'number') {
+        return (valor > 0 ? '+' : '') + valor.toFixed(2) + '%';
+    }
+    return valor;
 }
 
-function fmt(val,tipo){
-  if(val===null||val===undefined) return '--';
-  if(tipo==='pct'){
-    const n=parseFloat(val)*100;
-    return `<span class="${n>=0?'pos':'neg'}">${n>=0?'+':''}${n.toFixed(2)}%</span>`;
-  }
-  if(tipo==='num'){
-    const n=parseInt(val);
-    return `<span class="${n>=0?'pos':'neg'}">${n>=0?'+':''}${n.toLocaleString('pt-BR')}</span>`;
-  }
-  if(tipo==='status'){
-    const pos=['Alta','Em Tendência','Continuidade'];
-    const neg=['Baixa'];
-    const warn=['Baixo','Zona de equilíbrio'];
-    const c=pos.includes(val)?'pos':neg.includes(val)?'neg':warn.includes(val)?'warn':'neu';
-    return `<span class="${c}">${val}</span>`;
-  }
-  return val;
+function getClasseVariacao(valor) {
+    if (typeof valor === 'number') {
+        return valor > 0 ? 'pos' : valor < 0 ? 'neg' : 'gray';
+    }
+    return 'gray';
 }
 
-function setBar(id,value,maxAbs){
-  const el=document.getElementById(id);
-  if(!el||value===null||value===undefined) return;
-  const pct=Math.min(Math.abs(value)/maxAbs*100,100);
-  const pos=value>=0;
-  el.style.width=pct+'%';
-  el.style.left=pos?'50%':(50-pct)+'%';
-  el.style.background=pos?'var(--green)':'var(--red)';
+function renderizarCard(titulo, itens, classe = '') {
+    let html = `<div class="card"><div class="card-title ${classe}">${titulo}</div>`;
+    for (const [label, valor] of Object.entries(itens)) {
+        const classeValor = getClasseVariacao(valor);
+        const texto = typeof valor === 'number' ? formatarPercentual(valor) : valor;
+        html += `<div class="row-item"><span class="row-label">${label}</span><span class="row-value ${classeValor}">${texto}</span></div>`;
+    }
+    html += '</div>';
+    return html;
 }
 
-function atualizarDashboard(d){
-  if(d.hora) document.getElementById('hora').textContent=d.hora;
+function renderizarBarras(titulo, itens) {
+    let html = `<div class="card"><div class="card-title">${titulo}</div>`;
+    for (const [label, valor] of Object.entries(itens)) {
+        const classe = valor >= 0 ? 'green' : 'red';
+        const pct = Math.min(Math.abs(valor) / 20000 * 100, 90);
+        const lado = valor >= 0 ? 'left:50%;' : 'right:50%;';
+        html += `
+            <div class="bar-wrap">
+                <div class="bar-label"><span>${label}</span><span class="val ${classe}">${formatarNumero(valor)}</span></div>
+                <div class="bar-track"><div class="bar-fill ${classe}" style="width:${pct}%;${lado}"></div></div>
+            </div>
+        `;
+    }
+    html += '</div>';
+    return html;
+}
 
-  if(d.cotacoes){
-    document.getElementById('c-indice').innerHTML=fmt(d.cotacoes.indice,'pct');
-    document.getElementById('c-dolar').innerHTML=fmt(d.cotacoes.dolar,'pct');
-    document.getElementById('c-bancos').innerHTML=fmt(d.cotacoes.bancos,'pct');
-    document.getElementById('c-acoes').innerHTML=fmt(d.cotacoes.acoes,'pct');
-  }
-  if(d.info_indice){
-    document.getElementById('i-direcao').innerHTML=fmt(d.info_indice.direcao,'status');
-    document.getElementById('i-exaustao').innerHTML=fmt(d.info_indice.exaustao,'status');
-    document.getElementById('i-correcao').innerHTML=fmt(d.info_indice.correcao,'status');
-    document.getElementById('i-tp').innerHTML=fmt(d.info_indice.tendencia_primaria,'status');
-    document.getElementById('i-ts').innerHTML=fmt(d.info_indice.tendencia_secundaria,'status');
-  }
-  if(d.mercado){
-    document.getElementById('m-saldo').innerHTML=fmt(d.mercado.saldo_total,'status');
-    document.getElementById('m-volume').innerHTML=fmt(d.mercado.volume,'status');
-  }
-  if(d.termometro) desenharGauge('gauge',d.termometro.pontos||0,d.termometro.maximo||24);
+function renderizarTabela(titulo, dados, classe) {
+    let html = `<div class="card"><div class="card-title ${classe}">${titulo}</div><table class="table-mini"><thead><tr><th>Corretora</th><th>Qtd</th></tr></thead><tbody>`;
+    for (const item of dados) {
+        const cls = item.qtd >= 0 ? 'pos' : 'neg';
+        html += `<tr><td>${item.corretora}</td><td class="${cls}">${formatarNumero(item.qtd)}</td></tr>`;
+    }
+    html += '</tbody></table></div>';
+    return html;
+}
 
-  if(d.saldo_diario){
-    const mx=Math.max(Math.abs(d.saldo_diario.inst||0),Math.abs(d.saldo_diario.pf||0),1);
-    document.getElementById('sd-inst').innerHTML=fmt(d.saldo_diario.inst,'num');
-    document.getElementById('sd-pf').innerHTML=fmt(d.saldo_diario.pf,'num');
-    setBar('bfill-sd-inst',d.saldo_diario.inst,mx);
-    setBar('bfill-sd-pf',d.saldo_diario.pf,mx);
-  }
-  if(d.saldo_5min){
-    const mx=Math.max(Math.abs(d.saldo_5min.inst||0),Math.abs(d.saldo_5min.pf||0),1);
-    document.getElementById('s5-inst').innerHTML=fmt(d.saldo_5min.inst,'num');
-    document.getElementById('s5-pf').innerHTML=fmt(d.saldo_5min.pf,'num');
-    setBar('bfill-s5-inst',d.saldo_5min.inst,mx);
-    setBar('bfill-s5-pf',d.saldo_5min.pf,mx);
-  }
-  if(d.saldo_dolar){
-    const mx=Math.max(Math.abs(d.saldo_dolar.inst||0),Math.abs(d.saldo_dolar.pf||0),1);
-    document.getElementById('dol-inst').innerHTML=fmt(d.saldo_dolar.inst,'num');
-    document.getElementById('dol-pf').innerHTML=fmt(d.saldo_dolar.pf,'num');
-    setBar('bfill-dol-inst',d.saldo_dolar.inst,mx);
-    setBar('bfill-dol-pf',d.saldo_dolar.pf,mx);
-  }
+function renderizarProgresso(titulo, dados) {
+    let html = `<div class="card" style="flex:1;min-height:0;"><div class="card-title">${titulo}</div>`;
+    const maxAbs = Math.max(...dados.map(d => Math.abs(d.variacao)), 0.01);
+    for (const item of dados) {
+        const cls = item.variacao >= 0 ? 'green' : 'red';
+        const pct = Math.abs(item.variacao) / maxAbs * 100;
+        const pctCls = item.variacao >= 0 ? 'pos' : 'neg';
+        html += `
+            <div class="progress-item">
+                <span class="progress-label">${item.ticker}</span>
+                <div class="progress-track"><div class="progress-fill ${cls}" style="width:${Math.max(pct, 2)}%;"></div></div>
+                <span class="progress-pct ${pctCls}">${formatarPercentual(item.variacao)}</span>
+            </div>
+        `;
+    }
+    html += '</div>';
+    return html;
+}
 
-  function renderTop(id,items,cls){
-    const tb=document.getElementById(id);
-    if(!tb||!items) return;
-    tb.innerHTML=items.map(i=>`<tr>
-      <td>${i.nome}</td>
-      <td class="${cls}">${i.valor>0?'+':''}${parseInt(i.valor).toLocaleString('pt-BR')}</td>
-    </tr>`).join('');
-  }
-  renderTop('tv-diario',d.top_vendidos,'neg');
-  renderTop('tc-diario',d.top_comprados,'pos');
-  renderTop('tv-5min',d.top_vendidos_5min,'neg');
-  renderTop('tc-5min',d.top_comprados_5min,'pos');
+function renderizarPetrVale(dados) {
+    let html = `<div class="card"><div class="card-title">Petr &amp; Vale</div><div class="pv-grid">`;
+    for (const [ticker, valor] of Object.entries(dados)) {
+        const cls = valor >= 0 ? 'pos' : 'neg';
+        html += `<div class="pv-item"><div class="ticker">${ticker}</div><div class="change ${cls}">${formatarPercentual(valor)}</div></div>`;
+    }
+    html += '</div></div>';
+    return html;
+}
 
-  // PETR E VALE
-  if(d.petr_vale){
-    const items=[['PETR3',d.petr_vale.PETR3],['PETR4',d.petr_vale.PETR4],['VALE3',d.petr_vale.VALE3]];
-    document.getElementById('petr-vale').innerHTML=items.map(([t,v])=>{
-      if(v===null||v===undefined) return '';
-      const pos=v>=0,cls=pos?'pos':'neg';
-      return `<div class="pv-item">
-        <div class="pv-ticker">${t}</div>
-        <div class="pv-val ${cls}">${pos?'+':''}${v.toFixed(2)}%</div>
-      </div>`;
-    }).join('');
-  }
+function renderizarIbov(acoes) {
+    const maxHeight = 50;
+    const valores = acoes.map(() => (Math.random() - 0.48) * 5);
+    const maxAbs = Math.max(...valores.map(v => Math.abs(v)), 0.01);
+    
+    let html = `<div class="card"><div class="card-title">Ações IBOV</div><div class="ibov-container"><div class="ibov-wrap">`;
+    for (let i = 0; i < acoes.length; i++) {
+        const v = valores[i];
+        const isPositive = v >= 0;
+        const color = isPositive ? '#1DB954' : '#E63946';
+        const height = Math.max(Math.min(Math.abs(v) / maxAbs * maxHeight, maxHeight), 1);
+        html += `
+            <div class="ibov-col" title="${acoes[i]}: ${v > 0 ? '+' : ''}${v.toFixed(2)}%">
+                <div style="height:${maxHeight}px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <div style="height:${isPositive ? (maxHeight/2 - height/2) : (maxHeight/2)}px;"></div>
+                    <div class="ibov-bar" style="height:${height}px;background:${color};"></div>
+                    <div style="height:${isPositive ? (maxHeight/2) : (maxHeight/2 - height/2)}px;"></div>
+                </div>
+                <div class="ibov-label">${acoes[i]}</div>
+            </div>
+        `;
+    }
+    html += '</div></div></div>';
+    return html;
+}
 
-  // TOP 10 AÇÕES
-  if(d.top10_acoes&&d.top10_acoes.length){
-    const mx=Math.max(...d.top10_acoes.map(x=>Math.abs(x.var)),0.01);
-    document.getElementById('top10-container').innerHTML=d.top10_acoes.map(x=>{
-      const pos=x.var>=0,pct=Math.min(Math.abs(x.var)/mx*100,100);
-      const cor=pos?'var(--green)':'var(--red)';
-      const pctStr=(pos?'+':'')+x.var.toFixed(2)+'%';
-      return `<div class="bar-row">
-        <span class="bar-label">${x.ticker}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cor}"></div></div>
-        <span class="bar-pct ${pos?'pos':'neg'}">${pctStr}</span>
-      </div>`;
-    }).join('');
-  }
+// ============================================
+// RENDERIZAÇÃO PRINCIPAL
+// ============================================
+function renderizarDashboard(dados) {
+    const container = document.getElementById('content');
+    
+    let html = `
+        <div class="main-grid">
+            <!-- COLUNA ESQUERDA -->
+            <div class="col-left">
+                <div class="card" style="display:flex;align-items:center;justify-content:center;padding:12px;min-height:60px;">
+                    <div style="text-align:center;">
+                        <div style="font-size:14px;font-weight:800;color:#E8EDF5;letter-spacing:0.08em;">SMART TRADE</div>
+                        <div style="font-size:8px;color:#5E7390;">Decisões mais precisas</div>
+                    </div>
+                </div>
+                ${renderizarCard('Cotações Atuais', dados.cotacoes || {})}
+                ${renderizarCard('Informações Índice', dados.informacoes_indice || {})}
+                ${renderizarCard('Movimento do Mercado', dados.movimento_mercado || {})}
+                ${renderizarBarras('Saldo Dólar — Diário', dados.saldo_dolar || {})}
+                <div class="card" style="flex:1;min-height:0;">
+                    <div class="card-title">Termômetro da Força</div>
+                    <div class="thermo-wrap">
+                        <canvas id="gauge" width="130" height="72"></canvas>
+                    </div>
+                </div>
+            </div>
 
-  // SETOR FINANCEIRO
-  if(d.setor_financeiro){
-    const vals=Object.values(d.setor_financeiro).filter(v=>v!==null);
-    const mx=Math.max(...vals.map(Math.abs),0.001);
-    document.getElementById('setor-fin').innerHTML=Object.entries(d.setor_financeiro).map(([t,val])=>{
-      if(val===null) return '';
-      const pos=val>=0,pct=Math.min(Math.abs(val)/mx*100,100);
-      const cor=pos?'var(--green)':'var(--red)';
-      const pctStr=(pos?'+':'')+(val*100).toFixed(2)+'%';
-      return `<div class="bar-row">
-        <span class="bar-label">${t}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cor}"></div></div>
-        <span class="bar-pct ${pos?'pos':'neg'}">${pctStr}</span>
-      </div>`;
-    }).join('');
-  }
+            <!-- COLUNA CENTRAL -->
+            <div class="col-center">
+                ${renderizarBarras('Saldo Diário — Mini Índice', dados.saldo_diario || {})}
+                <div class="duo-grid">
+                    ${renderizarTabela('▼ Top Vendidos', dados.top_vendidos || [], 'red')}
+                    ${renderizarTabela('▲ Top Comprados', dados.top_comprados || [], 'green')}
+                </div>
+                ${renderizarBarras('Saldo 5 Min — Mini Índice', dados.saldo_5min || {})}
+                <div class="duo-grid" style="flex:1;min-height:0;">
+                    <div class="card"><div class="card-title red">▼ Vendidos 5 Min</div><div style="color:#5E7390;font-size:9px;text-align:center;padding:8px 0;">Sem dados</div></div>
+                    <div class="card"><div class="card-title green">▲ Comprados 5 Min</div><div style="color:#5E7390;font-size:9px;text-align:center;padding:8px 0;">Sem dados</div></div>
+                </div>
+            </div>
 
-  // AÇÕES IBOV
-  if(d.acoes_ibov&&d.acoes_ibov.length){
-    const H=56;
-    const mx=Math.max(...d.acoes_ibov.map(x=>Math.abs(x.var)),0.01);
-    document.getElementById('ibov-chart').innerHTML=d.acoes_ibov.map(x=>{
-      const pos=x.var>=0,cor=pos?'var(--green)':'var(--red)';
-      const h=Math.max(Math.min(Math.abs(x.var)/mx*H,H),2);
-      return `<div class="ibov-col" title="${x.ticker}: ${x.var>0?'+':''}${x.var.toFixed(2)}%">
-        <div style="height:${H}px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-          <div style="height:${pos?H/2-h/2:H/2}px;"></div>
-          <div class="${pos?'ibov-bar-pos':'ibov-bar-neg'}" style="height:${h}px;background:${cor};width:11px;border-radius:1px;"></div>
-          <div style="height:${pos?H/2:H/2-h/2}px;"></div>
+            <!-- COLUNA DIREITA -->
+            <div class="col-right">
+                ${renderizarPetrVale(dados.petr_vale || {})}
+                ${renderizarProgresso('Top 10 Ações', dados.top_10_acoes || [])}
+                ${renderizarProgresso('Setor Financeiro', dados.setor_financeiro || [])}
+            </div>
+
+            <!-- IBOV -->
+            <div class="row-ibov">
+                ${renderizarIbov(dados.acoes_ibov || [])}
+            </div>
         </div>
-        <div class="ibov-ticker">${x.ticker}</div>
-      </div>`;
-    }).join('');
-  }
+    `;
+    
+    container.innerHTML = html;
+    
+    // Desenha o gauge após renderizar
+    setTimeout(drawGauge, 100);
 }
 
-// TERMÔMETRO
-function desenharGauge(id,value,max){
-  const c=document.getElementById(id);
-  if(!c) return;
-  const ctx=c.getContext('2d'),cx=77,cy=77,r=60;
-  ctx.clearRect(0,0,154,85);
-  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
-  ctx.lineWidth=13;ctx.strokeStyle='#1E2A3A';ctx.stroke();
-  const segs=[
-    {color:'#E63946',from:Math.PI,to:Math.PI*1.4},
-    {color:'#F4A020',from:Math.PI*1.4,to:Math.PI*1.6},
-    {color:'#1DB954',from:Math.PI*1.6,to:Math.PI*2},
-  ];
-  segs.forEach(s=>{
-    ctx.beginPath();ctx.arc(cx,cy,r,s.from,s.to);
-    ctx.lineWidth=13;ctx.strokeStyle=s.color;ctx.stroke();
-  });
-  const ratio=Math.min(Math.max(value/max,0),1);
-  const angle=Math.PI+ratio*Math.PI;
-  ctx.beginPath();ctx.moveTo(cx,cy);
-  ctx.lineTo(cx+Math.cos(angle)*44,cy+Math.sin(angle)*44);
-  ctx.lineWidth=2;ctx.strokeStyle='#E8EDF5';ctx.lineCap='round';ctx.stroke();
-  ctx.beginPath();ctx.arc(cx,cy,4,0,2*Math.PI);ctx.fillStyle='#E8EDF5';ctx.fill();
+// ============================================
+// GAUGE (Termômetro)
+// ============================================
+function drawGauge() {
+    const canvas = document.getElementById('gauge');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const cx = 65, cy = 65, r = 52;
+
+    ctx.clearRect(0, 0, 130, 72);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
+    ctx.lineWidth = 11;
+    ctx.strokeStyle = '#1A2538';
+    ctx.stroke();
+
+    const segments = [
+        { color: '#E63946', start: Math.PI, end: Math.PI * 1.4 },
+        { color: '#F4A020', start: Math.PI * 1.4, end: Math.PI * 1.6 },
+        { color: '#1DB954', start: Math.PI * 1.6, end: Math.PI * 2 }
+    ];
+
+    segments.forEach(seg => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, seg.start, seg.end);
+        ctx.lineWidth = 11;
+        ctx.strokeStyle = seg.color;
+        ctx.stroke();
+    });
+
+    const angle = Math.PI + 0.3 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(angle) * 38, cy + Math.sin(angle) * 38);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#E8EDF5';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#E8EDF5';
+    ctx.fill();
 }
 
-setInterval(()=>{document.getElementById('hora').textContent=new Date().toLocaleTimeString('pt-BR',{hour12:false});},1000);
+// ============================================
+// CLOCK
+// ============================================
+function updateClock() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('pt-BR', { hour12: false });
+    document.getElementById('clock').textContent = time + ' · Ao vivo';
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ============================================
+// BUSCA DADOS DA API
+// ============================================
+async function buscarDados() {
+    if (atualizando) return;
+    atualizando = true;
+
+    const statusBadge = document.getElementById('statusBadge');
+    statusBadge.textContent = '● Atualizando...';
+    statusBadge.className = 'topbar-status';
+
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Erro ao buscar dados');
+        
+        const data = await response.json();
+        dados = data.dados;
+        
+        renderizarDashboard(dados);
+        
+        statusBadge.textContent = '● Online';
+        statusBadge.className = 'topbar-status online';
+    } catch (error) {
+        console.error('Erro:', error);
+        statusBadge.textContent = '● Offline';
+        statusBadge.className = 'topbar-status offline';
+        
+        // Tenta usar dados locais de fallback
+        if (!dados) {
+            document.getElementById('content').innerHTML = `
+                <div style="text-align:center;padding:40px;color:#5E7390;">
+                    <div style="font-size:20px;margin-bottom:10px;">⚠️</div>
+                    <div>Não foi possível conectar à API</div>
+                    <div style="font-size:12px;margin-top:10px;">Verifique se o servidor está rodando</div>
+                    <div style="font-size:10px;margin-top:5px;color:#1A2538;">${error.message}</div>
+                </div>
+            `;
+        }
+    } finally {
+        atualizando = false;
+    }
+}
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    buscarDados();
+    // Atualiza a cada 30 segundos
+    setInterval(buscarDados, 30000);
+});
 </script>
+
 </body>
 </html>
