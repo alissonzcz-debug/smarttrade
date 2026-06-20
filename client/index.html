@@ -7,122 +7,168 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0D1117;--card:#161B22;--row:#1C2128;--accent:#21262D;
-  --border:#30363D;--hdr:#1A3A5C;--blue:#1F6FEB;
-  --white:#F0F2F5;--muted:#7A8494;--green:#2ECC71;--red:#E74C3C;--yellow:#F39C12;
+  --bg:#0A0E17;--card:#111827;--row:#1A2235;--accent:#1E2A3A;
+  --border:#253045;--hdr:#1A3A5C;--blue:#1F6FEB;
+  --white:#E8EDF5;--muted:#5E7390;--green:#1DB954;--red:#E63946;--yellow:#F4A020;
 }
-body{background:var(--bg);color:var(--white);font-family:'Calibri','Segoe UI',sans-serif;font-size:12px;overflow-x:hidden;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--white);font-family:'Calibri','Segoe UI',sans-serif;font-size:11px;}
 
-/* LOGIN */
-#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;}
-.login-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:40px 36px;width:360px;}
-.login-logo{text-align:center;margin-bottom:28px;}
-.login-logo h1{font-size:22px;color:var(--white);letter-spacing:.05em;}
-.login-logo p{font-size:12px;color:var(--muted);margin-top:4px;}
-.login-box label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;margin-top:16px;text-transform:uppercase;letter-spacing:.08em;}
-.login-box input{width:100%;background:var(--accent);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--white);font-size:14px;outline:none;}
-.login-box input:focus{border-color:var(--blue);}
-.btn-login{width:100%;margin-top:24px;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;}
-.btn-login:hover{background:#2479db;}
-.login-error{color:var(--red);font-size:12px;margin-top:12px;text-align:center;min-height:18px;}
+/* DASHBOARD WRAPPER */
+#dashboard{display:flex;height:100vh;flex-direction:column;}
 
 /* TOPBAR */
-#dashboard{display:none;}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;border-bottom:1px solid var(--border);background:var(--card);}
-.topbar-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
-.topbar-right{display:flex;align-items:center;gap:14px;font-size:11px;color:var(--muted);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 12px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0;height:28px;}
+.topbar-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.topbar-right{display:flex;align-items:center;gap:14px;font-size:10px;color:var(--muted);}
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
 .live-dot.off{background:var(--red);animation:none;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.btn-logout{background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:2px 8px;cursor:pointer;font-size:11px;}
+.btn-logout{background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:10px;}
 .btn-logout:hover{border-color:var(--red);color:var(--red);}
 
-/* GRID: 3 colunas - esquerda fixa | centro largo | direita */
-.grid{display:grid;grid-template-columns:190px 1fr 320px;gap:7px;padding:7px;}
-.col{display:flex;flex-direction:column;gap:7px;}
-.card{background:var(--card);border-radius:7px;padding:8px 10px;border:1px solid var(--border);}
-.card-title{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--accent);}
+/* MAIN GRID — 3 colunas: left(info) | center(players) | right(ações) */
+.main-grid{
+  display:grid;
+  grid-template-columns: 172px 1fr 310px;
+  grid-template-rows: 1fr auto;
+  gap:5px;
+  padding:5px;
+  flex:1;
+  min-height:0;
+  height: calc(100vh - 28px);
+}
+
+/* COLUNA ESQUERDA — informativos empilhados */
+.col-left{
+  grid-column:1;
+  grid-row:1/3;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-height:0;
+}
+
+/* COLUNA CENTRO — players + saldos */
+.col-center{
+  grid-column:2;
+  grid-row:1;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-height:0;
+}
+
+/* COLUNA DIREITA — petr/vale + top10 + setor */
+.col-right{
+  grid-column:3;
+  grid-row:1;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-height:0;
+}
+
+/* RODAPÉ — ações ibov full width das colunas 2+3 */
+.row-ibov{
+  grid-column:2/4;
+  grid-row:2;
+  min-height:0;
+}
+
+/* CARD BASE */
+.card{background:var(--card);border-radius:5px;padding:5px 8px;border:1px solid var(--border);overflow:hidden;}
+.card-title{font-size:8.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--accent);}
+
+/* LOGO */
+.logo-box{background:var(--card);border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:5px 8px;flex-shrink:0;}
+.logo-box img{width:100%;max-height:52px;object-fit:contain;}
+.logo-fallback{text-align:center;}
+.logo-fallback h2{font-size:14px;font-weight:800;color:var(--white);letter-spacing:.1em;}
+.logo-fallback p{font-size:8px;color:var(--muted);}
 
 /* MÉTRICAS */
-.metric-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--accent);}
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid var(--accent);}
 .metric-row:last-child{border-bottom:none;}
-.metric-label{color:var(--muted);font-size:11px;}
-.metric-val{font-size:11px;font-weight:700;}
+.metric-label{color:var(--muted);font-size:10px;}
+.metric-val{font-size:10px;font-weight:700;}
 .pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--muted)}.warn{color:var(--yellow)}
 
 /* GAUGE */
-.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:4px 0 0;}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:2px 0 0;}
 
 /* BARRAS HORIZONTAIS SALDO */
-.hbar-wrap{padding:3px 0;}
-.hbar-label{font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between;}
-.hbar-track{background:var(--accent);border-radius:3px;height:13px;position:relative;overflow:hidden;}
+.hbar-wrap{padding:2px 0;}
+.hbar-label{font-size:9px;color:var(--muted);margin-bottom:2px;display:flex;justify-content:space-between;}
+.hbar-track{background:var(--accent);border-radius:3px;height:11px;position:relative;overflow:hidden;}
 .hbar-fill{height:100%;border-radius:3px;position:absolute;transition:width .4s,left .4s;}
 
-/* TOP TABLES */
+/* TOP TABLES — compactas, corretora e valor juntos */
 .top-table{width:100%;border-collapse:collapse;}
-.top-table th{font-size:9px;color:var(--muted);padding:2px 4px;border-bottom:1px solid var(--accent);font-weight:400;text-transform:uppercase;}
-.top-table td{font-size:11px;padding:3px 4px;border-bottom:1px solid var(--accent);}
+.top-table th{font-size:8px;color:var(--muted);padding:1px 3px;border-bottom:1px solid var(--accent);font-weight:400;text-transform:uppercase;}
+.top-table td{font-size:10px;padding:2px 3px;border-bottom:1px solid var(--accent);white-space:nowrap;}
 .top-table tr:last-child td{border-bottom:none;}
-.top-table td:last-child{text-align:right;font-weight:700;}
+.top-table td:last-child{text-align:right;font-weight:700;width:52px;}
+.top-table td:first-child{overflow:hidden;text-overflow:ellipsis;max-width:88px;}
 
-/* BARRAS COM % (Top10 e Setor Financeiro) */
-.bar-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--accent);}
+/* 2 painéis de top lado a lado */
+.top-duo{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+
+/* BARRAS HORIZONTAIS (Top10, Setor) */
+.bar-row{display:flex;align-items:center;gap:4px;padding:2px 0;border-bottom:1px solid var(--accent);}
 .bar-row:last-child{border-bottom:none;}
-.bar-label{font-size:10px;color:var(--muted);width:54px;flex-shrink:0;white-space:nowrap;overflow:hidden;}
-.bar-track{flex:1;background:var(--accent);border-radius:2px;height:7px;overflow:hidden;position:relative;}
+.bar-label{font-size:9px;color:var(--muted);width:46px;flex-shrink:0;white-space:nowrap;overflow:hidden;}
+.bar-track{flex:1;background:var(--accent);border-radius:2px;height:6px;overflow:hidden;position:relative;}
 .bar-fill{height:100%;border-radius:2px;position:absolute;left:0;}
-.bar-pct{font-size:10px;font-weight:700;width:46px;text-align:right;flex-shrink:0;}
+.bar-pct{font-size:9px;font-weight:700;width:40px;text-align:right;flex-shrink:0;}
 
 /* PETR E VALE */
-.pv-grid{display:flex;gap:8px;align-items:center;padding:4px 0;}
-.pv-item{flex:1;text-align:center;background:var(--accent);border-radius:5px;padding:6px 4px;}
-.pv-ticker{font-size:9px;color:var(--muted);margin-bottom:2px;}
-.pv-val{font-size:14px;font-weight:700;}
+.pv-grid{display:flex;gap:5px;padding:2px 0;}
+.pv-item{flex:1;text-align:center;background:var(--accent);border-radius:4px;padding:4px 2px;}
+.pv-ticker{font-size:8px;color:var(--muted);margin-bottom:1px;}
+.pv-val{font-size:13px;font-weight:700;}
 
-/* AÇÕES IBOV */
-.ibov-outer{overflow-x:auto;padding:4px 0 2px;}
-.ibov-wrap{display:flex;align-items:flex-end;gap:2px;height:80px;min-width:max-content;}
-.ibov-col{display:flex;flex-direction:column;align-items:center;width:16px;}
-.ibov-bar-pos,.ibov-bar-neg{width:12px;border-radius:1px;min-height:1px;}
+/* AÇÕES IBOV — rodapé */
+.ibov-outer{overflow-x:auto;padding:2px 0 1px;}
+.ibov-wrap{display:flex;align-items:flex-end;gap:2px;height:72px;min-width:max-content;}
+.ibov-col{display:flex;flex-direction:column;align-items:center;width:15px;}
+.ibov-bar-pos,.ibov-bar-neg{width:11px;border-radius:1px;min-height:1px;}
 .ibov-spacer{flex:1;}
-.ibov-ticker{font-size:7px;color:var(--muted);transform:rotate(-90deg);white-space:nowrap;width:36px;text-align:right;margin-top:2px;}
+.ibov-ticker{font-size:6.5px;color:var(--muted);transform:rotate(-90deg);white-space:nowrap;width:32px;text-align:right;margin-top:1px;}
+
+/* flex-grow helpers */
+.grow{flex:1;min-height:0;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">
-      <h1>SMART TRADE</h1>
-      <p>Decisões mais precisas para seu trade</p>
-    </div>
-    <label>Email</label>
-    <input type="email" id="inp-email" placeholder="seu@email.com"/>
-    <label>Senha</label>
-    <input type="password" id="inp-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()"/>
-    <button class="btn-login" onclick="fazerLogin()">Entrar</button>
-    <div class="login-error" id="login-error"></div>
-  </div>
-</div>
-
 <!-- DASHBOARD -->
 <div id="dashboard">
+  <!-- TOPBAR -->
   <div class="topbar">
     <span class="topbar-title"><span class="live-dot" id="live-dot"></span>Smart Trade — Mini Índice</span>
     <div class="topbar-right">
       <span id="hora">--:--:--</span>
       <span id="conn-status">Conectando...</span>
-      <button class="btn-logout" onclick="logout()">Sair</button>
+
     </div>
   </div>
 
-  <div class="grid">
+  <div class="main-grid">
 
-    <!-- ══ COL ESQUERDA ══ -->
-    <div class="col">
-      <div class="card">
+    <!-- ══════════════ COL ESQUERDA (informativos) ══════════════ -->
+    <div class="col-left">
+
+      <!-- LOGO -->
+      <div class="logo-box" style="height:58px;flex-shrink:0;">
+        <div class="logo-fallback">
+          <h2>SMART TRADE</h2>
+          <p>Decisões mais precisas para seu trade</p>
+        </div>
+      </div>
+
+      <!-- COTAÇÕES -->
+      <div class="card" style="flex-shrink:0;">
         <div class="card-title">Cotações Atuais</div>
         <div class="metric-row"><span class="metric-label">Índice Futuro</span><span class="metric-val" id="c-indice">--</span></div>
         <div class="metric-row"><span class="metric-label">Dólar Futuro</span><span class="metric-val" id="c-dolar">--</span></div>
@@ -130,7 +176,8 @@ body{background:var(--bg);color:var(--white);font-family:'Calibri','Segoe UI',sa
         <div class="metric-row"><span class="metric-label">Ações IBOV</span><span class="metric-val" id="c-acoes">--</span></div>
       </div>
 
-      <div class="card">
+      <!-- INFORMAÇÕES ÍNDICE -->
+      <div class="card" style="flex-shrink:0;">
         <div class="card-title">Informações Índice</div>
         <div class="metric-row"><span class="metric-label">Direção</span><span class="metric-val" id="i-direcao">--</span></div>
         <div class="metric-row"><span class="metric-label">Exaustão</span><span class="metric-val" id="i-exaustao">--</span></div>
@@ -139,165 +186,153 @@ body{background:var(--bg);color:var(--white);font-family:'Calibri','Segoe UI',sa
         <div class="metric-row"><span class="metric-label">Tend. Secundária</span><span class="metric-val" id="i-ts">--</span></div>
       </div>
 
-      <div class="card">
+      <!-- MOVIMENTO DO MERCADO -->
+      <div class="card" style="flex-shrink:0;">
         <div class="card-title">Movimento do Mercado</div>
         <div class="metric-row"><span class="metric-label">Saldo Total</span><span class="metric-val" id="m-saldo">--</span></div>
         <div class="metric-row"><span class="metric-label">Volume</span><span class="metric-val" id="m-volume">--</span></div>
       </div>
 
-      <div class="card">
+      <!-- SALDO DÓLAR -->
+      <div class="card" style="flex-shrink:0;">
+        <div class="card-title">Saldo Dólar — Diário</div>
+        <div class="hbar-wrap">
+          <div class="hbar-label"><span>Institucional</span><span id="dol-inst">--</span></div>
+          <div class="hbar-track"><div class="hbar-fill" id="bfill-dol-inst"></div></div>
+        </div>
+        <div class="hbar-wrap" style="margin-top:5px">
+          <div class="hbar-label"><span>Varejo</span><span id="dol-pf">--</span></div>
+          <div class="hbar-track"><div class="hbar-fill" id="bfill-dol-pf"></div></div>
+        </div>
+      </div>
+
+      <!-- TERMÔMETRO -->
+      <div class="card grow">
         <div class="card-title">Termômetro da Força</div>
         <div class="gauge-wrap">
-          <canvas id="gauge" width="170" height="95"></canvas>
+          <canvas id="gauge" width="154" height="85"></canvas>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Saldo Dólar — Diário</div>
-        <div style="padding:4px 0">
-          <div class="hbar-wrap">
-            <div class="hbar-label"><span>Institucional</span><span id="dol-inst">--</span></div>
-            <div class="hbar-track"><div class="hbar-fill" id="bfill-dol-inst"></div></div>
-          </div>
-          <div class="hbar-wrap" style="margin-top:6px">
-            <div class="hbar-label"><span>Varejo</span><span id="dol-pf">--</span></div>
-            <div class="hbar-track"><div class="hbar-fill" id="bfill-dol-pf"></div></div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- ══ COL CENTRO ══ -->
-    <div class="col">
+    <!-- ══════════════ COL CENTRO (players) ══════════════ -->
+    <div class="col-center">
 
-      <!-- Saldo Diário -->
-      <div class="card">
+      <!-- SALDO DIÁRIO -->
+      <div class="card" style="flex-shrink:0;">
         <div class="card-title">Saldo Diário — Mini Índice</div>
-        <div style="padding:5px 0">
-          <div class="hbar-wrap">
-            <div class="hbar-label"><span>Institucional</span><span id="sd-inst">--</span></div>
-            <div class="hbar-track"><div class="hbar-fill" id="bfill-sd-inst"></div></div>
-          </div>
-          <div class="hbar-wrap" style="margin-top:8px">
-            <div class="hbar-label"><span>Varejo</span><span id="sd-pf">--</span></div>
-            <div class="hbar-track"><div class="hbar-fill" id="bfill-sd-pf"></div></div>
-          </div>
+        <div class="hbar-wrap">
+          <div class="hbar-label"><span>Institucional</span><span id="sd-inst">--</span></div>
+          <div class="hbar-track"><div class="hbar-fill" id="bfill-sd-inst"></div></div>
+        </div>
+        <div class="hbar-wrap" style="margin-top:5px">
+          <div class="hbar-label"><span>Varejo</span><span id="sd-pf">--</span></div>
+          <div class="hbar-track"><div class="hbar-fill" id="bfill-sd-pf"></div></div>
         </div>
       </div>
 
-      <!-- Top Vendidos/Comprados Diário -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+      <!-- TOP VENDIDOS / COMPRADOS DIÁRIO -->
+      <div class="top-duo" style="flex-shrink:0;">
         <div class="card">
           <div class="card-title" style="color:var(--red)">▼ Top Vendidos</div>
-          <table class="top-table"><tr><th>Corretora</th><th>Qtd</th></tr><tbody id="tv-diario"></tbody></table>
+          <table class="top-table">
+            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
+            <tbody id="tv-diario"></tbody>
+          </table>
         </div>
         <div class="card">
           <div class="card-title" style="color:var(--green)">▲ Top Comprados</div>
-          <table class="top-table"><tr><th>Corretora</th><th>Qtd</th></tr><tbody id="tc-diario"></tbody></table>
+          <table class="top-table">
+            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
+            <tbody id="tc-diario"></tbody>
+          </table>
         </div>
       </div>
 
-      <!-- Saldo 5 Min -->
-      <div class="card">
+      <!-- SALDO 5 MIN -->
+      <div class="card" style="flex-shrink:0;">
         <div class="card-title">Saldo 5 Min — Mini Índice</div>
-        <div style="padding:5px 0">
-          <div class="hbar-wrap">
-            <div class="hbar-label"><span>Institucional</span><span id="s5-inst">--</span></div>
-            <div class="hbar-track"><div class="hbar-fill" id="bfill-s5-inst"></div></div>
-          </div>
-          <div class="hbar-wrap" style="margin-top:8px">
-            <div class="hbar-label"><span>Varejo</span><span id="s5-pf">--</span></div>
-            <div class="hbar-track"><div class="hbar-fill" id="bfill-s5-pf"></div></div>
-          </div>
+        <div class="hbar-wrap">
+          <div class="hbar-label"><span>Institucional</span><span id="s5-inst">--</span></div>
+          <div class="hbar-track"><div class="hbar-fill" id="bfill-s5-inst"></div></div>
+        </div>
+        <div class="hbar-wrap" style="margin-top:5px">
+          <div class="hbar-label"><span>Varejo</span><span id="s5-pf">--</span></div>
+          <div class="hbar-track"><div class="hbar-fill" id="bfill-s5-pf"></div></div>
         </div>
       </div>
 
-      <!-- Top 5 Min -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+      <!-- TOP 5 MIN -->
+      <div class="top-duo grow" style="min-height:0;">
         <div class="card">
           <div class="card-title" style="color:var(--red)">▼ Top Vendidos 5 Min</div>
-          <table class="top-table"><tr><th>Corretora</th><th>Qtd</th></tr><tbody id="tv-5min"></tbody></table>
+          <table class="top-table">
+            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
+            <tbody id="tv-5min"></tbody>
+          </table>
         </div>
         <div class="card">
           <div class="card-title" style="color:var(--green)">▲ Top Comprados 5 Min</div>
-          <table class="top-table"><tr><th>Corretora</th><th>Qtd</th></tr><tbody id="tc-5min"></tbody></table>
-        </div>
-      </div>
-
-      <!-- Ações IBOV -->
-      <div class="card">
-        <div class="card-title">Ações IBOV</div>
-        <div class="ibov-outer">
-          <div class="ibov-wrap" id="ibov-chart"></div>
+          <table class="top-table">
+            <thead><tr><th>Corretora</th><th style="text-align:right">Qtd</th></tr></thead>
+            <tbody id="tc-5min"></tbody>
+          </table>
         </div>
       </div>
 
     </div>
 
-    <!-- ══ COL DIREITA ══ -->
-    <div class="col">
+    <!-- ══════════════ COL DIREITA (ações) ══════════════ -->
+    <div class="col-right">
 
-      <!-- PETR E VALE -->
-      <div class="card">
+      <!-- PETR & VALE -->
+      <div class="card" style="flex-shrink:0;">
         <div class="card-title">Petr &amp; Vale</div>
         <div class="pv-grid" id="petr-vale"></div>
       </div>
 
       <!-- TOP 10 AÇÕES -->
-      <div class="card">
+      <div class="card grow" style="min-height:0;overflow:hidden;">
         <div class="card-title">Top 10 Ações</div>
         <div id="top10-container"></div>
       </div>
 
       <!-- SETOR FINANCEIRO -->
-      <div class="card">
+      <div class="card grow" style="min-height:0;overflow:hidden;">
         <div class="card-title">Setor Financeiro</div>
         <div id="setor-fin"></div>
       </div>
 
     </div>
-  </div>
-</div>
+
+    <!-- ══════════════ RODAPÉ — AÇÕES IBOV (col 2+3) ══════════════ -->
+    <div class="row-ibov">
+      <div class="card" style="height:100%;">
+        <div class="card-title">Ações IBOV</div>
+        <div class="ibov-outer">
+          <div class="ibov-wrap" id="ibov-chart"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-grid -->
+</div><!-- /dashboard -->
 
 <script>
 const SERVER = window.location.origin;
-let token = null, pollTimer = null;
-
-async function fazerLogin(){
-  const email=document.getElementById('inp-email').value.trim();
-  const senha=document.getElementById('inp-senha').value;
-  const errEl=document.getElementById('login-error');
-  errEl.textContent='';
-  if(!email||!senha){errEl.textContent='Preencha email e senha.';return;}
-  try{
-    const resp=await fetch(`${SERVER}/api/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,senha})});
-    const data=await resp.json();
-    if(!resp.ok){errEl.textContent=data.detail||'Erro ao fazer login.';return;}
-    token=data.token; localStorage.setItem('st_token',token); mostrarDashboard();
-  }catch(e){errEl.textContent='Erro de conexão.';}
-}
-
-function logout(){
-  token=null; localStorage.removeItem('st_token'); clearInterval(pollTimer);
-  document.getElementById('dashboard').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
-}
-
-function mostrarDashboard(){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('dashboard').style.display='block';
-  buscarDados(); pollTimer=setInterval(buscarDados,2000);
-}
 
 async function buscarDados(){
   try{
-    const resp=await fetch(`${SERVER}/api/poll?token=${token}`);
-    if(resp.status===401){logout();return;}
+    const resp=await fetch(`${SERVER}/api/dados`);
     const data=await resp.json();
     if(data.dados&&Object.keys(data.dados).length>0){setStatus(true);atualizarDashboard(data.dados);}
     else setStatus(false);
   }catch(e){setStatus(false);}
 }
+
+setInterval(buscarDados,2000);
+buscarDados();
 
 function setStatus(online){
   document.getElementById('live-dot').className='live-dot'+(online?'':' off');
@@ -381,7 +416,10 @@ function atualizarDashboard(d){
   function renderTop(id,items,cls){
     const tb=document.getElementById(id);
     if(!tb||!items) return;
-    tb.innerHTML=items.map(i=>`<tr><td>${i.nome}</td><td class="${cls}">${i.valor>0?'+':''}${parseInt(i.valor).toLocaleString('pt-BR')}</td></tr>`).join('');
+    tb.innerHTML=items.map(i=>`<tr>
+      <td>${i.nome}</td>
+      <td class="${cls}">${i.valor>0?'+':''}${parseInt(i.valor).toLocaleString('pt-BR')}</td>
+    </tr>`).join('');
   }
   renderTop('tv-diario',d.top_vendidos,'neg');
   renderTop('tc-diario',d.top_comprados,'pos');
@@ -401,7 +439,7 @@ function atualizarDashboard(d){
     }).join('');
   }
 
-  // TOP 10 AÇÕES — barras horizontais com %
+  // TOP 10 AÇÕES
   if(d.top10_acoes&&d.top10_acoes.length){
     const mx=Math.max(...d.top10_acoes.map(x=>Math.abs(x.var)),0.01);
     document.getElementById('top10-container').innerHTML=d.top10_acoes.map(x=>{
@@ -416,7 +454,7 @@ function atualizarDashboard(d){
     }).join('');
   }
 
-  // SETOR FINANCEIRO — barras com %
+  // SETOR FINANCEIRO
   if(d.setor_financeiro){
     const vals=Object.values(d.setor_financeiro).filter(v=>v!==null);
     const mx=Math.max(...vals.map(Math.abs),0.001);
@@ -433,18 +471,17 @@ function atualizarDashboard(d){
     }).join('');
   }
 
-  // AÇÕES IBOV — barras verticais com tickers legíveis
+  // AÇÕES IBOV
   if(d.acoes_ibov&&d.acoes_ibov.length){
-    const H=60;
+    const H=56;
     const mx=Math.max(...d.acoes_ibov.map(x=>Math.abs(x.var)),0.01);
     document.getElementById('ibov-chart').innerHTML=d.acoes_ibov.map(x=>{
       const pos=x.var>=0,cor=pos?'var(--green)':'var(--red)';
       const h=Math.max(Math.min(Math.abs(x.var)/mx*H,H),2);
-      // barra positiva cresce para cima, negativa para baixo, linha zero no meio
       return `<div class="ibov-col" title="${x.ticker}: ${x.var>0?'+':''}${x.var.toFixed(2)}%">
         <div style="height:${H}px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <div style="height:${pos?H/2-h/2:H/2}px;"></div>
-          <div class="${pos?'ibov-bar-pos':'ibov-bar-neg'}" style="height:${h}px;background:${cor};width:12px;border-radius:1px;"></div>
+          <div class="${pos?'ibov-bar-pos':'ibov-bar-neg'}" style="height:${h}px;background:${cor};width:11px;border-radius:1px;"></div>
           <div style="height:${pos?H/2:H/2-h/2}px;"></div>
         </div>
         <div class="ibov-ticker">${x.ticker}</div>
@@ -453,42 +490,32 @@ function atualizarDashboard(d){
   }
 }
 
-// TERMÔMETRO: 40% vermelho | 20% amarelo | 40% verde
+// TERMÔMETRO
 function desenharGauge(id,value,max){
   const c=document.getElementById(id);
   if(!c) return;
-  const ctx=c.getContext('2d'),cx=85,cy=85,r=68;
-  ctx.clearRect(0,0,170,95);
-
-  // Track fundo
+  const ctx=c.getContext('2d'),cx=77,cy=77,r=60;
+  ctx.clearRect(0,0,154,85);
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
-  ctx.lineWidth=15;ctx.strokeStyle='#21262D';ctx.stroke();
-
-  // 40% vermelho (0% a 40%) → de PI a PI*1.4
-  // 20% amarelo (40% a 60%) → de PI*1.4 a PI*1.6
-  // 40% verde (60% a 100%) → de PI*1.6 a 2PI
+  ctx.lineWidth=13;ctx.strokeStyle='#1E2A3A';ctx.stroke();
   const segs=[
-    {color:'#E74C3C', from:Math.PI,       to:Math.PI*1.4},
-    {color:'#F39C12', from:Math.PI*1.4,   to:Math.PI*1.6},
-    {color:'#2ECC71', from:Math.PI*1.6,   to:Math.PI*2},
+    {color:'#E63946',from:Math.PI,to:Math.PI*1.4},
+    {color:'#F4A020',from:Math.PI*1.4,to:Math.PI*1.6},
+    {color:'#1DB954',from:Math.PI*1.6,to:Math.PI*2},
   ];
   segs.forEach(s=>{
     ctx.beginPath();ctx.arc(cx,cy,r,s.from,s.to);
-    ctx.lineWidth=15;ctx.strokeStyle=s.color;ctx.stroke();
+    ctx.lineWidth=13;ctx.strokeStyle=s.color;ctx.stroke();
   });
-
-  // Ponteiro
   const ratio=Math.min(Math.max(value/max,0),1);
   const angle=Math.PI+ratio*Math.PI;
   ctx.beginPath();ctx.moveTo(cx,cy);
-  ctx.lineTo(cx+Math.cos(angle)*50,cy+Math.sin(angle)*50);
-  ctx.lineWidth=2.5;ctx.strokeStyle='#F0F2F5';ctx.lineCap='round';ctx.stroke();
-  ctx.beginPath();ctx.arc(cx,cy,5,0,2*Math.PI);ctx.fillStyle='#F0F2F5';ctx.fill();
+  ctx.lineTo(cx+Math.cos(angle)*44,cy+Math.sin(angle)*44);
+  ctx.lineWidth=2;ctx.strokeStyle='#E8EDF5';ctx.lineCap='round';ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,4,0,2*Math.PI);ctx.fillStyle='#E8EDF5';ctx.fill();
 }
 
 setInterval(()=>{document.getElementById('hora').textContent=new Date().toLocaleTimeString('pt-BR',{hour12:false});},1000);
-const saved=localStorage.getItem('st_token');
-if(saved){token=saved;mostrarDashboard();}
 </script>
 </body>
 </html>
