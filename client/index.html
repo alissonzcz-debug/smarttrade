@@ -8,36 +8,27 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-serif;font-size:11px;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px;}
 
-/* ============================================
-   CONTAINER PRINCIPAL
-   ============================================ */
+/* CONTAINER */
 .container{background:#0F1521;border-radius:8px;border:1px solid #1E2A3A;max-width:1200px;width:100%;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.6);}
 
-/* ============================================
-   TOPBAR
-   ============================================ */
+/* TOPBAR */
 .topbar{background:#111827;padding:4px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1E2A3A;height:28px;}
 .topbar span{font-size:9px;color:#5E7390;letter-spacing:.1em;text-transform:uppercase;}
 .dot{width:6px;height:6px;border-radius:50%;background:#1DB954;display:inline-block;margin-right:4px;}
+.dot.off{background:#E63946;}
 
-/* ============================================
-   GRID PRINCIPAL - 3 COLUNAS
-   ============================================ */
-.grid{display:grid;grid-template-columns:185px 1fr 240px;grid-template-rows:auto auto;gap:4px;padding:4px;}
+/* GRID - 3 COLUNAS */
+.grid{display:grid;grid-template-columns:185px 1fr 230px;grid-template-rows:auto auto;gap:4px;padding:4px;}
 
 .col{display:flex;flex-direction:column;gap:4px;}
 
-/* ============================================
-   CARDS
-   ============================================ */
+/* CARDS */
 .card{background:#111827;border:1px solid #1E2A3A;border-radius:4px;padding:4px 6px;}
 .ct{font-size:7px;font-weight:700;color:#5E7390;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid #1A2538;padding-bottom:2px;margin-bottom:3px;}
 .ct.green{color:#1DB954;}
 .ct.red{color:#E63946;}
 
-/* ============================================
-   LINHAS DE MÉTRICAS
-   ============================================ */
+/* LINHAS */
 .mr{display:flex;justify-content:space-between;padding:1.5px 0;border-bottom:1px solid #1A2538;}
 .mr:last-child{border-bottom:none;}
 .ml{font-size:9px;color:#5E7390;}
@@ -47,32 +38,23 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
 .warn{color:#F4A020;}
 .neu{color:#5E7390;}
 
-/* ============================================
-   BARRAS DE SALDO
-   ============================================ */
+/* BARRAS */
 .sbar-wrap{padding:2px 0;}
 .sbar-lbl{display:flex;justify-content:space-between;font-size:8px;color:#5E7390;margin-bottom:1px;}
 .sbar-track{background:#1A2538;border-radius:2px;height:9px;position:relative;overflow:hidden;}
 .sbar-fill{position:absolute;top:0;height:100%;border-radius:2px;}
-.sbar-track::after{content:'';position:absolute;left:50%;top:0;width:1px;height:100%;background:#253045;z-index:2;}
 
-/* ============================================
-   TABELAS (Top Vendidos/Comprados)
-   ============================================ */
+/* TABELAS */
 .tt{width:100%;border-collapse:collapse;}
 .tt th{font-size:7px;color:#5E7390;padding:1px 2px;border-bottom:1px solid #1A2538;font-weight:400;text-transform:uppercase;}
 .tt td{font-size:9px;padding:1.5px 2px;border-bottom:1px solid #1A2538;}
 .tt tr:last-child td{border-bottom:none;}
 .tt td:last-child{text-align:right;font-weight:700;width:36px;}
 
-/* ============================================
-   DUO (2 colunas lado a lado)
-   ============================================ */
+/* DUO (2 colunas) */
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
 
-/* ============================================
-   BARRAS DE PROGRESSO (Top 10 Ações / Setor Financeiro)
-   ============================================ */
+/* BARRAS DE PROGRESSO */
 .br{display:flex;align-items:center;gap:3px;padding:1.5px 0;border-bottom:1px solid #1A2538;}
 .br:last-child{border-bottom:none;}
 .bl{font-size:8px;color:#5E7390;width:34px;flex-shrink:0;white-space:nowrap;overflow:hidden;}
@@ -80,40 +62,30 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
 .bf{height:100%;border-radius:1px;position:absolute;left:0;}
 .bp{font-size:8px;font-weight:700;width:34px;text-align:right;flex-shrink:0;}
 
-/* ============================================
-   PETR & VALE
-   ============================================ */
+/* PETR & VALE */
 .pv{display:flex;gap:4px;padding:2px 0;}
 .pvi{flex:1;text-align:center;background:#1A2538;border-radius:3px;padding:3px 2px;}
 .pvt{font-size:7px;color:#5E7390;}
 .pvv{font-size:11px;font-weight:700;}
 
-/* ============================================
-   AÇÕES IBOV (gráfico)
-   ============================================ */
+/* IBOV */
 .ibov-outer{width:100%;overflow:hidden;padding:2px 0;}
 .ibov-wrap{display:flex;align-items:flex-end;width:100%;height:55px;}
 .ibov-col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
 .ibov-ticker{font-size:5px;color:#5E7390;transform:rotate(-90deg);white-space:nowrap;width:26px;text-align:right;margin-top:1px;}
 
-/* ============================================
-   LAYOUT ESPECÍFICO
-   ============================================ */
+/* LAYOUT */
 .col-left{grid-column:1;grid-row:1/3;}
 .col-center{grid-column:2;grid-row:1;}
 .col-right{grid-column:3;grid-row:1;}
 .row-ibov{grid-column:2/4;grid-row:2;}
 
-/* ============================================
-   LOGO
-   ============================================ */
+/* LOGO */
 .logo-box{display:flex;align-items:center;justify-content:center;padding:3px;height:50px;flex-shrink:0;background:#111827;border:1px solid #1E2A3A;border-radius:4px;}
 .logo-box h2{font-size:13px;font-weight:800;color:#E8EDF5;letter-spacing:.1em;}
 .logo-box p{font-size:7px;color:#5E7390;}
 
-/* ============================================
-   LOGIN SCREEN
-   ============================================ */
+/* LOGIN */
 #login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#0A0E17;display:flex;justify-content:center;align-items:center;z-index:1000;}
 #login-screen .box{background:#111827;padding:40px;border-radius:12px;border:1px solid #1E2A3A;width:320px;text-align:center;}
 #login-screen h1{color:#E8EDF5;font-size:22px;margin-bottom:8px;}
@@ -125,9 +97,7 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
 #login-screen .error{color:#E63946;font-size:12px;margin-top:8px;display:none;}
 #login-screen .error.show{display:block;}
 
-/* ============================================
-   RESPONSIVO
-   ============================================ */
+/* RESPONSIVO */
 @media (max-width:1024px){
   .grid{grid-template-columns:1fr;grid-template-rows:auto;}
   .col-left,.col-center,.col-right,.row-ibov{grid-column:1;grid-row:auto;}
@@ -142,9 +112,7 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
 </head>
 <body>
 
-<!-- ============================================ -->
-<!-- TELA DE LOGIN -->
-<!-- ============================================ -->
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="box">
     <h1>📊 Smart Trade</h1>
@@ -158,26 +126,19 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
   </div>
 </div>
 
-<!-- ============================================ -->
 <!-- DASHBOARD -->
-<!-- ============================================ -->
 <div class="container" id="dashboard" style="display:none;">
 
-  <!-- TOPBAR -->
   <div class="topbar">
     <span><span class="dot" id="live-dot"></span>Smart Trade — Mini Índice</span>
     <span id="hora">--:--:-- · Ao vivo</span>
   </div>
 
-  <!-- GRID -->
   <div class="grid">
 
-    <!-- ========================================== -->
-    <!-- COLUNA ESQUERDA -->
-    <!-- ========================================== -->
+    <!-- ==================== COLUNA ESQUERDA ==================== -->
     <div class="col col-left">
 
-      <!-- LOGO -->
       <div class="logo-box">
         <div>
           <h2>SMART TRADE</h2>
@@ -185,7 +146,6 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
         </div>
       </div>
 
-      <!-- COTAÇÕES ATUAIS -->
       <div class="card">
         <div class="ct">Cotações Atuais</div>
         <div class="mr"><span class="ml">Índice Futuro</span><span class="mv" id="c-indice">--</span></div>
@@ -194,7 +154,6 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
         <div class="mr"><span class="ml">Ações IBOV</span><span class="mv" id="c-acoes">--</span></div>
       </div>
 
-      <!-- INFORMAÇÕES ÍNDICE -->
       <div class="card">
         <div class="ct">Informações Índice</div>
         <div class="mr"><span class="ml">Direção</span><span class="mv" id="i-direcao">--</span></div>
@@ -204,27 +163,24 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
         <div class="mr"><span class="ml">Tend. Secund.</span><span class="mv" id="i-ts">--</span></div>
       </div>
 
-      <!-- MOVIMENTO DO MERCADO -->
       <div class="card">
         <div class="ct">Movimento do Mercado</div>
         <div class="mr"><span class="ml">Saldo Total</span><span class="mv" id="m-saldo">--</span></div>
         <div class="mr"><span class="ml">Volume</span><span class="mv" id="m-volume">--</span></div>
       </div>
 
-      <!-- SALDO DÓLAR — DIÁRIO -->
       <div class="card">
         <div class="ct">Saldo Dólar — Diário</div>
         <div class="sbar-wrap">
           <div class="sbar-lbl"><span>Institucional</span><span id="dol-inst">--</span></div>
-          <div class="sbar-track"><div class="sbar-fill" id="bfill-dol-inst" style="width:0%;"></div></div>
+          <div class="sbar-track"><div class="sbar-fill" id="bfill-dol-inst" style="width:0%;background:#E63946;"></div></div>
         </div>
         <div class="sbar-wrap" style="margin-top:4px;">
           <div class="sbar-lbl"><span>Varejo</span><span id="dol-pf">--</span></div>
-          <div class="sbar-track"><div class="sbar-fill" id="bfill-dol-pf" style="width:0%;"></div></div>
+          <div class="sbar-track"><div class="sbar-fill" id="bfill-dol-pf" style="width:0%;background:#1DB954;"></div></div>
         </div>
       </div>
 
-      <!-- TERMÔMETRO DA FORÇA -->
       <div class="card" style="flex:1;min-height:0;">
         <div class="ct">Termômetro da Força</div>
         <div style="display:flex;justify-content:center;padding:2px 0;">
@@ -234,12 +190,9 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
 
     </div>
 
-    <!-- ========================================== -->
-    <!-- COLUNA CENTRO -->
-    <!-- ========================================== -->
+    <!-- ==================== COLUNA CENTRO ==================== -->
     <div class="col col-center">
 
-      <!-- SALDO DIÁRIO — MINI ÍNDICE -->
       <div class="card">
         <div class="ct">Saldo Diário — Mini Índice</div>
         <div class="sbar-wrap">
@@ -252,7 +205,6 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
         </div>
       </div>
 
-      <!-- TOP VENDIDOS / TOP COMPRADOS -->
       <div class="duo">
         <div class="card">
           <div class="ct red">▼ Top Vendidos</div>
@@ -270,7 +222,6 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
         </div>
       </div>
 
-      <!-- SALDO 5 MIN — MINI ÍNDICE -->
       <div class="card">
         <div class="ct">Saldo 5 Min — Mini Índice</div>
         <div class="sbar-wrap">
@@ -283,38 +234,32 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
         </div>
       </div>
 
-      <!-- VENDIDOS 5 MIN / COMPRADOS 5 MIN -->
       <div class="duo" style="flex:1;min-height:0;">
         <div class="card">
           <div class="ct red">▼ Vendidos 5 Min</div>
-          <table class="tt"><tbody id="tv-5min"><tr><td style="color:#5E7390;font-size:8px;" colspan="2">Sem dados</td></tr></tbody></table>
+          <table class="tt"><tbody id="tv-5min"><tr><td style="color:#5E7390;font-size:8px;text-align:center;" colspan="2">Sem dados</td></tr></tbody></table>
         </div>
         <div class="card">
           <div class="ct green">▲ Comprados 5 Min</div>
-          <table class="tt"><tbody id="tc-5min"><tr><td style="color:#5E7390;font-size:8px;" colspan="2">Sem dados</td></tr></tbody></table>
+          <table class="tt"><tbody id="tc-5min"><tr><td style="color:#5E7390;font-size:8px;text-align:center;" colspan="2">Sem dados</td></tr></tbody></table>
         </div>
       </div>
 
     </div>
 
-    <!-- ========================================== -->
-    <!-- COLUNA DIREITA -->
-    <!-- ========================================== -->
+    <!-- ==================== COLUNA DIREITA ==================== -->
     <div class="col col-right">
 
-      <!-- PETR & VALE -->
       <div class="card">
         <div class="ct">Petr &amp; Vale</div>
         <div class="pv" id="petr-vale"></div>
       </div>
 
-      <!-- TOP 10 AÇÕES -->
       <div class="card" style="flex:1;min-height:0;">
         <div class="ct">Top 10 Ações</div>
         <div id="top10-container"></div>
       </div>
 
-      <!-- SETOR FINANCEIRO -->
       <div class="card" style="flex:1;min-height:0;">
         <div class="ct">Setor Financeiro</div>
         <div id="setor-fin"></div>
@@ -322,9 +267,7 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
 
     </div>
 
-    <!-- ========================================== -->
-    <!-- RODAPÉ — AÇÕES IBOV -->
-    <!-- ========================================== -->
+    <!-- ==================== RODAPÉ ==================== -->
     <div class="row-ibov">
       <div class="card">
         <div class="ct">Ações IBOV</div>
@@ -334,12 +277,9 @@ body{background:#0A0E17;color:#E8EDF5;font-family:'Calibri','Segoe UI',sans-seri
       </div>
     </div>
 
-  </div><!-- /grid -->
-</div><!-- /container -->
+  </div>
+</div>
 
-<!-- ============================================ -->
-<!-- JAVASCRIPT -->
-<!-- ============================================ -->
 <script>
 // ==========================================
 // VARIÁVEIS
@@ -426,7 +366,7 @@ function fazerLogout() {
 
 function setStatus(online) {
   const dot = document.getElementById('live-dot');
-  dot.style.background = online ? '#1DB954' : '#E63946';
+  dot.className = 'dot' + (online ? '' : ' off');
 }
 
 // ==========================================
@@ -452,7 +392,7 @@ function fmtStatus(val) {
   if (!val) return '<span class="neu">--</span>';
   const pos = ['Alta', 'Em Tendência', 'Continuidade', 'Continu.'];
   const neg = ['Baixa'];
-  const warn = ['Baixo', 'Zona equil.', 'Sem Tend.'];
+  const warn = ['Baixo', 'Zona equil.', 'Sem Tend.', 'Sem Tendência'];
   const cls = pos.includes(val) ? 'pos' : neg.includes(val) ? 'neg' : warn.includes(val) ? 'warn' : 'neu';
   return `<span class="${cls}">${val}</span>`;
 }
@@ -526,6 +466,8 @@ setInterval(() => {
 // DASHBOARD
 // ==========================================
 function atualizarDashboard(d) {
+  console.log('📊 Atualizando dashboard com:', d);
+
   // COTAÇÕES
   if (d.cotacoes) {
     document.getElementById('c-indice').innerHTML = fmtPct(d.cotacoes.indice);
