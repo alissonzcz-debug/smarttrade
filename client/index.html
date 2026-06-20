@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Trade — Mini Índice</title>
     <style>
-        /* ============================================
-           ESTILOS COMPLETOS
-           ============================================ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0A0E17; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', 'Calibri', sans-serif; padding: 20px; }
         .container { background: #0F1521; border-radius: 12px; border: 1px solid #1E2A3A; max-width: 1200px; width: 100%; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
@@ -97,10 +94,6 @@
         .ibov-container::-webkit-scrollbar-track { background: #1A2538; }
         .ibov-container::-webkit-scrollbar-thumb { background: #5E7390; border-radius: 3px; }
 
-        /* Loading */
-        .loading-state { color: #5E7390; font-size: 12px; text-align: center; padding: 40px 20px; }
-        .loading-state .icon { font-size: 32px; margin-bottom: 12px; }
-
         @media (max-width: 1024px) {
             .main-grid { grid-template-columns: 1fr; gap: 6px; }
             .col-left, .col-center, .col-right, .row-ibov { grid-column: 1; grid-row: auto; }
@@ -132,8 +125,8 @@
 
     <!-- CONTEÚDO -->
     <div id="content">
-        <div class="loading-state">
-            <div class="icon">📊</div>
+        <div style="text-align:center;padding:40px;color:#5E7390;">
+            <div style="font-size:32px;margin-bottom:12px;">📊</div>
             <div>Carregando dados...</div>
         </div>
     </div>
@@ -225,13 +218,6 @@ const DADOS_PADRAO = {
         "VIVT3", "YDUQ3"
     ]
 };
-
-// ============================================
-// CONFIGURAÇÃO
-// ============================================
-const API_URL = window.location.origin + '/api/dados';
-let dadosAtuais = null;
-let atualizando = false;
 
 // ============================================
 // FUNÇÕES DE FORMATAÇÃO
@@ -373,6 +359,17 @@ function renderizarIbov(acoes) {
 function renderizarDashboard(dados) {
     const container = document.getElementById('content');
     
+    // Verifica se dados é válido
+    if (!dados || Object.keys(dados).length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:40px;color:#5E7390;">
+                <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
+                <div>Nenhum dado disponível</div>
+            </div>
+        `;
+        return;
+    }
+    
     const html = `
         <div class="main-grid">
             <!-- ESQUERDA -->
@@ -488,45 +485,36 @@ setInterval(updateClock, 1000);
 // BUSCAR DADOS DA API
 // ============================================
 async function buscarDados() {
-    if (atualizando) return;
-    atualizando = true;
-
     const statusBadge = document.getElementById('statusBadge');
     statusBadge.textContent = '● Carregando...';
     statusBadge.className = 'topbar-status loading';
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch('/api/dados', {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
 
         if (!response.ok) {
-            throw new Error('API indisponível');
+            throw new Error(`HTTP ${response.status}`);
         }
 
         const data = await response.json();
         
         if (data.dados && Object.keys(data.dados).length > 0) {
-            dadosAtuais = data.dados;
-            renderizarDashboard(dadosAtuais);
+            renderizarDashboard(data.dados);
             statusBadge.textContent = '● Online';
             statusBadge.className = 'topbar-status online';
+            console.log('✅ Dados carregados da API:', data.dados);
         } else {
             throw new Error('Dados vazios');
         }
 
     } catch (error) {
         console.warn('⚠️ API offline, usando dados locais:', error.message);
-        
-        // Usa dados padrão como fallback
-        dadosAtuais = DADOS_PADRAO;
-        renderizarDashboard(dadosAtuais);
-        
+        renderizarDashboard(DADOS_PADRAO);
         statusBadge.textContent = '● Offline (local)';
         statusBadge.className = 'topbar-status offline';
-    } finally {
-        atualizando = false;
     }
 }
 
@@ -534,15 +522,14 @@ async function buscarDados() {
 // INICIALIZAÇÃO
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Mostra dados padrão imediatamente (sem esperar API)
-    dadosAtuais = DADOS_PADRAO;
-    renderizarDashboard(dadosAtuais);
+    // Mostra dados padrão imediatamente
+    renderizarDashboard(DADOS_PADRAO);
     
     // Tenta conectar à API em segundo plano
     setTimeout(buscarDados, 500);
     
-    // Atualiza a cada 30 segundos
-    setInterval(buscarDados, 30000);
+    // Atualiza a cada 15 segundos
+    setInterval(buscarDados, 15000);
 });
 </script>
 
