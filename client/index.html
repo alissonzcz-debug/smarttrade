@@ -118,30 +118,20 @@
             <span class="topbar-title">SMART TRADE <span>— Mini Índice</span></span>
         </div>
         <div class="topbar-right">
-            <span class="topbar-status" id="statusBadge">● Carregando...</span>
+            <span class="topbar-status" id="statusBadge">● Online</span>
             <span class="topbar-time" id="clock">--:--:-- · Ao vivo</span>
         </div>
     </div>
 
     <!-- CONTEÚDO -->
-    <div id="content">
-        <div style="text-align:center;padding:40px;color:#5E7390;">
-            <div style="font-size:32px;margin-bottom:12px;">📊</div>
-            <div>Carregando dados...</div>
-        </div>
-    </div>
+    <div id="content"></div>
 </div>
 
 <script>
 // ============================================
-// CONFIGURAÇÃO - USA A URL ATUAL
+// DADOS EMBUTIDOS (ATUALIZADOS PELO EXCEL)
 // ============================================
-const API_URL = window.location.origin + '/api/dados';
-
-// ============================================
-// DADOS DE EXEMPLO (FALLBACK)
-// ============================================
-const DADOS_PADRAO = {
+const DADOS = {
     cotacoes: {
         "Índice Futuro": -0.21,
         "Dólar Futuro": -0.19,
@@ -364,16 +354,6 @@ function renderizarIbov(acoes) {
 function renderizarDashboard(dados) {
     const container = document.getElementById('content');
     
-    if (!dados || Object.keys(dados).length === 0) {
-        container.innerHTML = `
-            <div style="text-align:center;padding:40px;color:#5E7390;">
-                <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
-                <div>Nenhum dado disponível</div>
-            </div>
-        `;
-        return;
-    }
-    
     const html = `
         <div class="main-grid">
             <div class="col-left">
@@ -482,46 +462,33 @@ updateClock();
 setInterval(updateClock, 1000);
 
 // ============================================
-// BUSCAR DADOS DA API - VERSÃO CORRIGIDA
+// CARREGAR DADOS DA API (ATUALIZAÇÃO)
 // ============================================
-async function buscarDados() {
+async function atualizarDados() {
     const statusBadge = document.getElementById('statusBadge');
-    statusBadge.textContent = '● Carregando...';
-    statusBadge.className = 'topbar-status loading';
-
+    
     try {
-        // USA A URL ABSOLUTA DO SERVIDOR
-        const response = await fetch('/api/dados', {
-            method: 'GET',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
+        const response = await fetch('/api/dados');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.dados && Object.keys(data.dados).length > 0) {
+                // Atualiza os dados e re-renderiza
+                Object.assign(DADOS, data.dados);
+                renderizarDashboard(DADOS);
+                statusBadge.textContent = '● Online';
+                statusBadge.className = 'topbar-status online';
+                console.log('✅ Dados atualizados da API');
+                return;
             }
-        });
-
-        console.log('📡 Resposta da API:', response.status);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
         }
-
-        const data = await response.json();
-        console.log('📊 Dados recebidos:', data);
-
-        if (data.dados && Object.keys(data.dados).length > 0) {
-            renderizarDashboard(data.dados);
-            statusBadge.textContent = '● Online';
-            statusBadge.className = 'topbar-status online';
-        } else {
-            throw new Error('Dados vazios');
-        }
-
-    } catch (error) {
-        console.warn('⚠️ Erro ao buscar dados da API:', error.message);
-        console.log('📋 Usando dados locais (fallback)');
-        renderizarDashboard(DADOS_PADRAO);
-        statusBadge.textContent = '● Offline (local)';
+        // Se falhar, mantém os dados locais
+        statusBadge.textContent = '● Offline';
         statusBadge.className = 'topbar-status offline';
+        console.log('📋 Usando dados locais');
+    } catch (e) {
+        statusBadge.textContent = '● Offline';
+        statusBadge.className = 'topbar-status offline';
+        console.log('📋 Usando dados locais (erro na API)');
     }
 }
 
@@ -530,16 +497,15 @@ async function buscarDados() {
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Smart Trade iniciado!');
-    console.log('🌐 URL da API:', API_URL);
     
-    // Mostra dados padrão imediatamente
-    renderizarDashboard(DADOS_PADRAO);
+    // Renderiza com dados embutidos
+    renderizarDashboard(DADOS);
     
-    // Tenta conectar à API em segundo plano
-    setTimeout(buscarDados, 500);
+    // Tenta atualizar da API
+    setTimeout(atualizarDados, 1000);
     
-    // Atualiza a cada 15 segundos
-    setInterval(buscarDados, 15000);
+    // Atualiza a cada 30 segundos
+    setInterval(atualizarDados, 30000);
 });
 </script>
 
