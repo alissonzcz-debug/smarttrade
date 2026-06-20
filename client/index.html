@@ -6,21 +6,23 @@
     <title>Smart Trade — Mini Índice</title>
     <style>
         /* ============================================
-           ESTILOS COMPLETOS (mesmo código anterior)
+           ESTILOS COMPLETOS
            ============================================ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0A0E17; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', 'Calibri', sans-serif; padding: 20px; }
         .container { background: #0F1521; border-radius: 12px; border: 1px solid #1E2A3A; max-width: 1200px; width: 100%; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
-        .topbar { background: #111827; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E2A3A; }
+        .topbar { background: #111827; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E2A3A; flex-wrap: wrap; gap: 8px; }
         .topbar-left { display: flex; align-items: center; gap: 10px; }
         .live-dot { width: 8px; height: 8px; background: #1DB954; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .topbar-title { color: #E8EDF5; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; }
         .topbar-title span { color: #5E7390; font-weight: 400; }
-        .topbar-time { color: #5E7390; font-size: 11px; }
-        .topbar-status { color: #5E7390; font-size: 10px; background: #1A2538; padding: 2px 10px; border-radius: 10px; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .topbar-status { font-size: 10px; padding: 2px 10px; border-radius: 10px; background: #1A2538; }
         .topbar-status.online { color: #1DB954; }
         .topbar-status.offline { color: #E63946; }
+        .topbar-status.loading { color: #F4A020; }
+        .topbar-time { color: #5E7390; font-size: 11px; }
 
         .main-grid { display: grid; grid-template-columns: 220px 1fr 280px; gap: 6px; padding: 6px; }
         .card { background: #111827; border: 1px solid #1E2A3A; border-radius: 6px; padding: 10px 12px; }
@@ -40,6 +42,9 @@
         .bar-wrap { margin: 4px 0; }
         .bar-label { display: flex; justify-content: space-between; font-size: 9px; color: #5E7390; margin-bottom: 2px; }
         .bar-label .val { font-weight: 700; }
+        .bar-label .val.pos { color: #1DB954; }
+        .bar-label .val.neg { color: #E63946; }
+        .bar-label .val.gray { color: #5E7390; }
         .bar-track { background: #1A2538; border-radius: 2px; height: 8px; position: relative; overflow: hidden; }
         .bar-fill { position: absolute; top: 0; height: 100%; border-radius: 2px; }
         .bar-fill.green { background: #1DB954; }
@@ -93,9 +98,8 @@
         .ibov-container::-webkit-scrollbar-thumb { background: #5E7390; border-radius: 3px; }
 
         /* Loading */
-        .loading { color: #5E7390; font-size: 10px; text-align: center; padding: 10px; }
-        .loading::after { content: '...'; animation: dots 1.5s steps(4) infinite; }
-        @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+        .loading-state { color: #5E7390; font-size: 12px; text-align: center; padding: 40px 20px; }
+        .loading-state .icon { font-size: 32px; margin-bottom: 12px; }
 
         @media (max-width: 1024px) {
             .main-grid { grid-template-columns: 1fr; gap: 6px; }
@@ -103,7 +107,9 @@
             .duo-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 640px) {
-            .topbar { flex-direction: column; gap: 6px; text-align: center; }
+            .topbar { flex-direction: column; align-items: stretch; text-align: center; }
+            .topbar-left { justify-content: center; }
+            .topbar-right { justify-content: center; flex-wrap: wrap; }
             .pv-grid { grid-template-columns: 1fr; }
             .duo-grid { grid-template-columns: 1fr; }
         }
@@ -118,60 +124,155 @@
             <span class="live-dot"></span>
             <span class="topbar-title">SMART TRADE <span>— Mini Índice</span></span>
         </div>
-        <div>
+        <div class="topbar-right">
             <span class="topbar-status" id="statusBadge">● Carregando...</span>
-            <span class="topbar-time" id="clock">--:--:--</span>
+            <span class="topbar-time" id="clock">--:--:-- · Ao vivo</span>
         </div>
     </div>
 
     <!-- CONTEÚDO -->
     <div id="content">
-        <div class="loading">Carregando dados</div>
+        <div class="loading-state">
+            <div class="icon">📊</div>
+            <div>Carregando dados...</div>
+        </div>
     </div>
 </div>
 
 <script>
 // ============================================
+// DADOS DE EXEMPLO (FALLBACK)
+// ============================================
+const DADOS_PADRAO = {
+    cotacoes: {
+        "Índice Futuro": -0.21,
+        "Dólar Futuro": -0.19,
+        "Bancos": -0.27,
+        "Ações IBOV": 0.33
+    },
+    informacoes_indice: {
+        "Direção": "Sem Tend.",
+        "Exaustão": "Zona equil.",
+        "Correção": "Continu.",
+        "Tend. Primária": "Baixa",
+        "Tend. Secundária": "Baixa"
+    },
+    movimento_mercado: {
+        "Saldo Total": "Baixo",
+        "Volume": "Baixo"
+    },
+    saldo_dolar: {
+        "Institucional": -17092,
+        "Varejo": 756
+    },
+    saldo_diario: {
+        "Institucional": 4366,
+        "Varejo": -5500
+    },
+    top_vendidos: [
+        { corretora: "003-XP", qtd: -7768 },
+        { corretora: "127-Tullett", qtd: -5605 },
+        { corretora: "039-Agora", qtd: -3971 },
+        { corretora: "238-Goldman", qtd: -3970 },
+        { corretora: "040-Morgan", qtd: -3446 }
+    ],
+    top_comprados: [
+        { corretora: "1618-Ideal", qtd: 8800 },
+        { corretora: "120-Genial", qtd: 6796 },
+        { corretora: "008-UBS", qtd: 5695 },
+        { corretora: "092-Warren", qtd: 4235 },
+        { corretora: "016-JP Morgan", qtd: 3441 }
+    ],
+    saldo_5min: {
+        "Institucional": 0,
+        "Varejo": 0
+    },
+    petr_vale: {
+        "PETR3": -0.04,
+        "PETR4": -0.41,
+        "VALE3": 1.00
+    },
+    top_10_acoes: [
+        { ticker: "PETR4", variacao: 1.2 },
+        { ticker: "VALE3", variacao: 1.5 },
+        { ticker: "ITUB4", variacao: 0.9 },
+        { ticker: "BBAS3", variacao: 0.8 },
+        { ticker: "BBDC4", variacao: -0.6 },
+        { ticker: "ELET3", variacao: -1.0 },
+        { ticker: "B3SA3", variacao: -0.4 },
+        { ticker: "ABEV3", variacao: 0.3 },
+        { ticker: "WEGE3", variacao: -1.3 },
+        { ticker: "PETR3", variacao: 0.7 }
+    ],
+    setor_financeiro: [
+        { ticker: "BBDC4", variacao: -0.5 },
+        { ticker: "BBDC3", variacao: -0.9 },
+        { ticker: "BPAC11", variacao: 0.3 },
+        { ticker: "BPAN4", variacao: 0.2 },
+        { ticker: "ITUB4", variacao: -0.4 },
+        { ticker: "SANB11", variacao: 1.0 },
+        { ticker: "BBAS3", variacao: -0.6 }
+    ],
+    acoes_ibov: [
+        "RAIZ4", "LWSA3", "LREN3", "CSNA3", "ENEV3", "VBBR3",
+        "SLCE3", "MRVE3", "RAIL3", "ENGI11", "SBSP3", "IGTI11",
+        "ALSO3", "WINT", "CPFE3", "TOTS4", "KLBN11", "PETR4",
+        "BBDC3", "BBSE3", "ABEV3", "BRKM5", "CSAN3", "GGBR4",
+        "GOAU4", "HAPV3", "HYPE3", "JBSS3", "JHSF3", "LEVE3",
+        "MGLU3", "MOVI3", "MULT3", "PCAR3", "PETZ3", "QUAL3",
+        "RADL3", "RDOR3", "RENT3", "SBFG3", "SOMA3", "SUZB3",
+        "TAEE11", "TIMS3", "TOTS3", "UGPA3", "USIM5", "VALE3",
+        "VIVT3", "YDUQ3"
+    ]
+};
+
+// ============================================
 // CONFIGURAÇÃO
 // ============================================
 const API_URL = window.location.origin + '/api/dados';
-
-// ============================================
-// ESTADO
-// ============================================
-let dados = null;
+let dadosAtuais = null;
 let atualizando = false;
 
 // ============================================
-// FUNÇÕES DE RENDERIZAÇÃO
+// FUNÇÕES DE FORMATAÇÃO
 // ============================================
-
-function formatarNumero(valor) {
+function fmtNum(valor) {
     if (typeof valor === 'number') {
         return valor > 0 ? '+' + valor.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.') : valor.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
     return valor;
 }
 
-function formatarPercentual(valor) {
+function fmtPct(valor) {
     if (typeof valor === 'number') {
         return (valor > 0 ? '+' : '') + valor.toFixed(2) + '%';
     }
     return valor;
 }
 
-function getClasseVariacao(valor) {
+function clsValor(valor) {
     if (typeof valor === 'number') {
         return valor > 0 ? 'pos' : valor < 0 ? 'neg' : 'gray';
     }
     return 'gray';
 }
 
+function clsValorBar(valor) {
+    if (typeof valor === 'number') {
+        return valor >= 0 ? 'green' : 'red';
+    }
+    return 'gray';
+}
+
+// ============================================
+// RENDERIZAÇÃO
+// ============================================
 function renderizarCard(titulo, itens, classe = '') {
+    if (!itens || Object.keys(itens).length === 0) return '';
     let html = `<div class="card"><div class="card-title ${classe}">${titulo}</div>`;
     for (const [label, valor] of Object.entries(itens)) {
-        const classeValor = getClasseVariacao(valor);
-        const texto = typeof valor === 'number' ? formatarPercentual(valor) : valor;
+        const classeValor = clsValor(valor);
+        const texto = typeof valor === 'number' ? fmtPct(valor) : valor;
         html += `<div class="row-item"><span class="row-label">${label}</span><span class="row-value ${classeValor}">${texto}</span></div>`;
     }
     html += '</div>';
@@ -179,14 +280,16 @@ function renderizarCard(titulo, itens, classe = '') {
 }
 
 function renderizarBarras(titulo, itens) {
+    if (!itens || Object.keys(itens).length === 0) return '';
     let html = `<div class="card"><div class="card-title">${titulo}</div>`;
     for (const [label, valor] of Object.entries(itens)) {
-        const classe = valor >= 0 ? 'green' : 'red';
+        const classe = clsValorBar(valor);
         const pct = Math.min(Math.abs(valor) / 20000 * 100, 90);
         const lado = valor >= 0 ? 'left:50%;' : 'right:50%;';
+        const clsText = valor >= 0 ? 'pos' : 'neg';
         html += `
             <div class="bar-wrap">
-                <div class="bar-label"><span>${label}</span><span class="val ${classe}">${formatarNumero(valor)}</span></div>
+                <div class="bar-label"><span>${label}</span><span class="val ${clsText}">${fmtNum(valor)}</span></div>
                 <div class="bar-track"><div class="bar-fill ${classe}" style="width:${pct}%;${lado}"></div></div>
             </div>
         `;
@@ -196,16 +299,18 @@ function renderizarBarras(titulo, itens) {
 }
 
 function renderizarTabela(titulo, dados, classe) {
+    if (!dados || dados.length === 0) return '';
     let html = `<div class="card"><div class="card-title ${classe}">${titulo}</div><table class="table-mini"><thead><tr><th>Corretora</th><th>Qtd</th></tr></thead><tbody>`;
     for (const item of dados) {
         const cls = item.qtd >= 0 ? 'pos' : 'neg';
-        html += `<tr><td>${item.corretora}</td><td class="${cls}">${formatarNumero(item.qtd)}</td></tr>`;
+        html += `<tr><td>${item.corretora}</td><td class="${cls}">${fmtNum(item.qtd)}</td></tr>`;
     }
     html += '</tbody></table></div>';
     return html;
 }
 
 function renderizarProgresso(titulo, dados) {
+    if (!dados || dados.length === 0) return '';
     let html = `<div class="card" style="flex:1;min-height:0;"><div class="card-title">${titulo}</div>`;
     const maxAbs = Math.max(...dados.map(d => Math.abs(d.variacao)), 0.01);
     for (const item of dados) {
@@ -216,7 +321,7 @@ function renderizarProgresso(titulo, dados) {
             <div class="progress-item">
                 <span class="progress-label">${item.ticker}</span>
                 <div class="progress-track"><div class="progress-fill ${cls}" style="width:${Math.max(pct, 2)}%;"></div></div>
-                <span class="progress-pct ${pctCls}">${formatarPercentual(item.variacao)}</span>
+                <span class="progress-pct ${pctCls}">${fmtPct(item.variacao)}</span>
             </div>
         `;
     }
@@ -225,16 +330,18 @@ function renderizarProgresso(titulo, dados) {
 }
 
 function renderizarPetrVale(dados) {
+    if (!dados || Object.keys(dados).length === 0) return '';
     let html = `<div class="card"><div class="card-title">Petr &amp; Vale</div><div class="pv-grid">`;
     for (const [ticker, valor] of Object.entries(dados)) {
         const cls = valor >= 0 ? 'pos' : 'neg';
-        html += `<div class="pv-item"><div class="ticker">${ticker}</div><div class="change ${cls}">${formatarPercentual(valor)}</div></div>`;
+        html += `<div class="pv-item"><div class="ticker">${ticker}</div><div class="change ${cls}">${fmtPct(valor)}</div></div>`;
     }
     html += '</div></div>';
     return html;
 }
 
 function renderizarIbov(acoes) {
+    if (!acoes || acoes.length === 0) return '';
     const maxHeight = 50;
     const valores = acoes.map(() => (Math.random() - 0.48) * 5);
     const maxAbs = Math.max(...valores.map(v => Math.abs(v)), 0.01);
@@ -261,14 +368,14 @@ function renderizarIbov(acoes) {
 }
 
 // ============================================
-// RENDERIZAÇÃO PRINCIPAL
+// DASHBOARD COMPLETO
 // ============================================
 function renderizarDashboard(dados) {
     const container = document.getElementById('content');
     
-    let html = `
+    const html = `
         <div class="main-grid">
-            <!-- COLUNA ESQUERDA -->
+            <!-- ESQUERDA -->
             <div class="col-left">
                 <div class="card" style="display:flex;align-items:center;justify-content:center;padding:12px;min-height:60px;">
                     <div style="text-align:center;">
@@ -276,10 +383,10 @@ function renderizarDashboard(dados) {
                         <div style="font-size:8px;color:#5E7390;">Decisões mais precisas</div>
                     </div>
                 </div>
-                ${renderizarCard('Cotações Atuais', dados.cotacoes || {})}
-                ${renderizarCard('Informações Índice', dados.informacoes_indice || {})}
-                ${renderizarCard('Movimento do Mercado', dados.movimento_mercado || {})}
-                ${renderizarBarras('Saldo Dólar — Diário', dados.saldo_dolar || {})}
+                ${renderizarCard('Cotações Atuais', dados.cotacoes)}
+                ${renderizarCard('Informações Índice', dados.informacoes_indice)}
+                ${renderizarCard('Movimento do Mercado', dados.movimento_mercado)}
+                ${renderizarBarras('Saldo Dólar — Diário', dados.saldo_dolar)}
                 <div class="card" style="flex:1;min-height:0;">
                     <div class="card-title">Termômetro da Força</div>
                     <div class="thermo-wrap">
@@ -288,42 +395,40 @@ function renderizarDashboard(dados) {
                 </div>
             </div>
 
-            <!-- COLUNA CENTRAL -->
+            <!-- CENTRO -->
             <div class="col-center">
-                ${renderizarBarras('Saldo Diário — Mini Índice', dados.saldo_diario || {})}
+                ${renderizarBarras('Saldo Diário — Mini Índice', dados.saldo_diario)}
                 <div class="duo-grid">
-                    ${renderizarTabela('▼ Top Vendidos', dados.top_vendidos || [], 'red')}
-                    ${renderizarTabela('▲ Top Comprados', dados.top_comprados || [], 'green')}
+                    ${renderizarTabela('▼ Top Vendidos', dados.top_vendidos, 'red')}
+                    ${renderizarTabela('▲ Top Comprados', dados.top_comprados, 'green')}
                 </div>
-                ${renderizarBarras('Saldo 5 Min — Mini Índice', dados.saldo_5min || {})}
+                ${renderizarBarras('Saldo 5 Min — Mini Índice', dados.saldo_5min)}
                 <div class="duo-grid" style="flex:1;min-height:0;">
                     <div class="card"><div class="card-title red">▼ Vendidos 5 Min</div><div style="color:#5E7390;font-size:9px;text-align:center;padding:8px 0;">Sem dados</div></div>
                     <div class="card"><div class="card-title green">▲ Comprados 5 Min</div><div style="color:#5E7390;font-size:9px;text-align:center;padding:8px 0;">Sem dados</div></div>
                 </div>
             </div>
 
-            <!-- COLUNA DIREITA -->
+            <!-- DIREITA -->
             <div class="col-right">
-                ${renderizarPetrVale(dados.petr_vale || {})}
-                ${renderizarProgresso('Top 10 Ações', dados.top_10_acoes || [])}
-                ${renderizarProgresso('Setor Financeiro', dados.setor_financeiro || [])}
+                ${renderizarPetrVale(dados.petr_vale)}
+                ${renderizarProgresso('Top 10 Ações', dados.top_10_acoes)}
+                ${renderizarProgresso('Setor Financeiro', dados.setor_financeiro)}
             </div>
 
             <!-- IBOV -->
             <div class="row-ibov">
-                ${renderizarIbov(dados.acoes_ibov || [])}
+                ${renderizarIbov(dados.acoes_ibov)}
             </div>
         </div>
     `;
     
     container.innerHTML = html;
-    
-    // Desenha o gauge após renderizar
     setTimeout(drawGauge, 100);
 }
 
 // ============================================
-// GAUGE (Termômetro)
+// GAUGE
 // ============================================
 function drawGauge() {
     const canvas = document.getElementById('gauge');
@@ -369,7 +474,7 @@ function drawGauge() {
 }
 
 // ============================================
-// CLOCK
+// RELÓGIO
 // ============================================
 function updateClock() {
     const now = new Date();
@@ -380,43 +485,46 @@ updateClock();
 setInterval(updateClock, 1000);
 
 // ============================================
-// BUSCA DADOS DA API
+// BUSCAR DADOS DA API
 // ============================================
 async function buscarDados() {
     if (atualizando) return;
     atualizando = true;
 
     const statusBadge = document.getElementById('statusBadge');
-    statusBadge.textContent = '● Atualizando...';
-    statusBadge.className = 'topbar-status';
+    statusBadge.textContent = '● Carregando...';
+    statusBadge.className = 'topbar-status loading';
 
     try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Erro ao buscar dados');
-        
-        const data = await response.json();
-        dados = data.dados;
-        
-        renderizarDashboard(dados);
-        
-        statusBadge.textContent = '● Online';
-        statusBadge.className = 'topbar-status online';
-    } catch (error) {
-        console.error('Erro:', error);
-        statusBadge.textContent = '● Offline';
-        statusBadge.className = 'topbar-status offline';
-        
-        // Tenta usar dados locais de fallback
-        if (!dados) {
-            document.getElementById('content').innerHTML = `
-                <div style="text-align:center;padding:40px;color:#5E7390;">
-                    <div style="font-size:20px;margin-bottom:10px;">⚠️</div>
-                    <div>Não foi possível conectar à API</div>
-                    <div style="font-size:12px;margin-top:10px;">Verifique se o servidor está rodando</div>
-                    <div style="font-size:10px;margin-top:5px;color:#1A2538;">${error.message}</div>
-                </div>
-            `;
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            throw new Error('API indisponível');
         }
+
+        const data = await response.json();
+        
+        if (data.dados && Object.keys(data.dados).length > 0) {
+            dadosAtuais = data.dados;
+            renderizarDashboard(dadosAtuais);
+            statusBadge.textContent = '● Online';
+            statusBadge.className = 'topbar-status online';
+        } else {
+            throw new Error('Dados vazios');
+        }
+
+    } catch (error) {
+        console.warn('⚠️ API offline, usando dados locais:', error.message);
+        
+        // Usa dados padrão como fallback
+        dadosAtuais = DADOS_PADRAO;
+        renderizarDashboard(dadosAtuais);
+        
+        statusBadge.textContent = '● Offline (local)';
+        statusBadge.className = 'topbar-status offline';
     } finally {
         atualizando = false;
     }
@@ -426,7 +534,13 @@ async function buscarDados() {
 // INICIALIZAÇÃO
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    buscarDados();
+    // Mostra dados padrão imediatamente (sem esperar API)
+    dadosAtuais = DADOS_PADRAO;
+    renderizarDashboard(dadosAtuais);
+    
+    // Tenta conectar à API em segundo plano
+    setTimeout(buscarDados, 500);
+    
     // Atualiza a cada 30 segundos
     setInterval(buscarDados, 30000);
 });
