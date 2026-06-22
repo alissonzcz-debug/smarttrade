@@ -24,235 +24,62 @@
   --shadow-sm:0 2px 8px rgba(0,0,0,0.3);
   --shadow-md:0 4px 16px rgba(0,0,0,0.4);
 }
-
 html,body{height:100%;width:100%;overflow:hidden;}
-
-body{
-  background:var(--bg-primary);
-  color:var(--text-primary);
-  font-family:'Segoe UI','Calibri',sans-serif;
-  font-size:12px;
-  line-height:1.4;
-}
-
-/* CONTAINER PRINCIPAL */
+body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI','Calibri',sans-serif;font-size:12px;line-height:1.4;}
 .container{display:flex;flex-direction:column;height:100vh;}
-
-/* HEADER */
-.header{
-  background:var(--bg-secondary);
-  border-bottom:1px solid var(--border-color);
-  padding:8px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-shrink:0;
-  box-shadow:var(--shadow-sm);
-}
+.header{background:var(--bg-secondary);border-bottom:1px solid var(--border-color);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-shadow:var(--shadow-sm);}
 .header-left{display:flex;align-items:center;gap:12px;}
 .header-title{font-size:16px;font-weight:700;color:var(--text-primary);}
-.live-indicator{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:4px 10px;
-  background:rgba(57,211,83,0.1);
-  border-radius:20px;
-  border:1px solid var(--accent-green);
-}
+.live-indicator{display:flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(57,211,83,0.1);border-radius:20px;border:1px solid var(--accent-green);}
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-green);animation:pulse 2s infinite;}
 .live-dot.off{background:var(--accent-red);animation:none;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .live-text{font-size:11px;color:var(--accent-green);font-weight:600;text-transform:uppercase;}
 .time-display{font-size:11px;color:var(--text-secondary);font-weight:500;}
-
-/* MAIN GRID */
-.main{
-  flex:1;
-  display:grid;
-  grid-template-columns:repeat(12,1fr);
-  gap:8px;
-  padding:8px;
-  overflow:hidden;
-}
-
-/* CARDS */
-.card{
-  background:var(--bg-secondary);
-  border:1px solid var(--border-color);
-  border-radius:var(--radius-md);
-  padding:10px;
-  display:flex;
-  flex-direction:column;
-  box-shadow:var(--shadow-sm);
-  transition:all 0.3s ease;
-  overflow:hidden;
-}
+.main{flex:1;display:grid;grid-template-columns:repeat(12,1fr);gap:8px;padding:8px;overflow:hidden;}
+.card{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:10px;display:flex;flex-direction:column;box-shadow:var(--shadow-sm);transition:all 0.3s ease;overflow:hidden;}
 .card:hover{border-color:var(--accent-blue);box-shadow:var(--shadow-md);}
-.card-title{
-  font-size:11px;
-  font-weight:700;
-  color:var(--text-secondary);
-  text-transform:uppercase;
-  letter-spacing:0.1em;
-  margin-bottom:10px;
-  padding-bottom:8px;
-  border-bottom:1px solid var(--border-color);
-}
-
-/* METRIC ROW */
-.metric-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:4px 0;
-  border-bottom:1px solid var(--border-color);
-}
+.card-title{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border-color);}
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border-color);}
 .metric-row:last-child{border-bottom:none;}
 .metric-label{font-size:11px;color:var(--text-secondary);}
 .metric-value{font-size:13px;font-weight:700;color:var(--text-primary);}
 .metric-value.positive{color:var(--accent-green);}
 .metric-value.negative{color:var(--accent-red);}
 .metric-value.warning{color:var(--accent-yellow);}
-
-/* LAYOUT SECTIONS */
 .left-panel{grid-column:1/3;grid-row:1/3;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
 .center-panel{grid-column:3/8;grid-row:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
 .right-panel{grid-column:8/13;grid-row:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
 .bottom-panel{grid-column:3/13;grid-row:2;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
-
-/* BALANCE BARS */
-.balance-bar{margin:8px 0;}
+.balance-bar{margin:6px 0;}
 .balance-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
 .balance-label{font-size:10px;color:var(--text-secondary);}
 .balance-value{font-size:11px;font-weight:700;}
-.bar-track{
-  background:var(--bg-tertiary);
-  border-radius:4px;
-  height:12px;
-  position:relative;
-  overflow:hidden;
-  border:1px solid var(--border-color);
-}
-.bar-fill{
-  position:absolute;
-  height:100%;
-  border-radius:4px;
-  transition:width 0.3s ease;
-}
-.bar-center{
-  position:absolute;
-  width:1px;
-  height:100%;
-  background:var(--border-color);
-  left:50%;
-  z-index:1;
-}
-
-/* TABLES */
+.bar-track{background:var(--bg-tertiary);border-radius:4px;height:12px;position:relative;overflow:hidden;border:1px solid var(--border-color);}
+.bar-fill{position:absolute;height:100%;border-radius:4px;transition:width 0.3s ease;}
+.bar-center{position:absolute;width:1px;height:100%;background:var(--border-color);left:50%;z-index:1;}
 .data-table{width:100%;border-collapse:collapse;}
-.data-table th{
-  font-size:10px;
-  color:var(--text-secondary);
-  font-weight:600;
-  text-align:left;
-  padding:6px 4px;
-  border-bottom:1px solid var(--border-color);
-  text-transform:uppercase;
-  letter-spacing:0.05em;
-}
-.data-table td{
-  font-size:11px;
-  padding:5px 4px;
-  border-bottom:1px solid var(--border-color);
-}
+.data-table th{font-size:10px;color:var(--text-secondary);font-weight:600;text-align:left;padding:6px 4px;border-bottom:1px solid var(--border-color);text-transform:uppercase;letter-spacing:0.05em;}
+.data-table td{font-size:11px;padding:5px 4px;border-bottom:1px solid var(--border-color);}
 .data-table tr:last-child td{border-bottom:none;}
 .data-table td:last-child{text-align:right;font-weight:600;}
-
-/* TOP LISTS */
-.top-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.top-item{
-  background:var(--bg-tertiary);
-  border:1px solid var(--border-color);
-  border-radius:var(--radius-md);
-  padding:8px;
-}
-.top-item-title{
-  font-size:10px;
-  font-weight:700;
-  color:var(--text-secondary);
-  margin-bottom:6px;
-  text-transform:uppercase;
-}
-.top-item-value{
-  font-size:13px;
-  font-weight:700;
-}
-.top-item-value.positive{color:var(--accent-green);}
-.top-item-value.negative{color:var(--accent-red);}
-
-/* PETR & VALE */
-.petr-vale-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.petr-vale-item{
-  background:var(--bg-tertiary);
-  border:1px solid var(--border-color);
-  border-radius:var(--radius-md);
-  padding:10px;
-  text-align:center;
-}
+.top-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.petr-vale-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.petr-vale-item{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:10px;text-align:center;}
 .petr-vale-ticker{font-size:10px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;}
-.petr-vale-value{font-size:14px;font-weight:700;}
+.petr-vale-value{font-size:16px;font-weight:700;}
 .petr-vale-value.positive{color:var(--accent-green);}
 .petr-vale-value.negative{color:var(--accent-red);}
-
-/* HORIZONTAL BARS */
-.bar-item{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:4px 0;
-  border-bottom:1px solid var(--border-color);
-}
+.bar-item{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border-color);}
 .bar-item:last-child{border-bottom:none;}
 .bar-item-label{font-size:10px;color:var(--text-secondary);width:50px;flex-shrink:0;}
-.bar-item-track{
-  flex:1;
-  background:var(--bg-tertiary);
-  border-radius:3px;
-  height:8px;
-  position:relative;
-  overflow:hidden;
-  border:1px solid var(--border-color);
-}
+.bar-item-track{flex:1;background:var(--bg-tertiary);border-radius:3px;height:8px;position:relative;overflow:hidden;border:1px solid var(--border-color);}
 .bar-item-fill{position:absolute;height:100%;border-radius:3px;}
 .bar-item-value{font-size:10px;font-weight:700;width:45px;text-align:right;flex-shrink:0;}
-
-/* GAUGE */
-.gauge-container{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex:1;
-  min-height:100px;
-}
-
-/* SCROLLBAR */
+.gauge-container{display:flex;align-items:center;justify-content:center;flex:1;min-height:80px;}
 ::-webkit-scrollbar{width:6px;}
 ::-webkit-scrollbar-track{background:var(--bg-secondary);}
 ::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:3px;}
-::-webkit-scrollbar-thumb:hover{background:var(--text-secondary);}
-
-/* RESPONSIVE */
-@media (max-width:1400px){
-  .main{grid-template-columns:repeat(10,1fr);}
-  .left-panel{grid-column:1/4;}
-  .center-panel{grid-column:4/8;}
-  .right-panel{grid-column:8/11;}
-  .bottom-panel{grid-column:4/11;}
-}
-
-
-/* LOGIN */
 #login-screen{display:none;align-items:center;justify-content:center;height:100vh;background:var(--bg-primary);position:fixed;top:0;left:0;width:100%;z-index:9999;}
 .login-box{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:40px 36px;width:360px;}
 .login-logo{text-align:center;margin-bottom:28px;}
@@ -267,7 +94,9 @@ body{
 .btn-logout{background:none;border:1px solid var(--border-color);color:var(--text-secondary);border-radius:4px;padding:3px 10px;cursor:pointer;font-size:11px;margin-left:10px;}
 .btn-logout:hover{border-color:var(--accent-red);color:var(--accent-red);}
 #dashboard{display:none;flex-direction:column;height:100vh;}
-
+.positive{color:var(--accent-green);}
+.negative{color:var(--accent-red);}
+.warning{color:var(--accent-yellow);}
 </style>
 </head>
 <body>
@@ -286,486 +115,323 @@ body{
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
+
 <div id="dashboard">
 <div class="container">
-  <!-- HEADER -->
   <div class="header">
     <div class="header-left">
       <div class="header-title">🚀 SMART TRADE</div>
       <div class="live-indicator">
         <div class="live-dot" id="live-dot"></div>
-        <span class="live-text" id="status-text">Conectado</span>
+        <span class="live-text" id="status-text">Conectando...</span>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;"><div class="time-display" id="time-display">--:--:--</div><button class="btn-logout" onclick="logout()">Sair</button></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="time-display" id="time-display">--:--:--</div>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
   </div>
 
-  <!-- MAIN GRID -->
   <div class="main">
-    
-    <!-- LEFT PANEL (20%) -->
     <div class="left-panel">
-      
-      <!-- Cotações Atuais -->
       <div class="card">
         <div class="card-title">📊 Cotações Atuais</div>
-        <div class="metric-row">
-          <span class="metric-label">Índice Futuro</span>
-          <span class="metric-value" id="c-indice">--</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Dólar Futuro</span>
-          <span class="metric-value" id="c-dolar">--</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Bancos</span>
-          <span class="metric-value" id="c-bancos">--</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Ações IBOV</span>
-          <span class="metric-value" id="c-acoes">--</span>
-        </div>
+        <div class="metric-row"><span class="metric-label">Índice Futuro</span><span class="metric-value" id="c-indice">--</span></div>
+        <div class="metric-row"><span class="metric-label">Dólar Futuro</span><span class="metric-value" id="c-dolar">--</span></div>
+        <div class="metric-row"><span class="metric-label">Bancos</span><span class="metric-value" id="c-bancos">--</span></div>
+        <div class="metric-row"><span class="metric-label">Ações IBOV</span><span class="metric-value" id="c-acoes">--</span></div>
       </div>
-
-      <!-- Informações Índice -->
       <div class="card">
         <div class="card-title">ℹ️ Informações Índice</div>
-        <div class="metric-row">
-          <span class="metric-label">Direção</span>
-          <span class="metric-value" id="i-direcao">--</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Exaustão</span>
-          <span class="metric-value" id="i-exaustao">--</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Correção</span>
-          <span class="metric-value" id="i-correcao">--</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Tend. Primária</span>
-          <span class="metric-value" id="i-tp">--</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Tend. Secundária</span>
-          <span class="metric-value" id="i-ts">--</span>
-        </div>
+        <div class="metric-row"><span class="metric-label">Direção</span><span class="metric-value" id="i-direcao">--</span></div>
+        <div class="metric-row"><span class="metric-label">Exaustão</span><span class="metric-value" id="i-exaustao">--</span></div>
+        <div class="metric-row"><span class="metric-label">Correção</span><span class="metric-value" id="i-correcao">--</span></div>
+        <div class="metric-row"><span class="metric-label">Tend. Primária</span><span class="metric-value" id="i-tp">--</span></div>
+        <div class="metric-row"><span class="metric-label">Tend. Secundária</span><span class="metric-value" id="i-ts">--</span></div>
       </div>
-
-      <!-- Movimento do Mercado -->
       <div class="card">
         <div class="card-title">📈 Movimento do Mercado</div>
-        <div class="metric-row">
-          <span class="metric-label">Saldo Total</span>
-          <span class="metric-value" id="m-saldo">--</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Volume</span>
-          <span class="metric-value" id="m-volume">--</span>
-        </div>
+        <div class="metric-row"><span class="metric-label">Saldo Total</span><span class="metric-value" id="m-saldo">--</span></div>
+        <div class="metric-row"><span class="metric-label">Volume</span><span class="metric-value" id="m-volume">--</span></div>
       </div>
-
-      <!-- Saldo Dólar -->
       <div class="card">
         <div class="card-title">💵 Saldo Dólar — Diário</div>
         <div class="balance-bar">
-          <div class="balance-row">
-            <span class="balance-label">Institucional</span>
-            <span class="balance-value" id="dol-inst-val">--</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-center"></div>
-            <div class="bar-fill" id="bar-dol-inst"></div>
-          </div>
+          <div class="balance-row"><span class="balance-label">Institucional</span><span class="balance-value" id="dol-inst-val">--</span></div>
+          <div class="bar-track"><div class="bar-center"></div><div class="bar-fill" id="bar-dol-inst"></div></div>
         </div>
         <div class="balance-bar">
-          <div class="balance-row">
-            <span class="balance-label">Varejo</span>
-            <span class="balance-value" id="dol-pf-val">--</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-center"></div>
-            <div class="bar-fill" id="bar-dol-pf"></div>
-          </div>
+          <div class="balance-row"><span class="balance-label">Varejo</span><span class="balance-value" id="dol-pf-val">--</span></div>
+          <div class="bar-track"><div class="bar-center"></div><div class="bar-fill" id="bar-dol-pf"></div></div>
         </div>
       </div>
-
-      <!-- Gauge -->
       <div class="card" style="flex:1;">
         <div class="card-title">🎯 Força do Mercado</div>
-        <div class="gauge-container">
-          <canvas id="gauge" width="140" height="80"></canvas>
-        </div>
+        <div class="gauge-container"><canvas id="gauge"></canvas></div>
       </div>
     </div>
 
-    <!-- CENTER PANEL (40%) -->
     <div class="center-panel">
-      
-      <!-- Saldo Diário -->
       <div class="card">
         <div class="card-title">💰 Saldo Diário — Mini Índice</div>
         <div class="balance-bar">
-          <div class="balance-row">
-            <span class="balance-label">Institucional</span>
-            <span class="balance-value" id="sd-inst-val">--</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-center"></div>
-            <div class="bar-fill" id="bar-sd-inst"></div>
-          </div>
+          <div class="balance-row"><span class="balance-label">Institucional</span><span class="balance-value" id="sd-inst-val">--</span></div>
+          <div class="bar-track"><div class="bar-center"></div><div class="bar-fill" id="bar-sd-inst"></div></div>
         </div>
         <div class="balance-bar">
-          <div class="balance-row">
-            <span class="balance-label">Varejo</span>
-            <span class="balance-value" id="sd-pf-val">--</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-center"></div>
-            <div class="bar-fill" id="bar-sd-pf"></div>
-          </div>
+          <div class="balance-row"><span class="balance-label">Varejo</span><span class="balance-value" id="sd-pf-val">--</span></div>
+          <div class="bar-track"><div class="bar-center"></div><div class="bar-fill" id="bar-sd-pf"></div></div>
         </div>
       </div>
-
-      <!-- Top Vendidos/Comprados Diário -->
       <div class="top-list">
         <div class="card">
           <div class="card-title">📉 Top Vendidos</div>
-          <table class="data-table">
-            <thead><tr><th>Corretora</th><th>Qtd</th></tr></thead>
-            <tbody id="tv-diario"></tbody>
-          </table>
+          <table class="data-table"><thead><tr><th>Corretora</th><th>Qtd</th></tr></thead><tbody id="tv-diario"></tbody></table>
         </div>
         <div class="card">
           <div class="card-title">📈 Top Comprados</div>
-          <table class="data-table">
-            <thead><tr><th>Corretora</th><th>Qtd</th></tr></thead>
-            <tbody id="tc-diario"></tbody>
-          </table>
+          <table class="data-table"><thead><tr><th>Corretora</th><th>Qtd</th></tr></thead><tbody id="tc-diario"></tbody></table>
         </div>
       </div>
-
-      <!-- Saldo 5 Min -->
       <div class="card">
         <div class="card-title">⏱️ Saldo 5 Min — Mini Índice</div>
         <div class="balance-bar">
-          <div class="balance-row">
-            <span class="balance-label">Institucional</span>
-            <span class="balance-value" id="s5-inst-val">--</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-center"></div>
-            <div class="bar-fill" id="bar-s5-inst"></div>
-          </div>
+          <div class="balance-row"><span class="balance-label">Institucional</span><span class="balance-value" id="s5-inst-val">--</span></div>
+          <div class="bar-track"><div class="bar-center"></div><div class="bar-fill" id="bar-s5-inst"></div></div>
         </div>
         <div class="balance-bar">
-          <div class="balance-row">
-            <span class="balance-label">Varejo</span>
-            <span class="balance-value" id="s5-pf-val">--</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-center"></div>
-            <div class="bar-fill" id="bar-s5-pf"></div>
-          </div>
+          <div class="balance-row"><span class="balance-label">Varejo</span><span class="balance-value" id="s5-pf-val">--</span></div>
+          <div class="bar-track"><div class="bar-center"></div><div class="bar-fill" id="bar-s5-pf"></div></div>
         </div>
       </div>
-
-      <!-- Top Vendidos/Comprados 5 Min -->
       <div class="top-list">
         <div class="card">
           <div class="card-title">📉 Vendidos 5 Min</div>
-          <table class="data-table">
-            <thead><tr><th>Corretora</th><th>Qtd</th></tr></thead>
-            <tbody id="tv-5min"></tbody>
-          </table>
+          <table class="data-table"><thead><tr><th>Corretora</th><th>Qtd</th></tr></thead><tbody id="tv-5min"></tbody></table>
         </div>
         <div class="card">
           <div class="card-title">📈 Comprados 5 Min</div>
-          <table class="data-table">
-            <thead><tr><th>Corretora</th><th>Qtd</th></tr></thead>
-            <tbody id="tc-5min"></tbody>
-          </table>
+          <table class="data-table"><thead><tr><th>Corretora</th><th>Qtd</th></tr></thead><tbody id="tc-5min"></tbody></table>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT PANEL (40%) -->
     <div class="right-panel">
-      
-      <!-- Petr & Vale -->
       <div class="card">
         <div class="card-title">🏢 Petr & Vale</div>
         <div class="petr-vale-grid" id="petr-vale"></div>
       </div>
-
-      <!-- Top 10 Ações -->
       <div class="card" style="flex:1;">
         <div class="card-title">🔝 Top 10 Ações</div>
-        <div id="top10-container" style="flex:1;overflow-y:auto;"></div>
+        <div id="top10-container"></div>
       </div>
-
-      <!-- Setor Financeiro -->
       <div class="card" style="flex:1;">
         <div class="card-title">🏦 Setor Financeiro</div>
-        <div id="setor-fin" style="flex:1;overflow-y:auto;"></div>
+        <div id="setor-fin"></div>
       </div>
     </div>
 
-    <!-- BOTTOM PANEL: IBOV -->
     <div class="bottom-panel">
       <div class="card">
         <div class="card-title">📊 Ações IBOV</div>
-        <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 0;">
-          <div id="ibov-chart" style="display:flex;gap:6px;min-width:max-content;"></div>
+        <div style="width:100%;overflow:hidden;">
+          <div id="ibov-chart" style="display:flex;width:100%;gap:1px;overflow:hidden;align-items:flex-end;"></div>
         </div>
       </div>
     </div>
-
   </div>
+</div>
 </div>
 
 <script>
-const SERVER = window.location.origin;
-let token = localStorage.getItem('st_token');
-let dados = {};
-let pollTimer = null;
+const SERVER=window.location.origin;
+let token=localStorage.getItem('st_token');
+let dados={};
+let pollTimer=null;
 
-async function fazerLogin() {
-  const email = document.getElementById('inp-email').value.trim();
-  const senha = document.getElementById('inp-senha').value;
-  const errEl = document.getElementById('login-error');
-  errEl.textContent = '';
-  if (!email || !senha) { errEl.textContent = 'Preencha email e senha.'; return; }
-  try {
-    const r = await fetch(SERVER+'/api/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,senha})});
-    const d = await r.json();
-    if (!r.ok) { errEl.textContent = d.detail || 'Erro ao fazer login.'; return; }
-    token = d.token; localStorage.setItem('st_token', token); mostrarDashboard();
-  } catch(e) { errEl.textContent = 'Erro de conexão.'; }
+async function fazerLogin(){
+  const email=document.getElementById('inp-email').value.trim();
+  const senha=document.getElementById('inp-senha').value;
+  const errEl=document.getElementById('login-error');
+  errEl.textContent='';
+  if(!email||!senha){errEl.textContent='Preencha email e senha.';return;}
+  try{
+    const r=await fetch(SERVER+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,senha})});
+    const d=await r.json();
+    if(!r.ok){errEl.textContent=d.detail||'Erro ao fazer login.';return;}
+    token=d.token;localStorage.setItem('st_token',token);mostrarDashboard();
+  }catch(e){errEl.textContent='Erro de conexão.';}
 }
 
-function logout() {
-  token = null; localStorage.removeItem('st_token'); clearInterval(pollTimer);
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
+function logout(){
+  token=null;localStorage.removeItem('st_token');clearInterval(pollTimer);
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
 }
 
-function mostrarDashboard() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'flex';
-  document.querySelector('.container').style.display = 'flex';
-  buscarDados(); pollTimer = setInterval(buscarDados, 2000);
+function mostrarDashboard(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('dashboard').style.display='flex';
+  buscarDados();pollTimer=setInterval(buscarDados,2000);
 }
 
-async function buscarDados() {
-  try {
-    const r = await fetch(SERVER+'/api/poll?token='+token);
-    if (r.status === 401) { logout(); return; }
-    const d = await r.json();
-    if (d.dados && Object.keys(d.dados).length > 0) {
-      dados = d.dados;
-      setStatus(true); atualizarDashboard();
-    } else setStatus(false);
-  } catch(e) { setStatus(false); }
+async function buscarDados(){
+  try{
+    const r=await fetch(SERVER+'/api/poll?token='+token);
+    if(r.status===401){logout();return;}
+    const d=await r.json();
+    if(d.dados&&Object.keys(d.dados).length>0){dados=d.dados;setStatus(true);atualizarDashboard();}
+    else setStatus(false);
+  }catch(e){setStatus(false);}
 }
 
-function setStatus(on) {
-  const dot = document.getElementById('live-dot');
-  const txt = document.getElementById('status-text');
-  if (dot) { dot.className = 'live-dot' + (on ? '' : ' off'); }
-  if (txt) { txt.textContent = on ? 'AO VIVO' : 'SEM DADOS'; txt.style.color = on ? 'var(--accent-green)' : 'var(--accent-red)'; }
+function setStatus(on){
+  const dot=document.getElementById('live-dot');
+  const txt=document.getElementById('status-text');
+  if(dot)dot.className='live-dot'+(on?'':' off');
+  if(txt){txt.textContent=on?'AO VIVO':'SEM DADOS';txt.style.color=on?'var(--accent-green)':'var(--accent-red)';}
 }
 
-// Funções de formatação
-function fmtPct(val) {
-  if (val === null || val === undefined) return '--';
-  const n = parseFloat(val) * 100;
-  const cls = n >= 0 ? 'positive' : 'negative';
-  return `<span class="${cls}">${n >= 0 ? '+' : ''}${n.toFixed(2)}%</span>`;
+function fmtPct(val){
+  if(val===null||val===undefined)return'--';
+  const n=parseFloat(val)*100;
+  return`<span class="${n>=0?'positive':'negative'}">${n>=0?'+':''}${n.toFixed(2)}%</span>`;
 }
 
-function fmtNum(val) {
-  if (val === null || val === undefined) return '--';
-  const n = parseInt(val);
-  const cls = n >= 0 ? 'positive' : 'negative';
-  return `<span class="${cls}">${n >= 0 ? '+' : ''}${n.toLocaleString('pt-BR')}</span>`;
+function fmtStatus(val){
+  if(!val)return'--';
+  const cls=['Alta','Em Tendência','Continuidade'].includes(val)?'positive':['Baixa'].includes(val)?'negative':['Sobrevendido','Zona de equilíbrio'].includes(val)?'warning':'';
+  return`<span class="metric-value ${cls}">${val}</span>`;
 }
 
-function fmtStatus(val) {
-  if (!val) return '--';
-  const statusClass = ['Alta', 'Em Tendência', 'Continuidade'].includes(val) ? 'positive' 
-                    : ['Baixa'].includes(val) ? 'negative' 
-                    : ['Sobrevendido', 'Zona de equilíbrio'].includes(val) ? 'warning' 
-                    : '';
-  return `<span class="metric-value ${statusClass}">${val}</span>`;
-}
-
-// Atualizar dashboard
-function atualizarDashboard() {
-  // Cotações
-  document.getElementById('c-indice').innerHTML = fmtPct(dados.cotacoes.indice);
-  document.getElementById('c-dolar').innerHTML = fmtPct(dados.cotacoes.dolar);
-  document.getElementById('c-bancos').innerHTML = fmtPct(dados.cotacoes.bancos);
-  document.getElementById('c-acoes').innerHTML = fmtPct(dados.cotacoes.acoes);
-
-  // Informações
-  document.getElementById('i-direcao').innerHTML = fmtStatus(dados.info_indice.direcao);
-  document.getElementById('i-exaustao').innerHTML = fmtStatus(dados.info_indice.exaustao);
-  document.getElementById('i-correcao').innerHTML = fmtStatus(dados.info_indice.correcao);
-  document.getElementById('i-tp').innerHTML = fmtStatus(dados.info_indice.tendencia_primaria);
-  document.getElementById('i-ts').innerHTML = fmtStatus(dados.info_indice.tendencia_secundaria);
-
-  // Mercado
-  document.getElementById('m-saldo').innerHTML = fmtStatus(dados.mercado.saldo_total);
-  document.getElementById('m-volume').innerHTML = fmtStatus(dados.mercado.volume);
-
-  // Saldos
-  setSaldoBar('bar-sd-inst', 'sd-inst-val', dados.saldo_diario.inst, dados.saldo_diario);
-  setSaldoBar('bar-sd-pf', 'sd-pf-val', dados.saldo_diario.pf, dados.saldo_diario);
-  setSaldoBar('bar-s5-inst', 's5-inst-val', dados.saldo_5min.inst, dados.saldo_5min);
-  setSaldoBar('bar-s5-pf', 's5-pf-val', dados.saldo_5min.pf, dados.saldo_5min);
-  setSaldoBar('bar-dol-inst', 'dol-inst-val', dados.saldo_dolar.inst, dados.saldo_dolar);
-  setSaldoBar('bar-dol-pf', 'dol-pf-val', dados.saldo_dolar.pf, dados.saldo_dolar);
-
-  // Tops
-  renderTop('tv-diario', dados.top_vendidos, 'negative');
-  renderTop('tc-diario', dados.top_comprados, 'positive');
-  renderTop('tv-5min', dados.top_vendidos_5min, 'negative');
-  renderTop('tc-5min', dados.top_comprados_5min, 'positive');
-
-  // Petr & Vale
-  renderPertrVale();
-
-  // Top 10
+function atualizarDashboard(){
+  if(!dados.cotacoes)return;
+  document.getElementById('c-indice').innerHTML=fmtPct(dados.cotacoes.indice);
+  document.getElementById('c-dolar').innerHTML=fmtPct(dados.cotacoes.dolar);
+  document.getElementById('c-bancos').innerHTML=fmtPct(dados.cotacoes.bancos);
+  document.getElementById('c-acoes').innerHTML=fmtPct(dados.cotacoes.acoes);
+  if(dados.info_indice){
+    document.getElementById('i-direcao').innerHTML=fmtStatus(dados.info_indice.direcao);
+    document.getElementById('i-exaustao').innerHTML=fmtStatus(dados.info_indice.exaustao);
+    document.getElementById('i-correcao').innerHTML=fmtStatus(dados.info_indice.correcao);
+    document.getElementById('i-tp').innerHTML=fmtStatus(dados.info_indice.tendencia_primaria);
+    document.getElementById('i-ts').innerHTML=fmtStatus(dados.info_indice.tendencia_secundaria);
+  }
+  if(dados.mercado){
+    document.getElementById('m-saldo').innerHTML=fmtStatus(dados.mercado.saldo_total);
+    document.getElementById('m-volume').innerHTML=fmtStatus(dados.mercado.volume);
+  }
+  if(dados.saldo_diario){setSaldoBar('bar-sd-inst','sd-inst-val',dados.saldo_diario.inst,dados.saldo_diario);setSaldoBar('bar-sd-pf','sd-pf-val',dados.saldo_diario.pf,dados.saldo_diario);}
+  if(dados.saldo_5min){setSaldoBar('bar-s5-inst','s5-inst-val',dados.saldo_5min.inst,dados.saldo_5min);setSaldoBar('bar-s5-pf','s5-pf-val',dados.saldo_5min.pf,dados.saldo_5min);}
+  if(dados.saldo_dolar){setSaldoBar('bar-dol-inst','dol-inst-val',dados.saldo_dolar.inst,dados.saldo_dolar);setSaldoBar('bar-dol-pf','dol-pf-val',dados.saldo_dolar.pf,dados.saldo_dolar);}
+  renderTop('tv-diario',dados.top_vendidos,'negative');
+  renderTop('tc-diario',dados.top_comprados,'positive');
+  renderTop('tv-5min',dados.top_vendidos_5min,'negative');
+  renderTop('tc-5min',dados.top_comprados_5min,'positive');
+  renderPetrVale();
   renderTop10();
-
-  // Setor Financeiro
-  renderSetorFinanceiro();
-
-  // IBOV
+  renderSetor();
   renderIBOV();
-
-  // Gauge
-  if (dados.termometro) desenharGauge(dados.termometro.pontos, dados.termometro.maximo);
+  if(dados.termometro)desenharGauge(dados.termometro.pontos,dados.termometro.maximo);
 }
 
-function setSaldoBar(barId, valId, value, totals) {
-  const bar = document.getElementById(barId);
-  const val = document.getElementById(valId);
-  if (!bar || !val) return;
-  
-  const total = Math.abs(totals.inst || 0) + Math.abs(totals.pf || 0);
-  const pct = total ? Math.abs(value) / total * 100 : 0;
-  const isPos = value >= 0;
-  
-  bar.style.width = Math.min(pct / 2, 50) + '%';
-  bar.style.left = isPos ? '50%' : (50 - Math.min(pct / 2, 50)) + '%';
-  bar.style.background = isPos ? 'var(--accent-green)' : 'var(--accent-red)';
-  
-  val.innerHTML = `<span class="${isPos ? 'positive' : 'negative'}">${isPos ? '+' : ''}${pct.toFixed(1)}%</span>`;
+function setSaldoBar(barId,valId,value,totals){
+  const bar=document.getElementById(barId);
+  const val=document.getElementById(valId);
+  if(!bar||!val)return;
+  const total=Math.abs(totals.inst||0)+Math.abs(totals.pf||0);
+  const pct=total?Math.abs(value)/total*100:0;
+  const isPos=value>=0;
+  bar.style.width=Math.min(pct/2,50)+'%';
+  bar.style.left=isPos?'50%':(50-Math.min(pct/2,50))+'%';
+  bar.style.background=isPos?'var(--accent-green)':'var(--accent-red)';
+  val.innerHTML=`<span class="${isPos?'positive':'negative'}">${isPos?'+':''}${pct.toFixed(1)}%</span>`;
 }
 
-function renderTop(id, items, cls) {
-  const tb = document.getElementById(id);
-  if (!tb || !items) return;
-  tb.innerHTML = items.map(i => `<tr><td>${i.nome}</td><td class="${cls}">${i.valor > 0 ? '+' : ''}${parseInt(i.valor).toLocaleString('pt-BR')}</td></tr>`).join('');
+function renderTop(id,items,cls){
+  const tb=document.getElementById(id);
+  if(!tb||!items)return;
+  tb.innerHTML=items.map(i=>`<tr><td>${i.nome}</td><td class="${cls}">${i.valor>0?'+':''}${parseInt(i.valor).toLocaleString('pt-BR')}</td></tr>`).join('');
 }
 
-function renderPertrVale() {
-  const container = document.getElementById('petr-vale');
-  if (!container || !dados.petr_vale) return;
-  // Mostrar apenas PETR4 e VALE3
-  const filtro = ['PETR4','VALE3'];
-  const entries = Object.entries(dados.petr_vale).filter(([t]) => filtro.includes(t));
-  container.innerHTML = entries.map(([t, v]) => {
-    const cls = v >= 0 ? 'positive' : 'negative';
-    return `<div class="petr-vale-item"><div class="petr-vale-ticker">${t}</div><div class="petr-vale-value ${cls}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</div></div>`;
+function renderPetrVale(){
+  const c=document.getElementById('petr-vale');
+  if(!c||!dados.petr_vale)return;
+  const filtro=['PETR4','VALE3'];
+  c.innerHTML=Object.entries(dados.petr_vale).filter(([t])=>filtro.includes(t)).map(([t,v])=>{
+    const cls=v>=0?'positive':'negative';
+    return`<div class="petr-vale-item"><div class="petr-vale-ticker">${t}</div><div class="petr-vale-value ${cls}">${v>=0?'+':''}${v.toFixed(2)}%</div></div>`;
   }).join('');
 }
 
-function renderTop10() {
-  const container = document.getElementById('top10-container');
-  if (!container || !dados.top10_acoes) return;
-  const mx = Math.max(...dados.top10_acoes.map(x => Math.abs(x.var)), 0.01);
-  container.innerHTML = dados.top10_acoes.map(x => {
-    const isPos = x.var >= 0;
-    const pct = Math.min(Math.abs(x.var) / mx * 100, 100);
-    const cor = isPos ? 'var(--accent-green)' : 'var(--accent-red)';
-    return `<div class="bar-item"><span class="bar-item-label">${x.ticker}</span><div class="bar-item-track"><div class="bar-item-fill" style="width:${pct}%;background:${cor}"></div></div><span class="bar-item-value ${isPos ? 'positive' : 'negative'}">${isPos ? '+' : ''}${x.var.toFixed(2)}%</span></div>`;
+function renderTop10(){
+  const c=document.getElementById('top10-container');
+  if(!c||!dados.top10_acoes)return;
+  const mx=Math.max(...dados.top10_acoes.map(x=>Math.abs(x.var)),0.01);
+  c.innerHTML=dados.top10_acoes.map(x=>{
+    const isPos=x.var>=0,pct=Math.min(Math.abs(x.var)/mx*100,100),cor=isPos?'var(--accent-green)':'var(--accent-red)';
+    return`<div class="bar-item"><span class="bar-item-label">${x.ticker}</span><div class="bar-item-track"><div class="bar-item-fill" style="width:${pct}%;background:${cor}"></div></div><span class="bar-item-value ${isPos?'positive':'negative'}">${isPos?'+':''}${x.var.toFixed(2)}%</span></div>`;
   }).join('');
 }
 
-function renderSetorFinanceiro() {
-  const container = document.getElementById('setor-fin');
-  if (!container || !dados.setor_financeiro) return;
-  const vals = Object.values(dados.setor_financeiro).filter(v => v !== null);
-  const mx = Math.max(...vals.map(Math.abs), 0.001);
-  container.innerHTML = Object.entries(dados.setor_financeiro).map(([t, val]) => {
-    if (val === null) return '';
-    const isPos = val >= 0;
-    const pct = Math.min(Math.abs(val) / mx * 100, 100);
-    const cor = isPos ? 'var(--accent-green)' : 'var(--accent-red)';
-    return `<div class="bar-item"><span class="bar-item-label">${t}</span><div class="bar-item-track"><div class="bar-item-fill" style="width:${pct}%;background:${cor}"></div></div><span class="bar-item-value ${isPos ? 'positive' : 'negative'}">${isPos ? '+' : ''}${(val * 100).toFixed(2)}%</span></div>`;
+function renderSetor(){
+  const c=document.getElementById('setor-fin');
+  if(!c||!dados.setor_financeiro)return;
+  const vals=Object.values(dados.setor_financeiro).filter(v=>v!==null);
+  const mx=Math.max(...vals.map(Math.abs),0.001);
+  c.innerHTML=Object.entries(dados.setor_financeiro).map(([t,val])=>{
+    if(val===null)return'';
+    const isPos=val>=0,pct=Math.min(Math.abs(val)/mx*100,100),cor=isPos?'var(--accent-green)':'var(--accent-red)';
+    return`<div class="bar-item"><span class="bar-item-label">${t}</span><div class="bar-item-track"><div class="bar-item-fill" style="width:${pct}%;background:${cor}"></div></div><span class="bar-item-value ${isPos?'positive':'negative'}">${isPos?'+':''}${(val*100).toFixed(2)}%</span></div>`;
   }).join('');
 }
 
-function renderIBOV() {
-  const container = document.getElementById('ibov-chart');
-  if (!container || !dados.acoes_ibov) return;
-  // Ordenar do maior para o menor
-  const sorted = [...dados.acoes_ibov].sort((a,b) => b.var - a.var);
-  const mx = Math.max(...sorted.map(x => Math.abs(x.var)), 0.01);
-  const H = 50;
-  container.innerHTML = sorted.map(x => {
-    const isPos = x.var >= 0;
-    const cor = isPos ? 'var(--accent-green)' : 'var(--accent-red)';
-    const h = Math.max(Math.min(Math.abs(x.var) / mx * H, H), 3);
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="font-size:9px;font-weight:700;color:${cor}">${isPos ? '+' : ''}${x.var.toFixed(2)}%</div><div style="width:24px;height:${h}px;background:${cor};border-radius:2px;"></div><div style="font-size:9px;color:var(--text-secondary);">${x.ticker}</div></div>`;
+function renderIBOV(){
+  const container=document.getElementById('ibov-chart');
+  if(!container||!dados.acoes_ibov)return;
+  const sorted=[...dados.acoes_ibov].sort((a,b)=>b.var-a.var);
+  const mx=Math.max(...sorted.map(x=>Math.abs(x.var)),0.01);
+  const H=40;
+  container.innerHTML=sorted.map(x=>{
+    const isPos=x.var>=0,cor=isPos?'var(--accent-green)':'var(--accent-red)';
+    const h=Math.max(Math.min(Math.abs(x.var)/mx*H,H),2);
+    return`<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;">
+      <div style="font-size:5px;font-weight:700;color:${cor};width:100%;text-align:center;white-space:nowrap;overflow:hidden;">${isPos?'+':''}${x.var.toFixed(1)}%</div>
+      <div style="width:100%;max-width:14px;height:${h}px;background:${cor};border-radius:1px;"></div>
+      <div style="font-size:6px;color:var(--text-secondary);writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;margin-top:1px;line-height:1;">${x.ticker}</div>
+    </div>`;
   }).join('');
 }
 
-function desenharGauge(value, max) {
-  value = value || 0; max = max || 22;
-  const c = document.getElementById('gauge');
-  if (!c) return;
-  // Dimensões fixas grandes — não depende do container
-  const W = 220, H = 120;
-  c.width = W; c.height = H;
-  c.style.width = W + 'px';
-  c.style.height = H + 'px';
-  const ctx = c.getContext('2d');
-  const cx = W/2, cy = H * 0.92, r = H * 0.78;
-  ctx.clearRect(0, 0, W, H);
-  // Track
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, Math.PI, 2*Math.PI);
-  ctx.lineWidth = r * 0.20; ctx.strokeStyle = '#21262D'; ctx.stroke();
-  // Segments: 40% vermelho | 20% amarelo | 40% verde
+function desenharGauge(value,max){
+  value=value||0;max=max||22;
+  const c=document.getElementById('gauge');
+  if(!c)return;
+  const W=200,H=110;
+  c.width=W;c.height=H;
+  c.style.width=W+'px';c.style.height=H+'px';
+  const ctx=c.getContext('2d');
+  const cx=W/2,cy=H*0.92,r=H*0.78;
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
+  ctx.lineWidth=r*0.20;ctx.strokeStyle='#21262D';ctx.stroke();
   [{c:'#F85149',f:Math.PI,t:Math.PI*1.4},
    {c:'#F4A020',f:Math.PI*1.4,t:Math.PI*1.6},
    {c:'#39D353',f:Math.PI*1.6,t:Math.PI*2}
-  ].forEach(s => {
-    ctx.beginPath(); ctx.arc(cx,cy,r,s.f,s.t);
-    ctx.lineWidth = r*0.20; ctx.strokeStyle = s.c; ctx.stroke();
+  ].forEach(s=>{
+    ctx.beginPath();ctx.arc(cx,cy,r,s.f,s.t);
+    ctx.lineWidth=r*0.20;ctx.strokeStyle=s.c;ctx.stroke();
   });
-  // Ponteiro com valor real
-  const ratio = Math.min(Math.max(value/max, 0), 1);
-  const angle = Math.PI + ratio * Math.PI;
-  ctx.beginPath(); ctx.moveTo(cx,cy);
-  ctx.lineTo(cx + Math.cos(angle)*r*0.72, cy + Math.sin(angle)*r*0.72);
-  ctx.lineWidth = 3; ctx.strokeStyle = '#E0E6F0'; ctx.lineCap = 'round'; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx,cy,6,0,2*Math.PI);
-  ctx.fillStyle = '#E0E6F0'; ctx.fill();
+  const angle=Math.PI+Math.min(Math.max(value/max,0),1)*Math.PI;
+  ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+Math.cos(angle)*r*0.72,cy+Math.sin(angle)*r*0.72);
+  ctx.lineWidth=3;ctx.strokeStyle='#E0E6F0';ctx.lineCap='round';ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,5,0,2*Math.PI);
+  ctx.fillStyle='#E0E6F0';ctx.fill();
 }
 
-// Atualizar hora
-setInterval(() => {
-  document.getElementById('time-display').textContent = new Date().toLocaleTimeString('pt-BR', { hour12: false });
-}, 1000);
-
-// Inicializar
-if (token) { mostrarDashboard(); } else { document.getElementById("login-screen").style.display = "flex"; }
+setInterval(()=>{document.getElementById('time-display').textContent=new Date().toLocaleTimeString('pt-BR',{hour12:false});},1000);
+if(token){mostrarDashboard();}else{document.getElementById('login-screen').style.display='flex';}
 </script>
-
 </body>
 </html>
