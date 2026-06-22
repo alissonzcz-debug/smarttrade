@@ -251,10 +251,42 @@ body{
   .bottom-panel{grid-column:4/11;}
 }
 
+
+/* LOGIN */
+#login-screen{display:none;align-items:center;justify-content:center;height:100vh;background:var(--bg-primary);position:fixed;top:0;left:0;width:100%;z-index:9999;}
+.login-box{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:40px 36px;width:360px;}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo h1{font-size:24px;font-weight:800;color:var(--text-primary);}
+.login-logo p{font-size:12px;color:var(--text-secondary);margin-top:4px;}
+.login-box label{display:block;font-size:10px;color:var(--text-secondary);margin-bottom:4px;margin-top:14px;text-transform:uppercase;letter-spacing:.08em;}
+.login-box input{width:100%;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;padding:9px 12px;color:var(--text-primary);font-size:14px;outline:none;}
+.login-box input:focus{border-color:var(--accent-blue);}
+.btn-login{width:100%;margin-top:20px;padding:11px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-login:hover{background:#2479db;}
+.login-error{color:var(--accent-red);font-size:11px;margin-top:10px;text-align:center;min-height:16px;}
+.btn-logout{background:none;border:1px solid var(--border-color);color:var(--text-secondary);border-radius:4px;padding:3px 10px;cursor:pointer;font-size:11px;margin-left:10px;}
+.btn-logout:hover{border-color:var(--accent-red);color:var(--accent-red);}
+#dashboard{display:none;flex-direction:column;height:100vh;}
+
 </style>
 </head>
 <body>
 
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>🚀 SMART TRADE</h1>
+      <p>Decisões mais precisas para seu trade</p>
+    </div>
+    <label>Email</label>
+    <input type="email" id="inp-email" placeholder="seu@email.com"/>
+    <label>Senha</label>
+    <input type="password" id="inp-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()"/>
+    <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+<div id="dashboard">
 <div class="container">
   <!-- HEADER -->
   <div class="header">
@@ -265,7 +297,7 @@ body{
         <span class="live-text" id="status-text">Conectado</span>
       </div>
     </div>
-    <div class="time-display" id="time-display">--:--:--</div>
+    <div style="display:flex;align-items:center;gap:8px;"><div class="time-display" id="time-display">--:--:--</div><button class="btn-logout" onclick="logout()">Sair</button></div>
   </div>
 
   <!-- MAIN GRID -->
@@ -521,6 +553,7 @@ function logout() {
 function mostrarDashboard() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'flex';
+  document.querySelector('.container').style.display = 'flex';
   buscarDados(); pollTimer = setInterval(buscarDados, 2000);
 }
 
