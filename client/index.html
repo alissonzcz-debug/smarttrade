@@ -26,6 +26,7 @@
 }
 
 html,body{height:100%;width:100%;overflow:hidden;}
+.container{zoom:0.8;}
 body{
   background:var(--bg-primary);
   color:var(--text-primary);
@@ -492,61 +493,55 @@ body{
 </div>
 
 <script>
-// Dados estáticos do Excel (você pode conectar a uma API depois)
-const dados = {
-  cotacoes: {
-    indice: -0.0021,
-    dolar: -0.0019,
-    bancos: -0.0027,
-    acoes: 0.003273
-  },
-  info_indice: {
-    direcao: "Sem Tendência",
-    exaustao: "Sobrevendido",
-    correcao: "Ponto de Pullback",
-    tendencia_primaria: "Alta",
-    tendencia_secundaria: "Alta"
-  },
-  mercado: {
-    saldo_total: "Baixo",
-    volume: "Baixo"
-  },
-  saldo_diario: { inst: 5000, pf: -2000 },
-  saldo_5min: { inst: 1200, pf: -800 },
-  saldo_dolar: { inst: 15000, pf: -8000 },
-  top_vendidos: [
-    { nome: "003-XP", valor: -7768 },
-    { nome: "013-Merrill", valor: -5605 },
-    { nome: "008-UBS", valor: -3971 },
-    { nome: "088-CM Capital", valor: -2580 }
-  ],
-  top_comprados: [
-    { nome: "1618-Ideal", valor: 8800 },
-    { nome: "120-Genial", valor: 6796 },
-    { nome: "008-UBS", valor: 5695 },
-    { nome: "092-Warren Rena", valor: 4235 }
-  ],
-  petr_vale: { PETR3: 2.45, PETR4: 1.89, VALE3: 3.12 },
-  top10_acoes: [
-    { ticker: "PETR3", var: 2.45 },
-    { ticker: "PETR4", var: 1.89 },
-    { ticker: "VALE3", var: 3.12 },
-    { ticker: "ITUB4", var: -0.56 },
-    { ticker: "BBAS3", var: 1.23 }
-  ],
-  setor_financeiro: {
-    "BBAS3": 0.0145,
-    "BBDC3": 0.0089,
-    "ITUB4": -0.0056,
-    "SANB11": 0.0234
-  },
-  acoes_ibov: [
-    { ticker: "PETR3", var: 2.45 },
-    { ticker: "PETR4", var: 1.89 },
-    { ticker: "VALE3", var: 3.12 },
-    { ticker: "ITUB4", var: -0.56 }
-  ]
-};
+const SERVER = window.location.origin;
+let token = localStorage.getItem('st_token');
+let dados = {};
+let pollTimer = null;
+
+async function fazerLogin() {
+  const email = document.getElementById('inp-email').value.trim();
+  const senha = document.getElementById('inp-senha').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!email || !senha) { errEl.textContent = 'Preencha email e senha.'; return; }
+  try {
+    const r = await fetch(SERVER+'/api/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,senha})});
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.detail || 'Erro ao fazer login.'; return; }
+    token = d.token; localStorage.setItem('st_token', token); mostrarDashboard();
+  } catch(e) { errEl.textContent = 'Erro de conexão.'; }
+}
+
+function logout() {
+  token = null; localStorage.removeItem('st_token'); clearInterval(pollTimer);
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function mostrarDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'flex';
+  buscarDados(); pollTimer = setInterval(buscarDados, 2000);
+}
+
+async function buscarDados() {
+  try {
+    const r = await fetch(SERVER+'/api/poll?token='+token);
+    if (r.status === 401) { logout(); return; }
+    const d = await r.json();
+    if (d.dados && Object.keys(d.dados).length > 0) {
+      dados = d.dados;
+      setStatus(true); atualizarDashboard();
+    } else setStatus(false);
+  } catch(e) { setStatus(false); }
+}
+
+function setStatus(on) {
+  const dot = document.getElementById('live-dot');
+  const txt = document.getElementById('status-text');
+  if (dot) { dot.className = 'live-dot' + (on ? '' : ' off'); }
+  if (txt) { txt.textContent = on ? 'AO VIVO' : 'SEM DADOS'; txt.style.color = on ? 'var(--accent-green)' : 'var(--accent-red)'; }
+}
 
 // Funções de formatação
 function fmtPct(val) {
@@ -602,8 +597,8 @@ function atualizarDashboard() {
   // Tops
   renderTop('tv-diario', dados.top_vendidos, 'negative');
   renderTop('tc-diario', dados.top_comprados, 'positive');
-  renderTop('tv-5min', dados.top_vendidos, 'negative');
-  renderTop('tc-5min', dados.top_comprados, 'positive');
+  renderTop('tv-5min', dados.top_vendidos_5min, 'negative');
+  renderTop('tc-5min', dados.top_comprados_5min, 'positive');
 
   // Petr & Vale
   renderPertrVale();
@@ -618,7 +613,7 @@ function atualizarDashboard() {
   renderIBOV();
 
   // Gauge
-  desenharGauge();
+  if (dados.termometro) desenharGauge(dados.termometro.pontos, dados.termometro.maximo);
 }
 
 function setSaldoBar(barId, valId, value, totals) {
@@ -691,51 +686,37 @@ function renderIBOV() {
   }).join('');
 }
 
-function desenharGauge() {
+function desenharGauge(value, max) {
+  value = value || 0; max = max || 22;
   const c = document.getElementById('gauge');
   if (!c) return;
+  const wrap = c.parentElement;
+  const W = Math.min(wrap.clientWidth - 10 || 200, 280);
+  const H = Math.round(W * 0.55);
+  c.width = W; c.height = H;
   const ctx = c.getContext('2d');
-  const cx = 70, cy = 70, r = 55;
-  
-  ctx.clearRect(0, 0, 140, 80);
-  
-  // Background arc
+  const cx = W/2, cy = H * 0.92, r = H * 0.80;
+  ctx.clearRect(0, 0, W, H);
+  // Track
   ctx.beginPath();
-  ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
-  ctx.lineWidth = 10;
-  ctx.strokeStyle = 'var(--border-color)';
-  ctx.stroke();
-  
-  // Colored segments
-  const segments = [
-    { color: '#F85149', start: Math.PI, end: Math.PI * 1.4 },
-    { color: '#F4A020', start: Math.PI * 1.4, end: Math.PI * 1.6 },
-    { color: '#39D353', start: Math.PI * 1.6, end: Math.PI * 2 }
-  ];
-  
-  segments.forEach(s => {
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, s.start, s.end);
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = s.color;
-    ctx.stroke();
+  ctx.arc(cx, cy, r, Math.PI, 2*Math.PI);
+  ctx.lineWidth = r * 0.22; ctx.strokeStyle = '#21262D'; ctx.stroke();
+  // Segments 40% red | 20% yellow | 40% green
+  [{c:'#F85149',f:Math.PI,t:Math.PI*1.4},
+   {c:'#F4A020',f:Math.PI*1.4,t:Math.PI*1.6},
+   {c:'#39D353',f:Math.PI*1.6,t:Math.PI*2}
+  ].forEach(s => {
+    ctx.beginPath(); ctx.arc(cx,cy,r,s.f,s.t);
+    ctx.lineWidth = r*0.22; ctx.strokeStyle = s.c; ctx.stroke();
   });
-  
-  // Needle
-  const angle = Math.PI + 0.5 * Math.PI;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + Math.cos(angle) * 40, cy + Math.sin(angle) * 40);
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = 'var(--text-primary)';
-  ctx.lineCap = 'round';
-  ctx.stroke();
-  
-  // Center circle
-  ctx.beginPath();
-  ctx.arc(cx, cy, 4, 0, 2 * Math.PI);
-  ctx.fillStyle = 'var(--text-primary)';
-  ctx.fill();
+  // Needle using real value
+  const ratio = Math.min(Math.max(value/max, 0), 1);
+  const angle = Math.PI + ratio * Math.PI;
+  ctx.beginPath(); ctx.moveTo(cx,cy);
+  ctx.lineTo(cx + Math.cos(angle)*r*0.72, cy + Math.sin(angle)*r*0.72);
+  ctx.lineWidth = r*0.04; ctx.strokeStyle = '#E0E6F0'; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,r*0.07,0,2*Math.PI);
+  ctx.fillStyle = '#E0E6F0'; ctx.fill();
 }
 
 // Atualizar hora
@@ -744,8 +725,7 @@ setInterval(() => {
 }, 1000);
 
 // Inicializar
-atualizarDashboard();
-setInterval(atualizarDashboard, 3000);
+if (token) { mostrarDashboard(); } else { document.getElementById("login-screen").style.display = "flex"; }
 </script>
 
 </body>
