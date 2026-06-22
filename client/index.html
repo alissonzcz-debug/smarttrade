@@ -26,7 +26,7 @@
 }
 
 html,body{height:100%;width:100%;overflow:hidden;}
-.container{zoom:0.8;}
+
 body{
   background:var(--bg-primary);
   color:var(--text-primary);
@@ -42,7 +42,7 @@ body{
 .header{
   background:var(--bg-secondary);
   border-bottom:1px solid var(--border-color);
-  padding:12px 16px;
+  padding:8px 16px;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -71,8 +71,8 @@ body{
   flex:1;
   display:grid;
   grid-template-columns:repeat(12,1fr);
-  gap:12px;
-  padding:12px;
+  gap:8px;
+  padding:8px;
   overflow:hidden;
 }
 
@@ -81,7 +81,7 @@ body{
   background:var(--bg-secondary);
   border:1px solid var(--border-color);
   border-radius:var(--radius-md);
-  padding:14px;
+  padding:10px;
   display:flex;
   flex-direction:column;
   box-shadow:var(--shadow-sm);
@@ -105,21 +105,21 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:6px 0;
+  padding:4px 0;
   border-bottom:1px solid var(--border-color);
 }
 .metric-row:last-child{border-bottom:none;}
 .metric-label{font-size:11px;color:var(--text-secondary);}
-.metric-value{font-size:12px;font-weight:700;color:var(--text-primary);}
+.metric-value{font-size:13px;font-weight:700;color:var(--text-primary);}
 .metric-value.positive{color:var(--accent-green);}
 .metric-value.negative{color:var(--accent-red);}
 .metric-value.warning{color:var(--accent-yellow);}
 
 /* LAYOUT SECTIONS */
-.left-panel{grid-column:1/4;grid-row:1/3;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
-.center-panel{grid-column:4/9;grid-row:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
-.right-panel{grid-column:9/13;grid-row:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
-.bottom-panel{grid-column:4/13;grid-row:2;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+.left-panel{grid-column:1/3;grid-row:1/3;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+.center-panel{grid-column:3/8;grid-row:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+.right-panel{grid-column:8/13;grid-row:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+.bottom-panel{grid-column:3/13;grid-row:2;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
 
 /* BALANCE BARS */
 .balance-bar{margin:8px 0;}
@@ -210,7 +210,7 @@ body{
   display:flex;
   align-items:center;
   gap:8px;
-  padding:6px 0;
+  padding:4px 0;
   border-bottom:1px solid var(--border-color);
 }
 .bar-item:last-child{border-bottom:none;}
@@ -674,7 +674,10 @@ function renderTop(id, items, cls) {
 function renderPertrVale() {
   const container = document.getElementById('petr-vale');
   if (!container || !dados.petr_vale) return;
-  container.innerHTML = Object.entries(dados.petr_vale).map(([t, v]) => {
+  // Mostrar apenas PETR4 e VALE3
+  const filtro = ['PETR4','VALE3'];
+  const entries = Object.entries(dados.petr_vale).filter(([t]) => filtro.includes(t));
+  container.innerHTML = entries.map(([t, v]) => {
     const cls = v >= 0 ? 'positive' : 'negative';
     return `<div class="petr-vale-item"><div class="petr-vale-ticker">${t}</div><div class="petr-vale-value ${cls}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</div></div>`;
   }).join('');
@@ -709,9 +712,11 @@ function renderSetorFinanceiro() {
 function renderIBOV() {
   const container = document.getElementById('ibov-chart');
   if (!container || !dados.acoes_ibov) return;
-  const mx = Math.max(...dados.acoes_ibov.map(x => Math.abs(x.var)), 0.01);
+  // Ordenar do maior para o menor
+  const sorted = [...dados.acoes_ibov].sort((a,b) => b.var - a.var);
+  const mx = Math.max(...sorted.map(x => Math.abs(x.var)), 0.01);
   const H = 50;
-  container.innerHTML = dados.acoes_ibov.map(x => {
+  container.innerHTML = sorted.map(x => {
     const isPos = x.var >= 0;
     const cor = isPos ? 'var(--accent-green)' : 'var(--accent-red)';
     const h = Math.max(Math.min(Math.abs(x.var) / mx * H, H), 3);
@@ -723,32 +728,33 @@ function desenharGauge(value, max) {
   value = value || 0; max = max || 22;
   const c = document.getElementById('gauge');
   if (!c) return;
-  const wrap = c.parentElement;
-  const W = Math.min(wrap.clientWidth - 10 || 200, 280);
-  const H = Math.round(W * 0.55);
+  // Dimensões fixas grandes — não depende do container
+  const W = 220, H = 120;
   c.width = W; c.height = H;
+  c.style.width = W + 'px';
+  c.style.height = H + 'px';
   const ctx = c.getContext('2d');
-  const cx = W/2, cy = H * 0.92, r = H * 0.80;
+  const cx = W/2, cy = H * 0.92, r = H * 0.78;
   ctx.clearRect(0, 0, W, H);
   // Track
   ctx.beginPath();
   ctx.arc(cx, cy, r, Math.PI, 2*Math.PI);
-  ctx.lineWidth = r * 0.22; ctx.strokeStyle = '#21262D'; ctx.stroke();
-  // Segments 40% red | 20% yellow | 40% green
+  ctx.lineWidth = r * 0.20; ctx.strokeStyle = '#21262D'; ctx.stroke();
+  // Segments: 40% vermelho | 20% amarelo | 40% verde
   [{c:'#F85149',f:Math.PI,t:Math.PI*1.4},
    {c:'#F4A020',f:Math.PI*1.4,t:Math.PI*1.6},
    {c:'#39D353',f:Math.PI*1.6,t:Math.PI*2}
   ].forEach(s => {
     ctx.beginPath(); ctx.arc(cx,cy,r,s.f,s.t);
-    ctx.lineWidth = r*0.22; ctx.strokeStyle = s.c; ctx.stroke();
+    ctx.lineWidth = r*0.20; ctx.strokeStyle = s.c; ctx.stroke();
   });
-  // Needle using real value
+  // Ponteiro com valor real
   const ratio = Math.min(Math.max(value/max, 0), 1);
   const angle = Math.PI + ratio * Math.PI;
   ctx.beginPath(); ctx.moveTo(cx,cy);
   ctx.lineTo(cx + Math.cos(angle)*r*0.72, cy + Math.sin(angle)*r*0.72);
-  ctx.lineWidth = r*0.04; ctx.strokeStyle = '#E0E6F0'; ctx.lineCap = 'round'; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx,cy,r*0.07,0,2*Math.PI);
+  ctx.lineWidth = 3; ctx.strokeStyle = '#E0E6F0'; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,6,0,2*Math.PI);
   ctx.fillStyle = '#E0E6F0'; ctx.fill();
 }
 
