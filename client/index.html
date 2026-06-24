@@ -174,6 +174,18 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
         </div>
       </div>
 
+      <!-- GRÁFICO EVOLUÇÃO INST x PF -->
+      <div class="card" style="flex-shrink:0;">
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>📉 Evolução Diária — INST x PF</span>
+          <span style="display:flex;gap:10px;font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;">
+            <span style="color:#39D353;">● INST</span>
+            <span style="color:#F4A020;">● PF</span>
+          </span>
+        </div>
+        <canvas id="evolucao-chart" style="width:100%;height:72px;display:block;"></canvas>
+      </div>
+
       <div class="top-list">
         <div class="card">
           <div class="card-title" style="color:var(--accent-red);">📉 Top Vendidos</div>
@@ -247,6 +259,91 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
 
 <script>
 const SERVER = window.location.origin;
+
+/* ── HISTÓRICO EVOLUÇÃO DIÁRIA ─────────────────────────────────────────── */
+const historicoEvolucao = { inst: [], pf: [], labels: [] };
+const MAX_PONTOS = 900; // ~45min a 3s por ponto; acumula o dia todo
+
+function registrarPonto(inst, pf){
+  if(inst === null || inst === undefined || pf === null || pf === undefined) return;
+  const agora = new Date().toLocaleTimeString('pt-BR',{hour12:false,hour:'2-digit',minute:'2-digit'});
+  historicoEvolucao.inst.push(Number(inst));
+  historicoEvolucao.pf.push(Number(pf));
+  historicoEvolucao.labels.push(agora);
+  if(historicoEvolucao.inst.length > MAX_PONTOS){
+    historicoEvolucao.inst.shift();
+    historicoEvolucao.pf.shift();
+    historicoEvolucao.labels.shift();
+  }
+}
+
+function desenharEvolucao(){
+  const canvas = document.getElementById('evolucao-chart');
+  if(!canvas) return;
+  const W = canvas.offsetWidth || canvas.clientWidth || 300;
+  const H = 72;
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+
+  const instArr = historicoEvolucao.inst;
+  const pfArr   = historicoEvolucao.pf;
+  const n = instArr.length;
+  if(n < 2){ 
+    ctx.fillStyle='#8B949E'; ctx.font='10px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('Aguardando dados...', W/2, H/2); 
+    return; 
+  }
+
+  const todos = [...instArr, ...pfArr];
+  const mn = Math.min(...todos), mx = Math.max(...todos);
+  const rng = mx - mn || 1;
+  const PAD_T=6, PAD_B=6, PAD_L=2, PAD_R=2;
+  const cW = W - PAD_L - PAD_R, cH = H - PAD_T - PAD_B;
+
+  function yPos(v){ return PAD_T + cH - ((v - mn) / rng * cH); }
+  function xPos(i){ return PAD_L + (i / (n-1)) * cW; }
+
+  // Linha zero se visível
+  if(mn <= 0 && mx >= 0){
+    const y0 = yPos(0);
+    ctx.beginPath(); ctx.moveTo(PAD_L, y0); ctx.lineTo(PAD_L+cW, y0);
+    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1; ctx.setLineDash([3,4]); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Labels de hora no eixo X (início, meio, fim)
+  ctx.font='8px Segoe UI'; ctx.fillStyle='#8B949E'; ctx.textAlign='center';
+  const lblIdxs = [0, Math.floor(n/2), n-1];
+  lblIdxs.forEach(i=>{ ctx.fillText(historicoEvolucao.labels[i], xPos(i), H-1); });
+
+  // Função para desenhar linha com gradiente fill
+  function desenharLinha(arr, cor, fillAlpha){
+    ctx.beginPath();
+    arr.forEach((v,i)=>{ i===0 ? ctx.moveTo(xPos(i),yPos(v)) : ctx.lineTo(xPos(i),yPos(v)); });
+    ctx.strokeStyle = cor; ctx.lineWidth = 1.5; ctx.lineJoin='round'; ctx.stroke();
+
+    // Fill sob a linha
+    ctx.beginPath();
+    arr.forEach((v,i)=>{ i===0 ? ctx.moveTo(xPos(i),yPos(v)) : ctx.lineTo(xPos(i),yPos(v)); });
+    const y0vis = Math.min(Math.max(yPos(0), PAD_T), PAD_T+cH);
+    ctx.lineTo(xPos(n-1), y0vis); ctx.lineTo(xPos(0), y0vis); ctx.closePath();
+    const grad = ctx.createLinearGradient(0, PAD_T, 0, PAD_T+cH);
+    grad.addColorStop(0, cor.replace(')',`,${fillAlpha})`).replace('rgb','rgba'));
+    grad.addColorStop(1, cor.replace(')',',0)').replace('rgb','rgba'));
+    ctx.fillStyle = grad; ctx.fill();
+  }
+
+  desenharLinha(pfArr,   'rgb(244,160,32)', 0.15);
+  desenharLinha(instArr, 'rgb(57,211,83)',  0.18);
+
+  // Valor atual no final das linhas
+  ctx.font='bold 9px Segoe UI'; ctx.textAlign='left';
+  const lastX = xPos(n-1)+3;
+  ctx.fillStyle='#39D353'; ctx.fillText(parseInt(instArr[n-1]).toLocaleString('pt-BR'), lastX, yPos(instArr[n-1])+3);
+  ctx.fillStyle='#F4A020'; ctx.fillText(parseInt(pfArr[n-1]).toLocaleString('pt-BR'),   lastX, yPos(pfArr[n-1])+3);
+}
 
 async function buscarDados(){
   try{
@@ -362,6 +459,8 @@ function atualizarDashboard(d){
   if(d.saldo_diario){
     setSaldoBar('bar-sd-inst','sd-inst-val', d.saldo_diario.inst_pct, d.saldo_diario.inst);
     setSaldoBar('bar-sd-pf',  'sd-pf-val',   d.saldo_diario.pf_pct,   d.saldo_diario.pf);
+    registrarPonto(d.saldo_diario.inst, d.saldo_diario.pf);
+    desenharEvolucao();
   }
   /* Saldo 5 Min — idem */
   if(d.saldo_5min){
