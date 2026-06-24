@@ -131,9 +131,9 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
 
       <div class="card" style="flex-shrink:0;">
         <div class="card-title">ℹ️ Informações Índice</div>
-        <div class="metric-row"><span class="metric-label">Direção</span><span class="metric-value" id="i-direcao">--</span></div>
-        <div class="metric-row"><span class="metric-label">Exaustão</span><span class="metric-value" id="i-exaustao">--</span></div>
-        <div class="metric-row"><span class="metric-label">Correção</span><span class="metric-value" id="i-correcao">--</span></div>
+        <div class="metric-row"><span class="metric-label">Tendencia</span><span class="metric-value" id="i-direcao">--</span></div>
+        <div class="metric-row"><span class="metric-label">Zona de Exaustão</span><span class="metric-value" id="i-exaustao">--</span></div>
+        <div class="metric-row"><span class="metric-label">Ponto de Correção</span><span class="metric-value" id="i-correcao">--</span></div>
         <div class="metric-row"><span class="metric-label">Tend. Primária</span><span class="metric-value" id="i-tp">--</span></div>
         <div class="metric-row"><span class="metric-label">Tend. Secund.</span><span class="metric-value" id="i-ts">--</span></div>
       </div>
@@ -172,18 +172,6 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
           <div class="balance-row"><span class="balance-label">Varejo</span><span class="balance-value" id="sd-pf-val">--</span></div>
           <div class="bar-track"><div class="bar-center"></div><div class="bar-fill" id="bar-sd-pf"></div></div>
         </div>
-      </div>
-
-      <!-- GRÁFICO EVOLUÇÃO INST x Saldo Total -->
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>📈 Evolução Diária — INST x Saldo Total</span>
-          <span style="display:flex;gap:10px;font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;">
-            <span style="color:#39D353;">● INST</span>
-            <span style="color:#1F6FEB;">● Saldo Total</span>
-          </span>
-        </div>
-        <canvas id="evolucao-chart" style="width:100%;height:110px;display:block;"></canvas>
       </div>
 
       <div class="top-list">
@@ -259,23 +247,6 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
 
 <script>
 const SERVER = window.location.origin;
-
-/* ── HISTÓRICO EVOLUÇÃO DIÁRIA ─────────────────────────────────────────── */
-const historicoEvolucao = { inst: [], saldoTotal: [], labels: [] };
-const MAX_PONTOS = 900; // ~45min a 3s por ponto; acumula o dia todo
-
-function registrarPonto(inst, saldoTotal){
-  if(inst === null || inst === undefined || saldoTotal === null || saldoTotal === undefined) return;
-  const agora = new Date().toLocaleTimeString('pt-BR',{hour12:false,hour:'2-digit',minute:'2-digit'});
-  historicoEvolucao.inst.push(Number(inst));
-  historicoEvolucao.saldoTotal.push(Number(saldoTotal));
-  historicoEvolucao.labels.push(agora);
-  if(historicoEvolucao.inst.length > MAX_PONTOS){
-    historicoEvolucao.inst.shift();
-    historicoEvolucao.saldoTotal.shift();
-    historicoEvolucao.labels.shift();
-  }
-}
 
 function desenharEvolucao(){
   const canvas = document.getElementById('evolucao-chart');
@@ -429,7 +400,7 @@ function renderTop(id, items, cls){
 }
 
 function atualizarDashboard(d){
-  if(d.hora) document.getElementById('time-display').textContent = d.hora;
+  // hora controlada pelo setInterval local — não usa d.hora para evitar conflito
 
   if(d.cotacoes){
     document.getElementById('c-indice').innerHTML = fmtPct(d.cotacoes.indice);
@@ -466,8 +437,6 @@ function atualizarDashboard(d){
   if(d.saldo_diario){
     setSaldoBar('bar-sd-inst','sd-inst-val', d.saldo_diario.inst_pct, d.saldo_diario.inst);
     setSaldoBar('bar-sd-pf',  'sd-pf-val',   d.saldo_diario.pf_pct,   d.saldo_diario.pf);
-    registrarPonto(d.saldo_diario.inst, d.mercado ? d.mercado.saldo_total : null);
-    desenharEvolucao();
   }
   /* Saldo 5 Min — idem */
   if(d.saldo_5min){
@@ -498,14 +467,14 @@ function atualizarDashboard(d){
       return `<div class="bar-item">
         <span class="bar-item-label">${x.ticker}</span>
         <div class="bar-item-track"><div class="bar-item-fill" style="width:${pct}%;background:${cor}"></div></div>
-        <span class="bar-item-value ${isPos?'positive':'negative'}">${isPos?'+':''}${x.var.toFixed(2)}%</span>
+        <span class="bar-item-value ${isPos?'positive':'negative'}">${isPos?'+':''}${(x.var*100).toFixed(2)}%</span>
       </div>`;
     }).join('');
   }
 
   /* SETOR FINANCEIRO — valores em decimal (-0.0025 etc), converte para % */
   if(d.setor_financeiro){
-    const entries = Object.entries(d.setor_financeiro).filter(([,v])=>v!==null);
+    const entries = Object.entries(d.setor_financeiro).filter(([t,v])=>v!==null && t!=='BPAN4');
     const mx = Math.max(...entries.map(([,v])=>Math.abs(v)), 0.0001);
     document.getElementById('setor-fin').innerHTML = entries.map(([t,val])=>{
       const isPos=val>=0, pct=Math.min(Math.abs(val)/mx*100,100), cor=isPos?'var(--accent-green)':'var(--accent-red)';
@@ -561,7 +530,10 @@ function desenharGauge(value, max){
   ctx.beginPath(); ctx.arc(cx,cy,5,0,2*Math.PI); ctx.fillStyle='#E0E6F0'; ctx.fill();
 }
 
-setInterval(()=>{ document.getElementById('time-display').textContent = new Date().toLocaleTimeString('pt-BR',{hour12:false}); }, 1000);
+(function tickClock(){
+  document.getElementById('time-display').textContent = new Date().toLocaleTimeString('pt-BR',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  setTimeout(tickClock, 1000 - (Date.now() % 1000));
+})();
 setInterval(buscarDados, 2000);
 buscarDados();
 </script>
