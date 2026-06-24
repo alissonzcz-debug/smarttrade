@@ -45,6 +45,12 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
 .metric-label{font-size:10px;color:var(--text-secondary);}
 .metric-value{font-size:12px;font-weight:700;}
 .positive{color:var(--accent-green)}.negative{color:var(--accent-red)}.warning{color:var(--accent-yellow)}
+.f1-track{display:flex;gap:3px;align-items:center;}
+.f1-seg{height:7px;width:22px;border-radius:3px;transition:background .3s;}
+.f1-seg.off{background:var(--bg-tertiary);border:1px solid var(--border-color);}
+.f1-seg.on-r{background:var(--accent-red);box-shadow:0 0 5px rgba(248,81,73,.5);}
+.f1-seg.on-y{background:var(--accent-yellow);box-shadow:0 0 5px rgba(244,160,32,.5);}
+.f1-seg.on-g{background:var(--accent-green);box-shadow:0 0 5px rgba(57,211,83,.5);}
 
 /* BARRAS SALDO */
 .balance-bar{margin:4px 0;}
@@ -272,6 +278,18 @@ function fmtStatus(val){
   return `<span class="metric-value ${cls}">${val}</span>`;
 }
 
+function f1Track(val, map){
+  let nivel = null;
+  for(const m of map){ if(m.valores.includes(val)) nivel = m.nivel; }
+  const acesos = nivel==='r'?1 : nivel==='y'?2 : nivel==='g'?3 : 0;
+  const cores  = ['on-r','on-y','on-g'];
+  const segs = [0,1,2].map(i=>{
+    const cls = i < acesos ? cores[i] : 'off';
+    return `<div class="f1-seg ${cls}"></div>`;
+  }).join('');
+  return `<div class="f1-track">${segs}</div>`;
+}
+
 /* ── SALDO COM PORCENTAGEM ─────────────────────────────────────────────── */
 function setSaldoBar(barId, valId, pct, absVal){
   const bar = document.getElementById(barId);
@@ -316,9 +334,21 @@ function atualizarDashboard(d){
     document.getElementById('c-acoes').innerHTML  = fmtPct(d.cotacoes.acoes);
   }
   if(d.info_indice){
-    document.getElementById('i-direcao').innerHTML  = fmtStatus(d.info_indice.direcao);
-    document.getElementById('i-exaustao').innerHTML = fmtStatus(d.info_indice.exaustao);
-    document.getElementById('i-correcao').innerHTML = fmtStatus(d.info_indice.correcao);
+    document.getElementById('i-direcao').innerHTML  = f1Track(d.info_indice.direcao, [
+      {valores:['Sem Tendência','Sem tendência'], nivel:'r'},
+      {valores:['Tendência Moderada','Tendencia Moderada'], nivel:'y'},
+      {valores:['Tendência Forte','Tendencia Forte','Em Tendência'], nivel:'g'}
+    ]);
+    document.getElementById('i-exaustao').innerHTML = f1Track(d.info_indice.exaustao, [
+      {valores:['Sobrevendido','Sobrecomprado'], nivel:'r'},
+      {valores:['Zona de equilíbrio','Zona de equilibrio'], nivel:'y'},
+      {valores:['Ponto de PullBack','Ponto de Pullback','Continuidade'], nivel:'g'}
+    ]);
+    document.getElementById('i-correcao').innerHTML = f1Track(d.info_indice.correcao, [
+      {valores:['Baixa'], nivel:'r'},
+      {valores:['Continuidade','Neutro'], nivel:'y'},
+      {valores:['Alta'], nivel:'g'}
+    ]);
     document.getElementById('i-tp').innerHTML       = fmtStatus(d.info_indice.tendencia_primaria);
     document.getElementById('i-ts').innerHTML       = fmtStatus(d.info_indice.tendencia_secundaria);
   }
