@@ -48,9 +48,11 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
 .f1-track{display:flex;gap:3px;align-items:center;}
 .f1-seg{height:7px;width:22px;border-radius:3px;transition:background .3s;}
 .f1-seg.off{background:var(--bg-tertiary);border:1px solid var(--border-color);}
-.f1-seg.on-r{background:var(--accent-red);box-shadow:0 0 5px rgba(248,81,73,.5);}
-.f1-seg.on-y{background:var(--accent-yellow);box-shadow:0 0 5px rgba(244,160,32,.5);}
-.f1-seg.on-g{background:var(--accent-green);box-shadow:0 0 5px rgba(57,211,83,.5);}
+.f1-seg.on-r {background:#F85149;box-shadow:0 0 5px rgba(248,81,73,.5);}
+.f1-seg.on-o {background:#F97316;box-shadow:0 0 5px rgba(249,115,22,.5);}
+.f1-seg.on-y {background:#F4A020;box-shadow:0 0 5px rgba(244,160,32,.5);}
+.f1-seg.on-lg{background:#84CC16;box-shadow:0 0 5px rgba(132,204,22,.5);}
+.f1-seg.on-g {background:#39D353;box-shadow:0 0 5px rgba(57,211,83,.5);}
 
 /* BARRAS SALDO */
 .balance-bar{margin:4px 0;}
@@ -137,11 +139,12 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
         <div class="metric-row"><span class="metric-label">Saldo Corretoras</span><span class="metric-value" id="i-saldo-cor">--</span></div>
         <div class="metric-row"><span class="metric-label">Tend. Primária</span><span class="metric-value" id="i-tp">--</span></div>
         <div class="metric-row"><span class="metric-label">Tend. Secund.</span><span class="metric-value" id="i-ts">--</span></div>
+        <div class="metric-row"><span class="metric-label">Tend. Terciária</span><span class="metric-value" id="i-tt">--</span></div>
       </div>
 
       <div class="card" style="flex-shrink:0;">
         <div class="card-title">📈 Movimento do Mercado</div>
-        <div class="metric-row"><span class="metric-label">Saldo Total</span><span class="metric-value" id="m-saldo">--</span></div>
+        <div class="metric-row"><span class="metric-label">Preço Atual</span><span class="metric-value" id="m-preco">--</span></div>
         <div class="metric-row"><span class="metric-label">Dist. Máxima</span><span class="metric-value" id="m-dist-max">--</span></div>
         <div class="metric-row"><span class="metric-label">Dist. Mínima</span><span class="metric-value" id="m-dist-min">--</span></div>
       </div>
@@ -367,6 +370,18 @@ function f1Track(val, map){
   return `<div class="f1-track">${segs}</div>`;
 }
 
+function f1Track5(val, niveis){
+  // niveis = array de 5 strings do menor para o maior
+  // cores: 1=vermelho, 2=laranja, 3=amarelo, 4=verde claro, 5=verde
+  const cores5 = ['on-r','on-o','on-y','on-lg','on-g'];
+  const idx = niveis.indexOf(val); // -1 se não encontrado
+  const segs = [0,1,2,3,4].map(i=>{
+    const cls = (idx >= 0 && i <= idx) ? cores5[i] : 'off';
+    return `<div class="f1-seg ${cls}"></div>`;
+  }).join('');
+  return `<div class="f1-track" title="${val||'--'}">${segs}</div>`;
+}
+
 /* ── SALDO COM PORCENTAGEM ─────────────────────────────────────────────── */
 function setSaldoBar(barId, valId, pct, absVal){
   const bar = document.getElementById(barId);
@@ -411,43 +426,33 @@ function atualizarDashboard(d){
     document.getElementById('c-acoes').innerHTML  = fmtPct(d.cotacoes.acoes);
   }
   if(d.info_indice){
-    document.getElementById('i-direcao').innerHTML = f1Track(d.info_indice.direcao, [
-      {valores:['Sem Tendência','Sem tendência'], nivel:'r'},
-      {valores:['Tendência Moderada','Tendencia Moderada'], nivel:'y'},
-      {valores:['Tendência Forte','Tendencia Forte','Em Tendência'], nivel:'g'}
+    document.getElementById('i-direcao').innerHTML  = f1Track5(d.info_indice.direcao, [
+      'Sem Tendência','Começo de Tendência','Pegando Tendência','Em Tendência','Tendência Forte'
     ]);
-    document.getElementById('i-exaustao').innerHTML = f1Track(d.info_indice.exaustao, [
-      {valores:['Sobrevendido','Sobrecomprado'], nivel:'r'},
-      {valores:['Zona Neutra','Zona de equilíbrio','Zona de equilibrio'], nivel:'y'},
-      {valores:['Ponto de PullBack','Ponto de Pullback'], nivel:'g'}
+    document.getElementById('i-exaustao').innerHTML = f1Track5(d.info_indice.exaustao, [
+      'Sobrevendido','Quase Sobrevendido','Zona Neutra','Zona Favorável','Ponto de PullBack'
     ]);
     document.getElementById('i-tp').innerHTML = fmtStatus(d.info_indice.tendencia_primaria);
     document.getElementById('i-ts').innerHTML = fmtStatus(d.info_indice.tendencia_secundaria);
+    document.getElementById('i-tt').innerHTML = fmtStatus(d.info_indice.tendencia_terciaria);
   }
   if(d.mercado){
-    const st = d.mercado.saldo_total;
-    document.getElementById('m-saldo').innerHTML =
-      `<span class="${st>=0?'positive':'negative'}">${st>=0?'+':''}${parseInt(st).toLocaleString('pt-BR')}</span>`;
+    const preco = d.mercado.preco_atual;
+    document.getElementById('m-preco').innerHTML =
+      preco ? `<span class="metric-value">${parseInt(preco).toLocaleString('pt-BR')}</span>` : '--';
     const dmax = d.mercado.dist_max, dmin = d.mercado.dist_min;
     document.getElementById('m-dist-max').innerHTML =
-      `<span class="positive">+${parseInt(dmax).toLocaleString('pt-BR')}</span>`;
+      dmax ? `<span class="positive">+${parseInt(dmax).toLocaleString('pt-BR')}</span>` : '--';
     document.getElementById('m-dist-min').innerHTML =
-      `<span class="negative">${parseInt(dmin).toLocaleString('pt-BR')}</span>`;
-  }
-  if(d.info_indice){
-    // Volume — mapeamento 5 barras por texto
-    document.getElementById('i-volume').innerHTML = f1Track(d.mercado ? d.mercado.volume_texto : null, [
-      {valores:['Muito Baixo','Baixo'], nivel:'r'},
-      {valores:['Moderado','Médio','Normal'], nivel:'y'},
-      {valores:['Alto','Muito Alto','Elevado'], nivel:'g'}
+      dmin ? `<span class="negative">${parseInt(dmin).toLocaleString('pt-BR')}</span>` : '--';
+
+    // Volume — 5 barras
+    document.getElementById('i-volume').innerHTML = f1Track5(d.mercado.volume_texto, [
+      'Muito Baixo','Baixo','Moderado','Alto','Muito Alto'
     ]);
-    // Saldo corretoras — baseado no valor numérico
-    const sc = d.mercado ? d.mercado.saldo_total : 0;
-    const scNivel = sc > 500 ? 'g' : sc < -500 ? 'r' : 'y';
-    document.getElementById('i-saldo-cor').innerHTML = f1Track(scNivel === 'r' ? 'negativo' : scNivel === 'y' ? 'neutro' : 'positivo', [
-      {valores:['negativo'], nivel:'r'},
-      {valores:['neutro'],   nivel:'y'},
-      {valores:['positivo'], nivel:'g'}
+    // Saldo Corretoras — 5 barras
+    document.getElementById('i-saldo-cor').innerHTML = f1Track5(d.mercado.saldo_cor_texto, [
+      'Muito Baixo','Baixo','Moderado','Alto','Muito Alto'
     ]);
   }
   if(d.termometro) desenharGauge(d.termometro.pontos||0, d.termometro.maximo||24);
