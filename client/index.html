@@ -115,7 +115,13 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
         <span class="live-text" id="status-text">Conectando...</span>
       </div>
     </div>
-    <div class="time-display" id="time-display">--:--:--</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="display:flex;align-items:center;gap:5px;opacity:.7;">
+        <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="#39D353"/><circle cx="4" cy="4" r="3" fill="none" stroke="#39D353" stroke-width="1" opacity=".4"><animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".4;0;.4" dur="2s" repeatCount="indefinite"/></circle></svg>
+        <span id="online-count" style="font-size:10px;color:var(--text-secondary);">1</span>
+      </div>
+      <div class="time-display" id="time-display">--:--:--</div>
+    </div>
   </div>
 
   <div class="main">
@@ -133,6 +139,7 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
 
       <div class="card" style="flex-shrink:0;">
         <div class="card-title">ℹ️ Informações Índice</div>
+        <div class="metric-row"><span class="metric-label">Preço Atual</span><span class="metric-value" id="i-preco">--</span></div>
         <div class="metric-row"><span class="metric-label">Tendencia</span><span class="metric-value" id="i-direcao">--</span></div>
         <div class="metric-row"><span class="metric-label">Zona de Exaustão</span><span class="metric-value" id="i-exaustao">--</span></div>
         <div class="metric-row"><span class="metric-label">Volume</span><span class="metric-value" id="i-volume">--</span></div>
@@ -140,14 +147,8 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
         <div class="metric-row"><span class="metric-label">Tend. Primária</span><span class="metric-value" id="i-tp">--</span></div>
         <div class="metric-row"><span class="metric-label">Tend. Secund.</span><span class="metric-value" id="i-ts">--</span></div>
         <div class="metric-row"><span class="metric-label">Tend. Terciária</span><span class="metric-value" id="i-tt">--</span></div>
-        <div class="metric-row"><span class="metric-label">Preço WIN</span><span class="metric-value" id="i-preco">--</span></div>
-      </div>
-
-      <div class="card" style="flex-shrink:0;">
-        <div class="card-title">📈 Movimento do Mercado</div>
-        <div class="metric-row"><span class="metric-label">Preço Atual</span><span class="metric-value" id="m-preco">--</span></div>
-        <div class="metric-row"><span class="metric-label">Dist. Máxima</span><span class="metric-value" id="m-dist-max">--</span></div>
-        <div class="metric-row"><span class="metric-label">Dist. Mínima</span><span class="metric-value" id="m-dist-min">--</span></div>
+        <div class="metric-row"><span class="metric-label">Dist. Máxima</span><span class="metric-value" id="i-dist-max">--</span></div>
+        <div class="metric-row"><span class="metric-label">Dist. Mínima</span><span class="metric-value" id="i-dist-min">--</span></div>
       </div>
 
       <!-- TERMÔMETRO -->
@@ -396,12 +397,9 @@ function setSaldoBar(barId, valId, pct, absVal){
   bar.style.left   = isPos ? '50%' : (50 - halfPct) + '%';
   bar.style.background = isPos ? 'var(--accent-green)' : 'var(--accent-red)';
 
-  // Label: porcentagem + valor absoluto entre parênteses
+  // Label: só porcentagem
   const sign = isPos ? '+' : '';
-  const absStr = absVal !== null && absVal !== undefined
-    ? ` (${parseInt(absVal).toLocaleString('pt-BR')})`
-    : '';
-  val.innerHTML = `<span class="${isPos?'positive':'negative'}">${sign}${Math.abs(pct).toFixed(1)}%${absStr}</span>`;
+  val.innerHTML = `<span class="${isPos?'positive':'negative'}">${sign}${Math.abs(pct).toFixed(1)}%</span>`;
 }
 
 function renderTop(id, items, cls){
@@ -412,7 +410,7 @@ function renderTop(id, items, cls){
     return;
   }
   tb.innerHTML = items.map(i=>`<tr>
-    <td>${i.nome}</td>
+    <td>${i.nome.replace(/^\d+-/,"")}</td>
     <td class="${cls}">${i.valor>0?'+':''}${parseInt(i.valor).toLocaleString('pt-BR')}</td>
   </tr>`).join('');
 }
@@ -445,19 +443,14 @@ function atualizarDashboard(d){
   }
   if(d.mercado){
     const preco = d.mercado.preco_atual;
-    if(document.getElementById('m-preco'))
-      document.getElementById('m-preco').innerHTML =
-        preco ? `<span class="metric-value">${parseInt(preco).toLocaleString('pt-BR')}</span>` : '--';
-    if(document.getElementById('i-preco'))
-      document.getElementById('i-preco').innerHTML =
-        preco ? `<span class="metric-value">${parseInt(preco).toLocaleString('pt-BR')}</span>` : '--';
+    const el = document.getElementById('i-preco');
+    if(el) el.innerHTML = preco ? `<span class="metric-value">${parseInt(preco).toLocaleString('pt-BR')}</span>` : '--';
+
     const dmax = d.mercado.dist_max, dmin = d.mercado.dist_min;
-    if(document.getElementById('m-dist-max'))
-      document.getElementById('m-dist-max').innerHTML =
-        dmax != null ? `<span class="positive">+${parseInt(dmax).toLocaleString('pt-BR')}</span>` : '--';
-    if(document.getElementById('m-dist-min'))
-      document.getElementById('m-dist-min').innerHTML =
-        dmin != null ? `<span class="negative">${parseInt(dmin).toLocaleString('pt-BR')}</span>` : '--';
+    const elDmax = document.getElementById('i-dist-max');
+    const elDmin = document.getElementById('i-dist-min');
+    if(elDmax) elDmax.innerHTML = dmax != null ? `<span class="positive">+${parseInt(dmax).toLocaleString('pt-BR')}</span>` : '--';
+    if(elDmin) elDmin.innerHTML = dmin != null ? `<span class="negative">${parseInt(dmin).toLocaleString('pt-BR')}</span>` : '--';
 
     // Volume O16 — 5 barras
     document.getElementById('i-volume').innerHTML = f1Track5(d.mercado.volume_texto, [
@@ -571,6 +564,19 @@ function desenharGauge(value, max){
   document.getElementById('time-display').textContent = new Date().toLocaleTimeString('pt-BR',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
   setTimeout(tickClock, 1000 - (Date.now() % 1000));
 })();
+
+// ── CONTADOR DE ONLINE (polling /api/status) ──────────────────────────
+async function atualizarOnline(){
+  try{
+    const r = await fetch(SERVER+'/api/online', {method:'POST'});
+    const d = await r.json();
+    const el = document.getElementById('online-count');
+    if(el && d.online != null) el.textContent = d.online;
+  }catch(e){}
+}
+setInterval(atualizarOnline, 5000);
+atualizarOnline();
+
 setInterval(buscarDados, 2000);
 buscarDados();
 </script>
