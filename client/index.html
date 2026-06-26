@@ -140,6 +140,7 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
         <div class="metric-row"><span class="metric-label">Tend. Primária</span><span class="metric-value" id="i-tp">--</span></div>
         <div class="metric-row"><span class="metric-label">Tend. Secund.</span><span class="metric-value" id="i-ts">--</span></div>
         <div class="metric-row"><span class="metric-label">Tend. Terciária</span><span class="metric-value" id="i-tt">--</span></div>
+        <div class="metric-row"><span class="metric-label">Preço WIN</span><span class="metric-value" id="i-preco">--</span></div>
       </div>
 
       <div class="card" style="flex-shrink:0;">
@@ -432,25 +433,37 @@ function atualizarDashboard(d){
     document.getElementById('i-exaustao').innerHTML = f1Track5(d.info_indice.exaustao, [
       'Sobrevendido','Quase Sobrevendido','Zona Neutra','Zona Favorável','Ponto de PullBack'
     ]);
-    document.getElementById('i-tp').innerHTML = fmtStatus(d.info_indice.tendencia_primaria);
-    document.getElementById('i-ts').innerHTML = fmtStatus(d.info_indice.tendencia_secundaria);
-    document.getElementById('i-tt').innerHTML = fmtStatus(d.info_indice.tendencia_terciaria);
+    // Tends primária/secundária/terciária — Alta=verde, Baixa=vermelho
+    const fmtTend = v => {
+      if(!v) return '--';
+      const cls = v==='Alta'?'positive': v==='Baixa'?'negative':'warning';
+      return `<span class="metric-value ${cls}">${v}</span>`;
+    };
+    document.getElementById('i-tp').innerHTML = fmtTend(d.info_indice.tendencia_primaria);
+    document.getElementById('i-ts').innerHTML = fmtTend(d.info_indice.tendencia_secundaria);
+    document.getElementById('i-tt').innerHTML = fmtTend(d.info_indice.tendencia_terciaria);
   }
   if(d.mercado){
     const preco = d.mercado.preco_atual;
-    document.getElementById('m-preco').innerHTML =
-      preco ? `<span class="metric-value">${parseInt(preco).toLocaleString('pt-BR')}</span>` : '--';
+    if(document.getElementById('m-preco'))
+      document.getElementById('m-preco').innerHTML =
+        preco ? `<span class="metric-value">${parseInt(preco).toLocaleString('pt-BR')}</span>` : '--';
+    if(document.getElementById('i-preco'))
+      document.getElementById('i-preco').innerHTML =
+        preco ? `<span class="metric-value">${parseInt(preco).toLocaleString('pt-BR')}</span>` : '--';
     const dmax = d.mercado.dist_max, dmin = d.mercado.dist_min;
-    document.getElementById('m-dist-max').innerHTML =
-      dmax ? `<span class="positive">+${parseInt(dmax).toLocaleString('pt-BR')}</span>` : '--';
-    document.getElementById('m-dist-min').innerHTML =
-      dmin ? `<span class="negative">${parseInt(dmin).toLocaleString('pt-BR')}</span>` : '--';
+    if(document.getElementById('m-dist-max'))
+      document.getElementById('m-dist-max').innerHTML =
+        dmax != null ? `<span class="positive">+${parseInt(dmax).toLocaleString('pt-BR')}</span>` : '--';
+    if(document.getElementById('m-dist-min'))
+      document.getElementById('m-dist-min').innerHTML =
+        dmin != null ? `<span class="negative">${parseInt(dmin).toLocaleString('pt-BR')}</span>` : '--';
 
-    // Volume — 5 barras
+    // Volume O16 — 5 barras
     document.getElementById('i-volume').innerHTML = f1Track5(d.mercado.volume_texto, [
       'Muito Baixo','Baixo','Moderado','Alto','Muito Alto'
     ]);
-    // Saldo Corretoras — 5 barras
+    // Saldo Corretoras O5 — 5 barras
     document.getElementById('i-saldo-cor').innerHTML = f1Track5(d.mercado.saldo_cor_texto, [
       'Muito Baixo','Baixo','Moderado','Alto','Muito Alto'
     ]);
