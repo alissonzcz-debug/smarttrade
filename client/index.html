@@ -452,13 +452,13 @@ function atualizarDashboard(d){
     if(elDmax) elDmax.innerHTML = dmax != null ? `<span class="positive">+${parseInt(dmax).toLocaleString('pt-BR')}</span>` : '--';
     if(elDmin) elDmin.innerHTML = dmin != null ? `<span class="negative">${parseInt(dmin).toLocaleString('pt-BR')}</span>` : '--';
 
-    // Volume O16 — 5 barras
+    // Volume O16 — 5 barras (Baixo→Médio-Baixo→Médio→Alto→Extremo)
     document.getElementById('i-volume').innerHTML = f1Track5(d.mercado.volume_texto, [
-      'Muito Baixo','Baixo','Moderado','Alto','Muito Alto'
+      'Baixo','Médio-Baixo','Médio','Alto','Extremo'
     ]);
-    // Saldo Corretoras O5 — 5 barras
+    // Saldo Corretoras O5 — 5 barras (mesmos termos)
     document.getElementById('i-saldo-cor').innerHTML = f1Track5(d.mercado.saldo_cor_texto, [
-      'Muito Baixo','Baixo','Moderado','Alto','Muito Alto'
+      'Baixo','Médio-Baixo','Médio','Alto','Extremo'
     ]);
   }
   if(d.termometro) desenharGauge(d.termometro.pontos||0, d.termometro.maximo||24);
@@ -531,7 +531,7 @@ function atualizarDashboard(d){
     }).join('');
     document.getElementById('ibov-tickers').innerHTML = sorted.map(x=>`
       <div style="flex:1;min-width:0;text-align:center;">
-        <span style="font-size:5.5px;color:var(--text-secondary);writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;white-space:nowrap;">${x.ticker}</span>
+        <span style="font-size:7.5px;color:var(--text-secondary);writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;white-space:nowrap;">${x.ticker}</span>
       </div>`).join('');
   }
 }
