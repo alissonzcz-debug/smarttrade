@@ -520,7 +520,7 @@ function atualizarDashboard(d){
   if(d.acoes_ibov && d.acoes_ibov.length){
     const H = 75;
     // Ordena decrescente: maior variação fica à esquerda (barra mais alta)
-    const sorted = [...d.acoes_ibov].sort((a,b)=>b.var-a.var);
+    const sorted = [...d.acoes_ibov].filter(x=>!['WINFUT','WDOFUT'].includes(x.ticker)).sort((a,b)=>b.var-a.var);
     const mx = Math.max(...sorted.map(x=>Math.abs(x.var)), 0.01);
     document.getElementById('ibov-chart').innerHTML = sorted.map(x=>{
       const isPos=x.var>=0, cor=isPos?'var(--accent-green)':'var(--accent-red)';
@@ -531,7 +531,7 @@ function atualizarDashboard(d){
     }).join('');
     document.getElementById('ibov-tickers').innerHTML = sorted.map(x=>`
       <div style="flex:1;min-width:0;text-align:center;">
-        <span style="font-size:7.5px;color:var(--text-secondary);writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;white-space:nowrap;">${x.ticker}</span>
+        <span style="font-size:9px;color:var(--text-secondary);writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;white-space:nowrap;">${x.ticker}</span>
       </div>`).join('');
   }
 }
