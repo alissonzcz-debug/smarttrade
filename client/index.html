@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Trade — Dashboard Profissional</title>
+<title>Visual Trade — Dashboard Profissional</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -25,6 +25,10 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .live-text{font-size:10px;color:var(--accent-green);font-weight:600;text-transform:uppercase;}
 .time-display{font-size:11px;color:var(--text-secondary);}
+.yt-link{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:rgba(255,0,0,0.12);border:1px solid rgba(255,0,0,0.25);transition:background .2s,border-color .2s;text-decoration:none;}
+.yt-link:hover{background:rgba(255,0,0,0.25);border-color:rgba(255,0,0,0.5);}
+.site-link{font-size:9px;color:var(--text-secondary);opacity:.55;text-decoration:none;letter-spacing:.02em;transition:opacity .2s;}
+.site-link:hover{opacity:1;color:var(--accent-blue);}
 
 /* MAIN — 3 colunas + rodapé ibov */
 .main{
@@ -108,14 +112,25 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe U
 <div class="container">
 
   <div class="header">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="header-title">🚀 SMART TRADE</div>
+    <!-- ESQUERDA: status ao vivo + título + site -->
+    <div style="display:flex;align-items:center;gap:10px;">
       <div class="live-indicator">
         <div class="live-dot" id="live-dot"></div>
         <span class="live-text" id="status-text">Conectando...</span>
       </div>
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <div class="header-title">📈 Visual Trade</div>
+        <a href="https://TinyURL.com/VisualTrade" target="_blank" class="site-link">TinyURL.com/VisualTrade</a>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;">
+    <!-- DIREITA: YouTube + contador + relógio -->
+    <div style="display:flex;align-items:center;gap:10px;">
+      <a href="https://www.youtube.com/@visualtrade" target="_blank" class="yt-link" title="Canal no YouTube">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.72 1.56A1.76 1.76 0 0 0 12.49.32C11.39 0 7 0 7 0S2.61 0 1.51.32A1.76 1.76 0 0 0 .28 1.56C0 2.67 0 5 0 5s0 2.33.28 3.44A1.76 1.76 0 0 0 1.51 9.68C2.61 10 7 10 7 10s4.39 0 5.49-.32a1.76 1.76 0 0 0 1.23-1.24C14 7.33 14 5 14 5s0-2.33-.28-3.44Z" fill="#FF0000"/>
+          <path d="M5.6 7.14 9.23 5 5.6 2.86v4.28Z" fill="#fff"/>
+        </svg>
+      </a>
       <div style="display:flex;align-items:center;gap:5px;opacity:.7;">
         <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="#39D353"/><circle cx="4" cy="4" r="3" fill="none" stroke="#39D353" stroke-width="1" opacity=".4"><animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".4;0;.4" dur="2s" repeatCount="indefinite"/></circle></svg>
         <span id="online-count" style="font-size:10px;color:var(--text-secondary);">1</span>
@@ -283,7 +298,6 @@ function desenharEvolucao(){
   function yPos(v){ return PAD_T + cH - ((v - mn) / rng * cH); }
   function xPos(i){ return PAD_L + (i / (n-1)) * cW; }
 
-  // Linha zero se visível
   if(mn <= 0 && mx >= 0){
     const y0 = yPos(0);
     ctx.beginPath(); ctx.moveTo(PAD_L, y0); ctx.lineTo(PAD_L+cW, y0);
@@ -293,12 +307,10 @@ function desenharEvolucao(){
     ctx.fillText('0', PAD_L+2, y0-3);
   }
 
-  // Labels de hora no eixo X (início, meio, fim)
   ctx.font='8px Segoe UI'; ctx.fillStyle='#8B949E'; ctx.textAlign='center';
   const lblIdxs = [0, Math.floor(n/2), n-1];
   lblIdxs.forEach(i=>{ ctx.fillText(historicoEvolucao.labels[i], xPos(i), H-2); });
 
-  // Função para desenhar linha com gradiente fill
   function desenharLinha(arr, cor, fillAlpha){
     ctx.beginPath();
     arr.forEach((v,i)=>{ i===0 ? ctx.moveTo(xPos(i),yPos(v)) : ctx.lineTo(xPos(i),yPos(v)); });
@@ -317,7 +329,6 @@ function desenharEvolucao(){
   desenharLinha(saldoArr, 'rgb(31,111,235)',  0.15);
   desenharLinha(instArr,  'rgb(57,211,83)',   0.20);
 
-  // Valor atual no final das linhas com fundo para legibilidade
   ctx.font='bold 9px Segoe UI'; ctx.textAlign='left';
   const lastX = xPos(n-1)+4;
 
@@ -373,10 +384,8 @@ function f1Track(val, map){
 }
 
 function f1Track5(val, niveis){
-  // niveis = array de 5 strings do menor para o maior
-  // cores: 1=vermelho, 2=laranja, 3=amarelo, 4=verde claro, 5=verde
   const cores5 = ['on-r','on-o','on-y','on-lg','on-g'];
-  const idx = niveis.indexOf(val); // -1 se não encontrado
+  const idx = niveis.indexOf(val);
   const segs = [0,1,2,3,4].map(i=>{
     const cls = (idx >= 0 && i <= idx) ? cores5[i] : 'off';
     return `<div class="f1-seg ${cls}"></div>`;
@@ -384,20 +393,17 @@ function f1Track5(val, niveis){
   return `<div class="f1-track" title="${val||'--'}">${segs}</div>`;
 }
 
-/* ── SALDO COM PORCENTAGEM ─────────────────────────────────────────────── */
 function setSaldoBar(barId, valId, pct, absVal){
   const bar = document.getElementById(barId);
   const val = document.getElementById(valId);
   if(!bar||!val) return;
 
-  // pct já vem de -100 a +100 do backend
   const isPos = pct >= 0;
-  const halfPct = Math.min(Math.abs(pct) / 2, 50);  // mapeia 0-100% → 0-50% da barra
+  const halfPct = Math.min(Math.abs(pct) / 2, 50);
   bar.style.width  = halfPct + '%';
   bar.style.left   = isPos ? '50%' : (50 - halfPct) + '%';
   bar.style.background = isPos ? 'var(--accent-green)' : 'var(--accent-red)';
 
-  // Label: só porcentagem
   const sign = isPos ? '+' : '';
   val.innerHTML = `<span class="${isPos?'positive':'negative'}">${sign}${Math.abs(pct).toFixed(1)}%</span>`;
 }
@@ -416,8 +422,6 @@ function renderTop(id, items, cls){
 }
 
 function atualizarDashboard(d){
-  // hora controlada pelo setInterval local — não usa d.hora para evitar conflito
-
   if(d.cotacoes){
     document.getElementById('c-indice').innerHTML = fmtPct(d.cotacoes.indice);
     document.getElementById('c-dolar').innerHTML  = fmtPct(d.cotacoes.dolar);
@@ -431,7 +435,6 @@ function atualizarDashboard(d){
     document.getElementById('i-exaustao').innerHTML = f1Track5(d.info_indice.exaustao, [
       'Sobrevendido','Quase Sobrevendido','Zona Neutra','Zona Favorável','Ponto de PullBack'
     ]);
-    // Tends primária/secundária/terciária — Alta=verde, Baixa=vermelho
     const fmtTend = v => {
       if(!v) return '--';
       const cls = v==='Alta'?'positive': v==='Baixa'?'negative':'warning';
@@ -452,23 +455,19 @@ function atualizarDashboard(d){
     if(elDmax) elDmax.innerHTML = dmax != null ? `<span class="positive">+${parseInt(dmax).toLocaleString('pt-BR')}</span>` : '--';
     if(elDmin) elDmin.innerHTML = dmin != null ? `<span class="negative">${parseInt(dmin).toLocaleString('pt-BR')}</span>` : '--';
 
-    // Volume O16 — 5 barras (Baixo→Médio-Baixo→Médio→Alto→Extremo)
     document.getElementById('i-volume').innerHTML = f1Track5(d.mercado.volume_texto, [
       'Baixo','Médio-Baixo','Médio','Alto','Extremo'
     ]);
-    // Saldo Corretoras O5 — 5 barras (mesmos termos)
     document.getElementById('i-saldo-cor').innerHTML = f1Track5(d.mercado.saldo_cor_texto, [
       'Baixo','Médio-Baixo','Médio','Alto','Extremo'
     ]);
   }
   if(d.termometro) desenharGauge(d.termometro.pontos||0, d.termometro.maximo||24);
 
-  /* Saldo Diário — usa inst_pct/pf_pct + valor absoluto entre parênteses */
   if(d.saldo_diario){
     setSaldoBar('bar-sd-inst','sd-inst-val', d.saldo_diario.inst_pct, d.saldo_diario.inst);
     setSaldoBar('bar-sd-pf',  'sd-pf-val',   d.saldo_diario.pf_pct,   d.saldo_diario.pf);
   }
-  /* Saldo 5 Min — idem */
   if(d.saldo_5min){
     setSaldoBar('bar-s5-inst','s5-inst-val', d.saldo_5min.inst_pct, d.saldo_5min.inst);
     setSaldoBar('bar-s5-pf',  's5-pf-val',   d.saldo_5min.pf_pct,   d.saldo_5min.pf);
@@ -479,7 +478,6 @@ function atualizarDashboard(d){
   renderTop('tv-5min',   d.top_vendidos_5min,  'negative');
   renderTop('tc-5min',   d.top_comprados_5min, 'positive');
 
-  /* PETR & VALE */
   if(d.petr_vale){
     const items = [['PETR3',d.petr_vale.PETR3],['PETR4',d.petr_vale.PETR4],['VALE3',d.petr_vale.VALE3]];
     document.getElementById('petr-vale').innerHTML = items.map(([t,v])=>{
@@ -489,7 +487,6 @@ function atualizarDashboard(d){
     }).join('');
   }
 
-  /* TOP 10 — já vem ordenado por peso do IBOV, exibe var% */
   if(d.top10_acoes && d.top10_acoes.length){
     const mx = Math.max(...d.top10_acoes.map(x=>Math.abs(x.var)), 0.01);
     document.getElementById('top10-container').innerHTML = d.top10_acoes.map(x=>{
@@ -502,7 +499,6 @@ function atualizarDashboard(d){
     }).join('');
   }
 
-  /* SETOR FINANCEIRO — valores em decimal (-0.0025 etc), converte para % */
   if(d.setor_financeiro){
     const entries = Object.entries(d.setor_financeiro).filter(([t,v])=>v!==null && t!=='BPAN4');
     const mx = Math.max(...entries.map(([,v])=>Math.abs(v)), 0.0001);
@@ -516,10 +512,8 @@ function atualizarDashboard(d){
     }).join('');
   }
 
-  /* IBOV — do maior para o menor (mais em cima = barra maior) */
   if(d.acoes_ibov && d.acoes_ibov.length){
     const H = 75;
-    // Ordena decrescente: maior variação fica à esquerda (barra mais alta)
     const sorted = [...d.acoes_ibov].filter(x=>!['WINFUT','WDOFUT'].includes(x.ticker)).sort((a,b)=>b.var-a.var);
     const mx = Math.max(...sorted.map(x=>Math.abs(x.var)), 0.01);
     document.getElementById('ibov-chart').innerHTML = sorted.map(x=>{
@@ -565,7 +559,6 @@ function desenharGauge(value, max){
   setTimeout(tickClock, 1000 - (Date.now() % 1000));
 })();
 
-// ── CONTADOR DE ONLINE (polling /api/status) ──────────────────────────
 async function atualizarOnline(){
   try{
     const r = await fetch(SERVER+'/api/online', {method:'POST'});
